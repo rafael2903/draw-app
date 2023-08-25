@@ -77,7 +77,6 @@ export class Paint extends Tool {
     private static interactionCanvas: Canvas
     private static elementsCanvas: Canvas
     private static interactionCtx: CanvasRenderingContext2D
-    private static elementsCtx: CanvasRenderingContext2D
 
 
     private static draw() {
@@ -103,7 +102,6 @@ export class Paint extends Tool {
             Paint.interactionCtx.moveTo(e.offsetX, e.offsetY)
             Paint.currentPath.moveTo(e.offsetX, e.offsetY)
             Paint.pointerEvents.push(e)
-            console.log(Paint.interactionCtx)
             Paint.draw()
         }
     }
@@ -150,7 +148,6 @@ export class Paint extends Tool {
         Paint.interactionCanvas = interactionCanvas
         Paint.interactionCtx = interactionCanvas.element.getContext('2d')!
         Paint.elementsCanvas = elementsCanvas
-        Paint.elementsCtx = elementsCanvas.element.getContext('2d')!
 
         Paint.interactionCanvas.element.addEventListener(
             'pointerdown',

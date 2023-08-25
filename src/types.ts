@@ -6,6 +6,7 @@ export enum ToolName {
     Pen = 'pen',
     Move = 'move',
     Select = 'select',
+    Ellipse = 'ellipse',
 }
 
 export abstract class Tool {
