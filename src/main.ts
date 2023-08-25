@@ -1,126 +1,127 @@
-import { Hand, MousePointer, Pen, createIcons } from 'lucide'
+import { Hand, MousePointer, Pen, createIcons, ZoomIn, ZoomOut } from 'lucide'
 import './style.css'
+import { Move } from './tools/Move'
+import { Paint } from './tools/Paint'
+import { Tool, ToolName } from './types'
 
 createIcons({
     icons: {
         Pen,
         Hand,
         MousePointer,
+        ZoomIn,
+        ZoomOut,
     },
 })
 
-const interactionCanvas = document.querySelector<HTMLCanvasElement>(
+
+export class Path extends Path2D {
+    offset = { x: 0, y: 0 }
+    constructor() {
+        super()
+    }
+}
+
+export class Canvas {
+    ctx: CanvasRenderingContext2D
+    element: HTMLCanvasElement
+    paths: Path[] = []
+    offset = { x: 0, y: 0 }
+    scale = 1
+    constructor(element: HTMLCanvasElement) {
+        this.element = element
+        this.ctx = element.getContext('2d')!
+    }
+
+    draw() {
+        this.ctx.clearRect(-this.offset.x, -this.offset.y, this.element.width, this.element.height )
+        this.ctx.scale(this.scale, this.scale)
+        for (const path of this.paths) {
+            this.ctx.lineWidth = 10
+            this.ctx.lineCap = 'round'
+            this.ctx.save()
+            console.log(-this.offset.x, -this.offset.y)
+            console.log(path.offset.x, path.offset.y)
+            this.ctx.translate(-path.offset.x, -path.offset.y)
+            this.ctx.stroke(path)
+            this.ctx.restore()
+        }
+    }
+}
+
+const interactionCanvasEl = document.querySelector<HTMLCanvasElement>(
     '#interaction-canvas'
 )!
-const elementsCanvas =
-    document.querySelector<HTMLCanvasElement>('#elements-canvas')!
-const interactionCtx = interactionCanvas.getContext('2d')!
-const elementsCtx = elementsCanvas.getContext('2d')!
+const interactionCanvas = new Canvas(interactionCanvasEl)
 
-type Tool = 'pen' | 'move' | 'select'
-let activeTool: Tool
-const setActiveTool = (tool: Tool) => {
-  if (activeTool === tool) return
-  activeTool = tool
-  document
-  .querySelector<HTMLButtonElement>('.tool.active')
-  ?.classList.remove('active')
-  document
-  .querySelector<HTMLButtonElement>(`#${tool}`)!
-  .classList.add('active')
+const elementsCanvasEl =
+    document.querySelector<HTMLCanvasElement>('#elements-canvas')!
+const elementsCanvas = new Canvas(elementsCanvasEl)
+
+const tools: Record<ToolName, Tool> = {
+    pen: Paint,
+    move: Move,
+    select: Paint,
 }
-setActiveTool('select')
+
+let activeTool: ToolName
+const setActiveTool = (tool: ToolName) => {
+    if (activeTool === tool) return
+    tools[activeTool]?.tearDown()
+    activeTool = tool
+    document
+        .querySelector<HTMLButtonElement>('.tool.active')
+        ?.classList.remove('active')
+
+    document
+        .querySelector<HTMLButtonElement>(`#${tool}`)!
+        .classList.add('active')
+    console.log(tools[tool].cursor)
+    interactionCanvas.element.style.cursor = tools[tool].cursor
+
+    tools[tool].setUp(interactionCanvas, elementsCanvas)
+}
+
+setActiveTool(ToolName.Pen)
 
 const pen = document.querySelector<HTMLButtonElement>('#pen')!
 const move = document.querySelector<HTMLButtonElement>('#move')!
 const select = document.querySelector<HTMLButtonElement>('#select')!
+const zoomIn = document.querySelector<HTMLButtonElement>('#zoom-in')!
+const zoomOut = document.querySelector<HTMLButtonElement>('#zoom-out')!
+
+zoomIn.addEventListener('click', () => {
+    elementsCanvas.scale += 0.1
+    elementsCanvas.draw()
+})
+
+zoomOut.addEventListener('click', () => {
+    elementsCanvas.scale -= 0.1
+    elementsCanvas.draw()
+})
+
+
 
 select.addEventListener('click', () => {
-    setActiveTool('select')
-    interactionCanvas.style.cursor = 'default'
+    setActiveTool(ToolName.Select)
 })
 
 move.addEventListener('click', () => {
-    setActiveTool('move')
-    interactionCanvas.style.cursor = 'grab'
+    setActiveTool(ToolName.Move)
 })
 
 pen.addEventListener('click', () => {
-    setActiveTool('pen')
-    interactionCanvas.style.cursor = 'none'
+    setActiveTool(ToolName.Pen)
 })
 
-let drawing = false
-// const paths: Path2D[] = []
-
-const pointerPositions: PointerEvent[] = []
-
-interactionCanvas.width = elementsCanvas.width = window.innerWidth
-interactionCanvas.height = elementsCanvas.height = window.innerHeight
+interactionCanvas.element.width = elementsCanvas.element.width =
+    window.innerWidth
+interactionCanvas.element.height = elementsCanvas.element.height =
+    window.innerHeight
 
 window.addEventListener('resize', () => {
-    interactionCanvas.width = elementsCanvas.width = window.innerWidth
-    interactionCanvas.height = elementsCanvas.height = window.innerHeight
-})
-
-elementsCtx.fillRect(0, 0, 50, 50)
-
-window.addEventListener('pointermove', (e) => {
-    if (activeTool === 'pen') {
-        if (drawing) {
-            const coalescedEvents = e.getCoalescedEvents()
-            pointerPositions.push(...coalescedEvents)
-        } else {
-            interactionCtx.clearRect(
-                0,
-                0,
-                interactionCanvas.width,
-                interactionCanvas.height
-            )
-            interactionCtx.beginPath()
-            interactionCtx.arc(e.offsetX, e.offsetY, 5, 0, 2 * Math.PI)
-            interactionCtx.fill()
-        }
-    }
-})
-
-window.addEventListener('pointerup', () => {
-    // elementsCtx.closePath()
-    drawing = false
-    pointerPositions.length = 0
-})
-
-const draw = () => {
-    if (!drawing) return
-    if (activeTool === 'pen') {
-        while (pointerPositions.length > 0) {
-            const e = pointerPositions.shift()!
-            elementsCtx.lineWidth = 10
-            elementsCtx.lineCap = 'round'
-            elementsCtx.lineTo(e.pageX, e.pageY)
-            elementsCtx.stroke()
-            elementsCtx.beginPath()
-            elementsCtx.moveTo(e.pageX, e.pageY)
-        }
-        requestAnimationFrame(draw)
-    }
-}
-
-interactionCanvas.addEventListener('pointerdown', (e) => {
-    if (activeTool === 'pen' && e.button === 0) {
-        drawing = true
-        elementsCtx.moveTo(e.offsetX, e.offsetY)
-        pointerPositions.push(e)
-        draw()
-    }
-})
-
-interactionCanvas.addEventListener('pointerout', () => {
-    // drawing = false
-    interactionCtx.clearRect(
-        0,
-        0,
-        interactionCanvas.width,
-        interactionCanvas.height
-    )
+    interactionCanvas.element.width = elementsCanvas.element.width =
+        window.innerWidth
+    interactionCanvas.element.height = elementsCanvas.element.height =
+        window.innerHeight
 })
