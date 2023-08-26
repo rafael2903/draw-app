@@ -1,5 +1,5 @@
 import { Polyline } from '../elements/Polyline'
-import { Canvas } from '../main'
+import { Canvas } from '../Canvas'
 import { Path, Tool } from '../types'
 
 export class Paint extends Tool {
@@ -10,7 +10,6 @@ export class Paint extends Tool {
     private static interactionCanvas: Canvas
     private static elementsCanvas: Canvas
 
-
     private static draw() {
         if (!Paint.painting) return
         while (Paint.pointerEvents.length > 0) {
@@ -18,7 +17,7 @@ export class Paint extends Tool {
             Paint.currentPath.lineTo(e.pageX, e.pageY)
             Paint.currentPath.moveTo(e.pageX, e.pageY)
             Paint.interactionCanvas.paths[0] = Paint.currentPath
-            Paint.interactionCanvas.draw()
+            Paint.interactionCanvas.redraw()
         }
         requestAnimationFrame(Paint.draw)
     }
@@ -39,7 +38,13 @@ export class Paint extends Tool {
         } else {
             Paint.interactionCanvas.clear()
             Paint.interactionCanvas.ctx.beginPath()
-            Paint.interactionCanvas.ctx.arc(e.clientX, e.clientY, 5, 0, 2 * Math.PI)
+            Paint.interactionCanvas.ctx.arc(
+                e.clientX,
+                e.clientY,
+                5,
+                0,
+                2 * Math.PI
+            )
             Paint.interactionCanvas.ctx.fill()
         }
     }
@@ -52,13 +57,10 @@ export class Paint extends Tool {
         Paint.currentPath.offset.x = Paint.elementsCanvas.offset.x
         Paint.currentPath.offset.y = Paint.elementsCanvas.offset.y
         Paint.elementsCanvas.paths.push(Paint.currentPath)
-        Paint.elementsCanvas.draw()                                     // ! only draw the new path
+        Paint.elementsCanvas.drawPath(Paint.currentPath) // ! only draw the new path
     }
 
-    static setUp(
-        interactionCanvas: Canvas,
-        elementsCanvas: Canvas,
-    ) {
+    static setUp(interactionCanvas: Canvas, elementsCanvas: Canvas) {
         Paint.interactionCanvas = interactionCanvas
         Paint.elementsCanvas = elementsCanvas
         Paint.interactionCanvas.element.addEventListener(
@@ -74,13 +76,7 @@ export class Paint extends Tool {
             'pointerdown',
             Paint.pointerDown
         )
-        window.removeEventListener(
-            'pointermove',
-            Paint.pointerMove
-        )
-        window.removeEventListener(
-            'pointerup',
-            Paint.pointerUp
-        )
+        window.removeEventListener('pointermove', Paint.pointerMove)
+        window.removeEventListener('pointerup', Paint.pointerUp)
     }
 }

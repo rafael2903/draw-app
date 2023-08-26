@@ -1,13 +1,23 @@
-import { Hand, MousePointer, Pen, createIcons, ZoomIn, ZoomOut, Circle, Eraser, Minus } from 'lucide'
+import {
+    Circle,
+    Eraser,
+    Hand,
+    Minus,
+    MousePointer,
+    Pen,
+    ZoomIn,
+    ZoomOut,
+    createIcons,
+} from 'lucide'
+import { Canvas } from './Canvas'
 import './style.css'
+import { DrawEllipse } from './tools/DrawEllipse'
+import { DrawLine } from './tools/DrawLine'
+import { Erase } from './tools/Erase'
 import { Move } from './tools/Move'
 import { Paint } from './tools/Paint'
-import { Tool, ToolName } from './types'
-import { DrawEllipse } from './tools/DrawEllipse'
-import { Erase } from './tools/Erase'
 import { Select } from './tools/Select'
-import { Path } from './types'
-import { DrawLine } from './tools/DrawLine'
+import { Tool, ToolName } from './types'
 
 createIcons({
     icons: {
@@ -21,36 +31,6 @@ createIcons({
         ZoomOut,
     },
 })
-
-
-export class Canvas {
-    ctx: CanvasRenderingContext2D
-    element: HTMLCanvasElement
-    paths: Path[] = []
-    offset = { x: 0, y: 0 }
-    scale = 1.0
-    constructor(element: HTMLCanvasElement) {
-        this.element = element
-        this.ctx = element.getContext('2d')!
-    }
-
-    draw() {
-        this.clear()
-        this.ctx.scale(this.scale, this.scale)
-        for (const path of this.paths) {
-            this.ctx.lineWidth = 10
-            this.ctx.lineCap = 'round'
-            this.ctx.save()
-            this.ctx.translate(-path.offset.x, -path.offset.y)
-            this.ctx.stroke(path)
-            this.ctx.restore()
-        }
-    }
-
-    clear() {
-      this.ctx.clearRect(-this.offset.x, -this.offset.y, this.element.width, this.element.height )
-    }
-}
 
 const interactionCanvasEl = document.querySelector<HTMLCanvasElement>(
     '#interaction-canvas'
@@ -98,7 +78,6 @@ const line = document.querySelector<HTMLButtonElement>('#line')!
 const zoomIn = document.querySelector<HTMLButtonElement>('#zoom-in')!
 const zoomOut = document.querySelector<HTMLButtonElement>('#zoom-out')!
 
-
 select.addEventListener('click', () => {
     setActiveTool(ToolName.Select)
 })
@@ -116,21 +95,21 @@ erase.addEventListener('click', () => {
 })
 
 ellipse.addEventListener('click', () => {
-  setActiveTool(ToolName.Ellipse)
+    setActiveTool(ToolName.Ellipse)
 })
 
 line.addEventListener('click', () => {
     setActiveTool(ToolName.Line)
-  })
+})
 
 zoomIn.addEventListener('click', () => {
     elementsCanvas.scale += 0.1
-    elementsCanvas.draw()
+    elementsCanvas.redraw()
 })
 
 zoomOut.addEventListener('click', () => {
     elementsCanvas.scale -= 0.1
-    elementsCanvas.draw()
+    elementsCanvas.redraw()
 })
 
 interactionCanvas.element.width = elementsCanvas.element.width =
@@ -144,5 +123,5 @@ window.addEventListener('resize', () => {
     interactionCanvas.element.height = elementsCanvas.element.height =
         window.innerHeight
 
-    elementsCanvas.draw()
+    elementsCanvas.redraw()
 })

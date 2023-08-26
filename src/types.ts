@@ -1,6 +1,4 @@
-// type ToolName = 'pen' | 'move' | 'select'
-
-import { Canvas } from "./main"
+import { Canvas } from "./Canvas";
 
 export enum ToolName {
     Pen = 'pen',
@@ -35,9 +33,3 @@ export abstract class Tool {
     ) => void
     static tearDown: () => void
 }
-
-// export interface Canvas {
-//     ctx: CanvasRenderingContext2D
-//     element: HTMLCanvasElement
-//     draw: (paths: Path2D[]) => void
-// }

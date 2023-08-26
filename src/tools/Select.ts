@@ -1,5 +1,5 @@
-import { Canvas } from '../main'
-import { Tool, Path } from '../types'
+import { Canvas } from '../Canvas'
+import { Path, Tool } from '../types'
 
 export class Select extends Tool {
     static cursor = 'default'
@@ -10,7 +10,6 @@ export class Select extends Tool {
     private static elementsCanvas: Canvas
     private static selectedPaths: Path[] = []
 
-
     private static draw() {
         if (!Select.painting) return
         while (Select.pointerEvents.length > 0) {
@@ -18,7 +17,7 @@ export class Select extends Tool {
             Select.currentPath.lineTo(e.pageX, e.pageY)
             Select.currentPath.moveTo(e.pageX, e.pageY)
             Select.interactionCanvas.paths[0] = Select.currentPath
-            Select.interactionCanvas.draw()
+            Select.interactionCanvas.redraw()
         }
         requestAnimationFrame(Select.draw)
     }
@@ -26,15 +25,13 @@ export class Select extends Tool {
     static pointerDown(e: PointerEvent) {
         if (e.button === 0) {
             // Select.erasing = true
-            const selectedPath = Select.elementsCanvas.paths.find(
-                (path) => {
-                    return Select.elementsCanvas.ctx.isPointInStroke(
-                        path,
-                        e.offsetX + path.offset.x,
-                        e.offsetY + path.offset.y
-                    )
-                }
-            )
+            const selectedPath = Select.elementsCanvas.paths.find((path) => {
+                return Select.elementsCanvas.ctx.isPointInStroke(
+                    path,
+                    e.offsetX + path.offset.x,
+                    e.offsetY + path.offset.y
+                )
+            })
             console.log(selectedPath)
         }
     }
@@ -46,7 +43,13 @@ export class Select extends Tool {
         } else {
             Select.interactionCanvas.clear()
             Select.interactionCanvas.ctx.beginPath()
-            Select.interactionCanvas.ctx.arc(e.clientX, e.clientY, 5, 0, 2 * Math.PI)
+            Select.interactionCanvas.ctx.arc(
+                e.clientX,
+                e.clientY,
+                5,
+                0,
+                2 * Math.PI
+            )
             Select.interactionCanvas.ctx.fill()
         }
     }
@@ -59,14 +62,10 @@ export class Select extends Tool {
         Select.currentPath.offset.x = Select.elementsCanvas.offset.x
         Select.currentPath.offset.y = Select.elementsCanvas.offset.y
         Select.elementsCanvas.paths.push(Select.currentPath)
-        Select.elementsCanvas.draw()
+        Select.elementsCanvas.redraw()
     }
 
-
-    static setUp(
-        interactionCanvas: Canvas,
-        elementsCanvas: Canvas,
-    ) {
+    static setUp(interactionCanvas: Canvas, elementsCanvas: Canvas) {
         Select.interactionCanvas = interactionCanvas
         Select.elementsCanvas = elementsCanvas
         Select.interactionCanvas.element.addEventListener(
@@ -82,13 +81,7 @@ export class Select extends Tool {
             'pointerdown',
             Select.pointerDown
         )
-        window.removeEventListener(
-            'pointermove',
-            Select.pointerMove
-        )
-        window.removeEventListener(
-            'pointerup',
-            Select.pointerUp
-        )
+        window.removeEventListener('pointermove', Select.pointerMove)
+        window.removeEventListener('pointerup', Select.pointerUp)
     }
 }

@@ -1,6 +1,6 @@
-import { Line } from '../elements/Line';
-import { Canvas } from '../main'
-import { Tool, Path } from '../types'
+import { Line } from '../elements/Line'
+import { Canvas } from '../Canvas'
+import { Path, Tool } from '../types'
 
 export class DrawLine extends Tool {
     static cursor = 'crosshair'
@@ -9,7 +9,6 @@ export class DrawLine extends Tool {
     private static drawing = false
     private static interactionCanvas: Canvas
     private static elementsCanvas: Canvas
-
 
     static pointerDown(e: PointerEvent) {
         if (e.button === 0) {
@@ -26,7 +25,7 @@ export class DrawLine extends Tool {
             y: e.clientY,
         })
         DrawLine.interactionCanvas.paths = [DrawLine.currentPath]
-        DrawLine.interactionCanvas.draw()
+        DrawLine.interactionCanvas.redraw()
     }
 
     static pointerUp() {
@@ -35,7 +34,7 @@ export class DrawLine extends Tool {
         DrawLine.currentPath.offset.x = DrawLine.elementsCanvas.offset.x
         DrawLine.currentPath.offset.y = DrawLine.elementsCanvas.offset.y
         DrawLine.elementsCanvas.paths.push(DrawLine.currentPath)
-        DrawLine.elementsCanvas.draw()
+        DrawLine.elementsCanvas.drawPath(DrawLine.currentPath)
         DrawLine.interactionCanvas.clear()
     }
 

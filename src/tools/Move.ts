@@ -1,4 +1,4 @@
-import { Canvas } from '../main'
+import { Canvas } from '../Canvas'
 import { Tool } from '../types'
 
 export class Move extends Tool {
@@ -24,7 +24,7 @@ export class Move extends Tool {
             Move.elementsCanvas.ctx.translate(deltaX, deltaY)
             Move.elementsCanvas.offset.x += deltaX
             Move.elementsCanvas.offset.y += deltaY
-            Move.elementsCanvas.draw()
+            Move.elementsCanvas.redraw()
             Move.lastX = e.pageX
             Move.lastY = e.pageY
         }
@@ -34,14 +34,14 @@ export class Move extends Tool {
         Move.dragging = false
     }
 
-    static setUp(
-        interactionCanvas: Canvas,
-        elementsCanvas: Canvas
-    ) {
+    static setUp(interactionCanvas: Canvas, elementsCanvas: Canvas) {
         Move.interactionCanvas = interactionCanvas
         Move.elementsCanvas = elementsCanvas
 
-        Move.interactionCanvas.element.addEventListener('pointerdown', Move.pointerDown)
+        Move.interactionCanvas.element.addEventListener(
+            'pointerdown',
+            Move.pointerDown
+        )
         window.addEventListener('pointermove', Move.pointerMove)
         window.addEventListener('pointerup', Move.pointerUp)
     }
@@ -51,10 +51,7 @@ export class Move extends Tool {
             'pointerdown',
             Move.pointerDown
         )
-        window.removeEventListener(
-            'pointermove',
-            Move.pointerMove
-        )
+        window.removeEventListener('pointermove', Move.pointerMove)
         window.removeEventListener('pointerup', Move.pointerUp)
     }
 }

@@ -1,4 +1,4 @@
-import { Canvas } from '../main'
+import { Canvas } from '../Canvas'
 import { Tool } from '../types'
 
 export class Erase extends Tool {
@@ -19,7 +19,7 @@ export class Erase extends Tool {
                     )
                 }
             )
-            Erase.elementsCanvas.draw()
+            Erase.elementsCanvas.redraw()
         }
     }
 
@@ -37,7 +37,7 @@ export class Erase extends Tool {
                 }
             )
         })
-        Erase.elementsCanvas.draw()
+        Erase.elementsCanvas.redraw()
     }
 
     static pointerUp() {
