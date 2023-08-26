@@ -37,6 +37,7 @@ export class DrawEllipse extends Tool {
     }
 
     static pointerUp() {
+        if (!DrawEllipse.drawing) return
         DrawEllipse.drawing = false
         DrawEllipse.currentPath.offset.x = DrawEllipse.elementsCanvas.offset.x
         DrawEllipse.currentPath.offset.y = DrawEllipse.elementsCanvas.offset.y

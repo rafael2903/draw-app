@@ -35,7 +35,6 @@ export class Canvas {
     }
 
     draw() {
-        console.log(this.paths)
         this.clear()
         this.ctx.scale(this.scale, this.scale)
         for (const path of this.paths) {

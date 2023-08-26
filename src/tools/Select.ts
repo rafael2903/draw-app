@@ -69,8 +69,6 @@ export class Select extends Tool {
     ) {
         Select.interactionCanvas = interactionCanvas
         Select.elementsCanvas = elementsCanvas
-        console.log(Select.interactionCanvas)
-        console.log(Select.elementsCanvas)
         Select.interactionCanvas.element.addEventListener(
             'pointerdown',
             Select.pointerDown

@@ -61,8 +61,6 @@ export class Paint extends Tool {
     ) {
         Paint.interactionCanvas = interactionCanvas
         Paint.elementsCanvas = elementsCanvas
-        console.log(Paint.interactionCanvas)
-        console.log(Paint.elementsCanvas)
         Paint.interactionCanvas.element.addEventListener(
             'pointerdown',
             Paint.pointerDown

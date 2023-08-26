@@ -30,6 +30,7 @@ export class DrawLine extends Tool {
     }
 
     static pointerUp() {
+        if (!DrawLine.drawing) return
         DrawLine.drawing = false
         DrawLine.currentPath.offset.x = DrawLine.elementsCanvas.offset.x
         DrawLine.currentPath.offset.y = DrawLine.elementsCanvas.offset.y
