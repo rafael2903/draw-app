@@ -44,8 +44,6 @@ export class Move extends Tool {
     ) {
         Move.interactionCanvas = interactionCanvas
         Move.elementsCanvas = elementsCanvas
-        console.log(Move.interactionCanvas)
-        console.log(Move.elementsCanvas)
 
         Move.interactionCanvas.element.addEventListener('pointerdown', Move.pointerDown)
         window.addEventListener('pointermove', Move.pointerMove)

@@ -3,8 +3,10 @@ import './style.css'
 import { Move } from './tools/Move'
 import { Paint } from './tools/Paint'
 import { Tool, ToolName } from './types'
-import { Ellipse } from './tools/Ellipse'
+import { DrawEllipse } from './tools/DrawEllipse'
 import { Erase } from './tools/Erase'
+import { Select } from './tools/Select'
+import { Path } from './types'
 
 createIcons({
     icons: {
@@ -19,12 +21,18 @@ createIcons({
 })
 
 
-export class Path extends Path2D {
-    offset = { x: 0, y: 0 }
-    constructor() {
-        super()
-    }
-}
+
+// export class Path extends Path2D {
+//     offset = { x: 0, y: 0 }
+//     x = 0
+//     y = 0
+//     width = 0
+//     height = 0
+
+//     constructor() {
+//         super()
+//     }
+// }
 
 export class Canvas {
     ctx: CanvasRenderingContext2D
@@ -38,6 +46,7 @@ export class Canvas {
     }
 
     draw() {
+        console.log(this.paths)
         this.clear()
         this.ctx.scale(this.scale, this.scale)
         for (const path of this.paths) {
@@ -67,8 +76,8 @@ const elementsCanvas = new Canvas(elementsCanvasEl)
 const tools: Record<ToolName, Tool> = {
     pen: Paint,
     move: Move,
-    select: Paint,
-    ellipse: Ellipse,
+    select: Select,
+    ellipse: DrawEllipse,
     erase: Erase,
 }
 
@@ -99,17 +108,6 @@ const ellipse = document.querySelector<HTMLButtonElement>('#ellipse')!
 const zoomIn = document.querySelector<HTMLButtonElement>('#zoom-in')!
 const zoomOut = document.querySelector<HTMLButtonElement>('#zoom-out')!
 
-zoomIn.addEventListener('click', () => {
-    elementsCanvas.scale += 0.1
-    elementsCanvas.draw()
-})
-
-zoomOut.addEventListener('click', () => {
-    elementsCanvas.scale -= 0.1
-    elementsCanvas.draw()
-})
-
-
 
 select.addEventListener('click', () => {
     setActiveTool(ToolName.Select)
@@ -131,6 +129,16 @@ ellipse.addEventListener('click', () => {
   setActiveTool(ToolName.Ellipse)
 })
 
+zoomIn.addEventListener('click', () => {
+    elementsCanvas.scale += 0.1
+    elementsCanvas.draw()
+})
+
+zoomOut.addEventListener('click', () => {
+    elementsCanvas.scale -= 0.1
+    elementsCanvas.draw()
+})
+
 interactionCanvas.element.width = elementsCanvas.element.width =
     window.innerWidth
 interactionCanvas.element.height = elementsCanvas.element.height =
@@ -141,4 +149,6 @@ window.addEventListener('resize', () => {
         window.innerWidth
     interactionCanvas.element.height = elementsCanvas.element.height =
         window.innerHeight
+
+    elementsCanvas.draw()
 })

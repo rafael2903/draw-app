@@ -10,6 +10,21 @@ export enum ToolName {
     Erase = 'erase',
 }
 
+export interface Path extends Path2D {
+    offset: { x: number; y: number }
+    x: number
+    y: number
+    width: number
+    height: number
+    filled: boolean
+    lineWidth?: number
+    lineCap?: CanvasLineCap
+    lineJoin?: CanvasLineJoin
+    font?: string
+    fillStyle?: string
+    strokeStyle?: string
+}
+
 export abstract class Tool {
     static cursor: string
     static setUp: (

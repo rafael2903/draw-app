@@ -5,8 +5,9 @@
 //     const interactionCtx = interactionCanvas.getContext('2d')!
 //     const elementsCtx = elementsCanvas.getContext('2d')!
 
-import { Canvas, Path } from '../main'
-import { Tool } from '../types'
+import { Polyline } from '../elements/Polyline'
+import { Canvas } from '../main'
+import { Path, Tool } from '../types'
 
 //     const pointerEvents: PointerEvent[] = []
 
@@ -92,8 +93,7 @@ export class Paint extends Tool {
     static pointerDown(e: PointerEvent) {
         if (e.button === 0) {
             Paint.painting = true
-            Paint.currentPath = new Path()
-            Paint.currentPath.moveTo(e.offsetX, e.offsetY)
+            Paint.currentPath = new Polyline(e.offsetX, e.offsetY)
             Paint.pointerEvents.push(e)
             Paint.draw()
         }
@@ -119,7 +119,7 @@ export class Paint extends Tool {
         Paint.currentPath.offset.x = Paint.elementsCanvas.offset.x
         Paint.currentPath.offset.y = Paint.elementsCanvas.offset.y
         Paint.elementsCanvas.paths.push(Paint.currentPath)
-        Paint.elementsCanvas.draw()
+        Paint.elementsCanvas.draw()                                     // ! only draw the new path
     }
 
     static pointerOut() {
