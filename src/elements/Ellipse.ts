@@ -1,13 +1,6 @@
 import { Path } from '../types'
 
-export class Ellipse extends Path2D implements Path {
-    offset = { x: 0, y: 0 }
-    filled = false
-    x: number
-    y: number
-    width: number
-    height: number
-
+export class Ellipse extends Path {
     constructor(
         startPoint: { x: number; y: number },
         endPoint: { x: number; y: number }

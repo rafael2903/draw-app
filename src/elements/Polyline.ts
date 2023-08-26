@@ -1,14 +1,8 @@
 import { Path } from '../types'
 
-export class Polyline extends Path2D implements Path {
-    offset = { x: 0, y: 0 }
-    filled = false
-    x: number
-    y: number
+export class Polyline extends Path {
     furthestPointX: number
     furthestPointY: number
-    width = 0
-    height = 0
 
     constructor(x: number, y: number) {
         super()

@@ -16,8 +16,8 @@ export class Paint extends Tool {
             const e = Paint.pointerEvents.shift()!
             Paint.currentPath.lineTo(e.pageX, e.pageY)
             Paint.currentPath.moveTo(e.pageX, e.pageY)
-            Paint.interactionCanvas.paths[0] = Paint.currentPath
-            Paint.interactionCanvas.redraw()
+            Paint.interactionCanvas.clear()
+            Paint.interactionCanvas.drawPath(Paint.currentPath)
         }
         requestAnimationFrame(Paint.draw)
     }
@@ -54,10 +54,11 @@ export class Paint extends Tool {
         Paint.painting = false
         Paint.pointerEvents.length = 0
         Paint.interactionCanvas.paths.length = 0
+        Paint.interactionCanvas.clear()
         Paint.currentPath.offset.x = Paint.elementsCanvas.offset.x
         Paint.currentPath.offset.y = Paint.elementsCanvas.offset.y
         Paint.elementsCanvas.paths.push(Paint.currentPath)
-        Paint.elementsCanvas.drawPath(Paint.currentPath) // ! only draw the new path
+        Paint.elementsCanvas.drawPath(Paint.currentPath)
     }
 
     static setUp(interactionCanvas: Canvas, elementsCanvas: Canvas) {

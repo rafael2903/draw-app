@@ -15,21 +15,21 @@ export class Canvas {
         this.clear()
         this.ctx.scale(this.scale, this.scale)
         for (const path of this.paths) {
-            this.ctx.lineWidth = path.lineWidth || 10
-            this.ctx.lineCap = path.lineCap || 'round'
-            this.ctx.save()
-            this.ctx.translate(-path.offset.x, -path.offset.y)
-            this.ctx.stroke(path)
-            this.ctx.restore()
+            this.drawPath(path)
         }
     }
 
     drawPath(path: Path) {
-        this.ctx.lineWidth = path.lineWidth || 10
-        this.ctx.lineCap = path.lineCap || 'round'
+        this.ctx.lineWidth = path.lineWidth
+        this.ctx.lineCap = path.lineCap
+        path.strokeStyle && (this.ctx.strokeStyle = path.strokeStyle)
+        path.fillStyle && (this.ctx.fillStyle = path.fillStyle)
+        path.font && (this.ctx.font = path.font)
+        path.lineJoin && (this.ctx.lineJoin = path.lineJoin)
         this.ctx.save()
         this.ctx.translate(-path.offset.x, -path.offset.y)
-        this.ctx.stroke(path)
+        path.filled && this.ctx.fill(path)
+        path.stroked && this.ctx.stroke(path)
         this.ctx.restore()
     }
 
