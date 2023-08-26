@@ -7,10 +7,10 @@ export enum ToolName {
     Move = 'move',
     Select = 'select',
     Ellipse = 'ellipse',
+    Erase = 'erase',
 }
 
 export abstract class Tool {
-    static name: ToolName
     static cursor: string
     static setUp: (
         interactionCanvas: Canvas,

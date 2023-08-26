@@ -1,8 +1,7 @@
 import { Canvas, Path } from '../main'
-import { Tool, ToolName } from '../types'
+import { Tool } from '../types'
 
 export class Ellipse extends Tool {
-    static name = ToolName.Pen
     static cursor = 'crosshair'
     private static startPoint: { x: number; y: number } | null = null
     private static currentPath: Path

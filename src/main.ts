@@ -1,15 +1,17 @@
-import { Hand, MousePointer, Pen, createIcons, ZoomIn, ZoomOut, Circle } from 'lucide'
+import { Hand, MousePointer, Pen, createIcons, ZoomIn, ZoomOut, Circle, Eraser } from 'lucide'
 import './style.css'
 import { Move } from './tools/Move'
 import { Paint } from './tools/Paint'
 import { Tool, ToolName } from './types'
 import { Ellipse } from './tools/Ellipse'
+import { Erase } from './tools/Erase'
 
 createIcons({
     icons: {
         Pen,
         Hand,
         MousePointer,
+        Eraser,
         Circle,
         ZoomIn,
         ZoomOut,
@@ -29,7 +31,7 @@ export class Canvas {
     element: HTMLCanvasElement
     paths: Path[] = []
     offset = { x: 0, y: 0 }
-    scale = 1
+    scale = 1.0
     constructor(element: HTMLCanvasElement) {
         this.element = element
         this.ctx = element.getContext('2d')!
@@ -67,6 +69,7 @@ const tools: Record<ToolName, Tool> = {
     move: Move,
     select: Paint,
     ellipse: Ellipse,
+    erase: Erase,
 }
 
 let activeTool: ToolName
@@ -91,6 +94,7 @@ setActiveTool(ToolName.Pen)
 const pen = document.querySelector<HTMLButtonElement>('#pen')!
 const move = document.querySelector<HTMLButtonElement>('#move')!
 const select = document.querySelector<HTMLButtonElement>('#select')!
+const erase = document.querySelector<HTMLButtonElement>('#erase')!
 const ellipse = document.querySelector<HTMLButtonElement>('#ellipse')!
 const zoomIn = document.querySelector<HTMLButtonElement>('#zoom-in')!
 const zoomOut = document.querySelector<HTMLButtonElement>('#zoom-out')!
@@ -117,6 +121,10 @@ move.addEventListener('click', () => {
 
 pen.addEventListener('click', () => {
     setActiveTool(ToolName.Pen)
+})
+
+erase.addEventListener('click', () => {
+    setActiveTool(ToolName.Erase)
 })
 
 ellipse.addEventListener('click', () => {

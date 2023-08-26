@@ -1,15 +1,13 @@
 import { Canvas } from '../main'
-import { Tool, ToolName } from '../types'
+import { Tool } from '../types'
 
 export class Move extends Tool {
-    static name = ToolName.Move
     static cursor = 'move'
     private static dragging = false
     private static lastX = 0
     private static lastY = 0
     private static interactionCanvas: Canvas
     private static elementsCanvas: Canvas
-    private static elementsCtx: CanvasRenderingContext2D
 
     static pointerDown(e: PointerEvent) {
         if (e.button === 0) {
@@ -23,7 +21,7 @@ export class Move extends Tool {
         if (Move.dragging) {
             const deltaX = e.pageX - Move.lastX
             const deltaY = e.pageY - Move.lastY
-            Move.elementsCtx.translate(deltaX, deltaY)
+            Move.elementsCanvas.ctx.translate(deltaX, deltaY)
             Move.elementsCanvas.offset.x += deltaX
             Move.elementsCanvas.offset.y += deltaY
             Move.elementsCanvas.draw()
@@ -46,7 +44,8 @@ export class Move extends Tool {
     ) {
         Move.interactionCanvas = interactionCanvas
         Move.elementsCanvas = elementsCanvas
-        Move.elementsCtx = elementsCanvas.element.getContext('2d')!
+        console.log(Move.interactionCanvas)
+        console.log(Move.elementsCanvas)
 
         Move.interactionCanvas.element.addEventListener('pointerdown', Move.pointerDown)
         window.addEventListener('pointermove', Move.pointerMove)

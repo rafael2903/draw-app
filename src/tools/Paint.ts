@@ -6,7 +6,7 @@
 //     const elementsCtx = elementsCanvas.getContext('2d')!
 
 import { Canvas, Path } from '../main'
-import { Tool, ToolName } from '../types'
+import { Tool } from '../types'
 
 //     const pointerEvents: PointerEvent[] = []
 
@@ -69,14 +69,12 @@ import { Tool, ToolName } from '../types'
 // }
 
 export class Paint extends Tool {
-    static name = ToolName.Pen
     static cursor = 'none'
     private static currentPath: Path
     private static painting = false
     private static pointerEvents: PointerEvent[] = []
     private static interactionCanvas: Canvas
     private static elementsCanvas: Canvas
-    private static interactionCtx: CanvasRenderingContext2D
 
 
     private static draw() {
@@ -85,12 +83,8 @@ export class Paint extends Tool {
             const e = Paint.pointerEvents.shift()!
             Paint.currentPath.lineTo(e.pageX, e.pageY)
             Paint.currentPath.moveTo(e.pageX, e.pageY)
-            Paint.interactionCtx.lineWidth = 10
-            Paint.interactionCtx.lineCap = 'round'
-            Paint.interactionCtx.lineTo(e.pageX, e.pageY)
-            Paint.interactionCtx.stroke()
-            Paint.interactionCtx.beginPath()
-            Paint.interactionCtx.moveTo(e.pageX, e.pageY)
+            Paint.interactionCanvas.paths[0] = Paint.currentPath
+            Paint.interactionCanvas.draw()
         }
         requestAnimationFrame(Paint.draw)
     }
@@ -99,7 +93,6 @@ export class Paint extends Tool {
         if (e.button === 0) {
             Paint.painting = true
             Paint.currentPath = new Path()
-            Paint.interactionCtx.moveTo(e.offsetX, e.offsetY)
             Paint.currentPath.moveTo(e.offsetX, e.offsetY)
             Paint.pointerEvents.push(e)
             Paint.draw()
@@ -111,21 +104,18 @@ export class Paint extends Tool {
             const coalescedEvents = e.getCoalescedEvents()
             Paint.pointerEvents.push(...coalescedEvents)
         } else {
-            Paint.interactionCtx.clearRect(
-                0,
-                0,
-                Paint.interactionCanvas.element.width,
-                Paint.interactionCanvas.element.height
-            )
-            Paint.interactionCtx.beginPath()
-            Paint.interactionCtx.arc(e.clientX, e.clientY, 5, 0, 2 * Math.PI)
-            Paint.interactionCtx.fill()
+            Paint.interactionCanvas.clear()
+            Paint.interactionCanvas.ctx.beginPath()
+            Paint.interactionCanvas.ctx.arc(e.clientX, e.clientY, 5, 0, 2 * Math.PI)
+            Paint.interactionCanvas.ctx.fill()
         }
     }
 
     static pointerUp() {
+        if (!Paint.painting) return
         Paint.painting = false
         Paint.pointerEvents.length = 0
+        Paint.interactionCanvas.paths.length = 0
         Paint.currentPath.offset.x = Paint.elementsCanvas.offset.x
         Paint.currentPath.offset.y = Paint.elementsCanvas.offset.y
         Paint.elementsCanvas.paths.push(Paint.currentPath)
@@ -146,9 +136,9 @@ export class Paint extends Tool {
         elementsCanvas: Canvas,
     ) {
         Paint.interactionCanvas = interactionCanvas
-        Paint.interactionCtx = interactionCanvas.element.getContext('2d')!
         Paint.elementsCanvas = elementsCanvas
-
+        console.log(Paint.interactionCanvas)
+        console.log(Paint.elementsCanvas)
         Paint.interactionCanvas.element.addEventListener(
             'pointerdown',
             Paint.pointerDown
