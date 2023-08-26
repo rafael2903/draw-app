@@ -34,10 +34,6 @@ export class Move extends Tool {
         Move.dragging = false
     }
 
-    static pointerOut() {
-        // Move.dragging = false
-    }
-
     static setUp(
         interactionCanvas: Canvas,
         elementsCanvas: Canvas
@@ -48,7 +44,6 @@ export class Move extends Tool {
         Move.interactionCanvas.element.addEventListener('pointerdown', Move.pointerDown)
         window.addEventListener('pointermove', Move.pointerMove)
         window.addEventListener('pointerup', Move.pointerUp)
-        Move.interactionCanvas.element.addEventListener('pointerout', Move.pointerOut)
     }
 
     static tearDown() {
@@ -61,9 +56,5 @@ export class Move extends Tool {
             Move.pointerMove
         )
         window.removeEventListener('pointerup', Move.pointerUp)
-        Move.interactionCanvas.element.removeEventListener(
-            'pointerout',
-            Move.pointerOut
-        )
     }
 }

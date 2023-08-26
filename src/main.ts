@@ -1,4 +1,4 @@
-import { Hand, MousePointer, Pen, createIcons, ZoomIn, ZoomOut, Circle, Eraser } from 'lucide'
+import { Hand, MousePointer, Pen, createIcons, ZoomIn, ZoomOut, Circle, Eraser, Minus } from 'lucide'
 import './style.css'
 import { Move } from './tools/Move'
 import { Paint } from './tools/Paint'
@@ -7,6 +7,7 @@ import { DrawEllipse } from './tools/DrawEllipse'
 import { Erase } from './tools/Erase'
 import { Select } from './tools/Select'
 import { Path } from './types'
+import { DrawLine } from './tools/DrawLine'
 
 createIcons({
     icons: {
@@ -15,24 +16,12 @@ createIcons({
         MousePointer,
         Eraser,
         Circle,
+        Minus,
         ZoomIn,
         ZoomOut,
     },
 })
 
-
-
-// export class Path extends Path2D {
-//     offset = { x: 0, y: 0 }
-//     x = 0
-//     y = 0
-//     width = 0
-//     height = 0
-
-//     constructor() {
-//         super()
-//     }
-// }
 
 export class Canvas {
     ctx: CanvasRenderingContext2D
@@ -74,11 +63,12 @@ const elementsCanvasEl =
 const elementsCanvas = new Canvas(elementsCanvasEl)
 
 const tools: Record<ToolName, Tool> = {
-    pen: Paint,
-    move: Move,
-    select: Select,
-    ellipse: DrawEllipse,
-    erase: Erase,
+    [ToolName.Pen]: Paint,
+    [ToolName.Line]: DrawLine,
+    [ToolName.Move]: Move,
+    [ToolName.Select]: Select,
+    [ToolName.Ellipse]: DrawEllipse,
+    [ToolName.Erase]: Erase,
 }
 
 let activeTool: ToolName
@@ -105,6 +95,7 @@ const move = document.querySelector<HTMLButtonElement>('#move')!
 const select = document.querySelector<HTMLButtonElement>('#select')!
 const erase = document.querySelector<HTMLButtonElement>('#erase')!
 const ellipse = document.querySelector<HTMLButtonElement>('#ellipse')!
+const line = document.querySelector<HTMLButtonElement>('#line')!
 const zoomIn = document.querySelector<HTMLButtonElement>('#zoom-in')!
 const zoomOut = document.querySelector<HTMLButtonElement>('#zoom-out')!
 
@@ -128,6 +119,10 @@ erase.addEventListener('click', () => {
 ellipse.addEventListener('click', () => {
   setActiveTool(ToolName.Ellipse)
 })
+
+line.addEventListener('click', () => {
+    setActiveTool(ToolName.Line)
+  })
 
 zoomIn.addEventListener('click', () => {
     elementsCanvas.scale += 0.1

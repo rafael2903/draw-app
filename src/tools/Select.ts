@@ -24,14 +24,6 @@ export class Select extends Tool {
     }
 
     static pointerDown(e: PointerEvent) {
-        // if (e.button === 0) {
-        //     Select.painting = true
-        //     Select.currentPath = new Path()
-        //     Select.currentPath.moveTo(e.offsetX, e.offsetY)
-        //     Select.pointerEvents.push(e)
-        //     Select.draw()
-        // }
-
         if (e.button === 0) {
             // Select.erasing = true
             const selectedPath = Select.elementsCanvas.paths.find(
@@ -70,14 +62,6 @@ export class Select extends Tool {
         Select.elementsCanvas.draw()
     }
 
-    static pointerOut() {
-        // Select.interactionCtx.clearRect(
-        //     0,
-        //     0,
-        //     Select.interactionCanvas.element.width,
-        //     Select.interactionCanvas.element.height
-        // )
-    }
 
     static setUp(
         interactionCanvas: Canvas,
@@ -93,7 +77,6 @@ export class Select extends Tool {
         )
         window.addEventListener('pointermove', Select.pointerMove)
         window.addEventListener('pointerup', Select.pointerUp)
-        Select.interactionCanvas.element.addEventListener('pointerout', Select.pointerOut)
     }
 
     static tearDown() {
@@ -108,10 +91,6 @@ export class Select extends Tool {
         window.removeEventListener(
             'pointerup',
             Select.pointerUp
-        )
-        Select.interactionCanvas.element.removeEventListener(
-            'pointerout',
-            Select.pointerOut
         )
     }
 }

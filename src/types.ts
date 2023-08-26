@@ -8,6 +8,7 @@ export enum ToolName {
     Select = 'select',
     Ellipse = 'ellipse',
     Erase = 'erase',
+    Line = 'line',
 }
 
 export interface Path extends Path2D {

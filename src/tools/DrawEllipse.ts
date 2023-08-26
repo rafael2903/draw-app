@@ -45,15 +45,6 @@ export class DrawEllipse extends Tool {
         DrawEllipse.interactionCanvas.clear()
     }
 
-    static pointerOut() {
-        // DrawEllipse.interactionCtx.clearRect(
-        //     0,
-        //     0,
-        //     DrawEllipse.interactionCanvas.element.width,
-        //     DrawEllipse.interactionCanvas.element.height
-        // )
-    }
-
     static setUp(interactionCanvas: Canvas, elementsCanvas: Canvas) {
         DrawEllipse.interactionCanvas = interactionCanvas
         DrawEllipse.elementsCanvas = elementsCanvas
@@ -64,10 +55,6 @@ export class DrawEllipse extends Tool {
         )
         window.addEventListener('pointermove', DrawEllipse.pointerMove)
         window.addEventListener('pointerup', DrawEllipse.pointerUp)
-        DrawEllipse.interactionCanvas.element.addEventListener(
-            'pointerout',
-            DrawEllipse.pointerOut
-        )
     }
 
     static tearDown() {
@@ -77,9 +64,5 @@ export class DrawEllipse extends Tool {
         )
         window.removeEventListener('pointermove', DrawEllipse.pointerMove)
         window.removeEventListener('pointerup', DrawEllipse.pointerUp)
-        DrawEllipse.interactionCanvas.element.removeEventListener(
-            'pointerout',
-            DrawEllipse.pointerOut
-        )
     }
 }

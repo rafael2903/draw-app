@@ -1,73 +1,6 @@
-// export const setUpPaint = (
-//     interactionCanvas: HTMLCanvasElement,
-//     elementsCanvas: HTMLCanvasElement
-// ) => {
-//     const interactionCtx = interactionCanvas.getContext('2d')!
-//     const elementsCtx = elementsCanvas.getContext('2d')!
-
 import { Polyline } from '../elements/Polyline'
 import { Canvas } from '../main'
 import { Path, Tool } from '../types'
-
-//     const pointerEvents: PointerEvent[] = []
-
-//     let drawing = false
-//     elementsCtx.fillRect(0, 0, 50, 50)
-
-//     window.addEventListener('pointermove', (e) => {
-//         if (drawing) {
-//             const coalescedEvents = e.getCoalescedEvents()
-//             pointerEvents.push(...coalescedEvents)
-//         } else {
-//             interactionCtx.clearRect(
-//                 0,
-//                 0,
-//                 interactionCanvas.width,
-//                 interactionCanvas.height
-//             )
-//             interactionCtx.beginPath()
-//             interactionCtx.arc(e.offsetX, e.offsetY, 5, 0, 2 * Math.PI)
-//             interactionCtx.fill()
-//         }
-//     })
-
-//     window.addEventListener('pointerup', () => {
-//         drawing = false
-//         pointerEvents.length = 0
-//     })
-
-//     const draw = () => {
-//         if (!drawing) return
-//         while (pointerEvents.length > 0) {
-//             const e = pointerEvents.shift()!
-//             elementsCtx.lineWidth = 10
-//             elementsCtx.lineCap = 'round'
-//             elementsCtx.lineTo(e.pageX, e.pageY)
-//             elementsCtx.stroke()
-//             elementsCtx.beginPath()
-//             elementsCtx.moveTo(e.pageX, e.pageY)
-//         }
-//         requestAnimationFrame(draw)
-//     }
-
-//     interactionCanvas.addEventListener('pointerdown', (e) => {
-//         if (e.button === 0) {
-//             drawing = true
-//             elementsCtx.moveTo(e.offsetX, e.offsetY)
-//             pointerEvents.push(e)
-//             draw()
-//         }
-//     })
-
-//     interactionCanvas.addEventListener('pointerout', () => {
-//         interactionCtx.clearRect(
-//             0,
-//             0,
-//             interactionCanvas.width,
-//             interactionCanvas.height
-//         )
-//     })
-// }
 
 export class Paint extends Tool {
     static cursor = 'none'
@@ -122,15 +55,6 @@ export class Paint extends Tool {
         Paint.elementsCanvas.draw()                                     // ! only draw the new path
     }
 
-    static pointerOut() {
-        // Paint.interactionCtx.clearRect(
-        //     0,
-        //     0,
-        //     Paint.interactionCanvas.element.width,
-        //     Paint.interactionCanvas.element.height
-        // )
-    }
-
     static setUp(
         interactionCanvas: Canvas,
         elementsCanvas: Canvas,
@@ -145,7 +69,6 @@ export class Paint extends Tool {
         )
         window.addEventListener('pointermove', Paint.pointerMove)
         window.addEventListener('pointerup', Paint.pointerUp)
-        Paint.interactionCanvas.element.addEventListener('pointerout', Paint.pointerOut)
     }
 
     static tearDown() {
@@ -160,10 +83,6 @@ export class Paint extends Tool {
         window.removeEventListener(
             'pointerup',
             Paint.pointerUp
-        )
-        Paint.interactionCanvas.element.removeEventListener(
-            'pointerout',
-            Paint.pointerOut
         )
     }
 }
