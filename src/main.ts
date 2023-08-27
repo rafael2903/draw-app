@@ -52,8 +52,8 @@ const select = document.querySelector<HTMLButtonElement>('#select')!
 const erase = document.querySelector<HTMLButtonElement>('#erase')!
 const ellipse = document.querySelector<HTMLButtonElement>('#ellipse')!
 const line = document.querySelector<HTMLButtonElement>('#line')!
-const zoomIn = document.querySelector<HTMLButtonElement>('#zoom-in')!
-const zoomOut = document.querySelector<HTMLButtonElement>('#zoom-out')!
+// const zoomIn = document.querySelector<HTMLButtonElement>('#zoom-in')!
+// const zoomOut = document.querySelector<HTMLButtonElement>('#zoom-out')!
 
 select.addEventListener('click', () => {
     setActiveTool(ToolName.Select)
@@ -79,15 +79,15 @@ line.addEventListener('click', () => {
     setActiveTool(ToolName.Line)
 })
 
-zoomIn.addEventListener('click', () => {
-    elementsCanvas.scale += 0.1
-    elementsCanvas.redraw()
-})
+// zoomIn.addEventListener('click', () => {
+//     elementsCanvas.scale += 0.1
+//     elementsCanvas.redraw()
+// })
 
-zoomOut.addEventListener('click', () => {
-    elementsCanvas.scale -= 0.1
-    elementsCanvas.redraw()
-})
+// zoomOut.addEventListener('click', () => {
+//     elementsCanvas.scale -= 0.1
+//     elementsCanvas.redraw()
+// })
 
 interactionCanvas.element.width = elementsCanvas.element.width =
     window.innerWidth

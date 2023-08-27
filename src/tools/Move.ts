@@ -21,10 +21,7 @@ export class Move extends Tool {
         if (Move.dragging) {
             const deltaX = e.pageX - Move.lastX
             const deltaY = e.pageY - Move.lastY
-            Move.elementsCanvas.ctx.translate(deltaX, deltaY)
-            Move.elementsCanvas.offset.x += deltaX
-            Move.elementsCanvas.offset.y += deltaY
-            Move.elementsCanvas.redraw()
+            Move.elementsCanvas.translate(deltaX, deltaY)
             Move.lastX = e.pageX
             Move.lastY = e.pageY
         }

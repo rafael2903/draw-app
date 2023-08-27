@@ -1,7 +1,8 @@
 import { Circle } from '../elements/Circle'
 import { Ellipse } from '../elements/Ellipse'
 import { Canvas } from '../Canvas'
-import { Path, Tool } from '../types'
+import { Tool } from '../types'
+import { Path } from '../elements/Path'
 
 export class DrawEllipse extends Tool {
     static cursor = 'crosshair'
@@ -31,8 +32,8 @@ export class DrawEllipse extends Tool {
                 y: e.clientY,
             })
         }
-        DrawEllipse.interactionCanvas.paths = [DrawEllipse.currentPath]
-        DrawEllipse.interactionCanvas.redraw()
+        DrawEllipse.interactionCanvas.clear()
+        DrawEllipse.interactionCanvas.addPath(DrawEllipse.currentPath)
     }
 
     static pointerUp() {
@@ -40,8 +41,7 @@ export class DrawEllipse extends Tool {
         DrawEllipse.drawing = false
         DrawEllipse.currentPath.offset.x = DrawEllipse.elementsCanvas.offset.x
         DrawEllipse.currentPath.offset.y = DrawEllipse.elementsCanvas.offset.y
-        DrawEllipse.elementsCanvas.paths.push(DrawEllipse.currentPath)
-        DrawEllipse.elementsCanvas.drawPath(DrawEllipse.currentPath)
+        DrawEllipse.elementsCanvas.addPath(DrawEllipse.currentPath)
         DrawEllipse.interactionCanvas.clear()
     }
 

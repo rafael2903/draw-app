@@ -1,4 +1,4 @@
-import { Path } from '../types'
+import { Path } from './Path'
 
 export class Ellipse extends Path {
     constructor(

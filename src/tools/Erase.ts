@@ -10,34 +10,16 @@ export class Erase extends Tool {
     static pointerDown(e: PointerEvent) {
         if (e.button === 0) {
             Erase.erasing = true
-            Erase.elementsCanvas.paths = Erase.elementsCanvas.paths.filter(
-                (path) => {
-                    return !Erase.elementsCanvas.ctx.isPointInStroke(
-                        path,
-                        e.offsetX + path.offset.x,
-                        e.offsetY + path.offset.y
-                    )
-                }
-            )
-            Erase.elementsCanvas.redraw()
+            this.elementsCanvas.removePathInPoint(e.offsetX, e.offsetY)
         }
     }
 
     static pointerMove(e: PointerEvent) {
-        if (!Erase.erasing || Erase.elementsCanvas.paths.length === 0) return
+        if (!Erase.erasing || Erase.elementsCanvas.isEmpty) return
         const coalescedEvents = e.getCoalescedEvents()
         coalescedEvents.forEach((e) => {
-            Erase.elementsCanvas.paths = Erase.elementsCanvas.paths.filter(
-                (path) => {
-                    return !Erase.elementsCanvas.ctx.isPointInStroke(
-                        path,
-                        e.offsetX + path.offset.x,
-                        e.offsetY + path.offset.y
-                    )
-                }
-            )
+            this.elementsCanvas.removePathInPoint(e.offsetX, e.offsetY)
         })
-        Erase.elementsCanvas.redraw()
     }
 
     static pointerUp() {

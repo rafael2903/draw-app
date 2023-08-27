@@ -71,11 +71,23 @@ canvas#interaction-canvas {
   }
 
   .tool:hover, .tool.active{
-    background-color: #f5f5f5;
+    background-color: #f1f1f1;
 }
 
 .tool.active {
     border-bottom-left-radius: 0;
     border-bottom-right-radius: 0;
-    box-shadow: 0px -3px 0px -1px  rgb(85, 85, 85) inset;
+    position: relative;
+}
+
+.tool.active::after {
+    content: "";
+    position: absolute;
+    bottom: -3px;
+    left: 0;
+    width: 100%;
+    height: 3px;
+    background-color: rgb(85, 85, 85);
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
 }

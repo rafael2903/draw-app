@@ -1,6 +1,7 @@
-import { Polyline } from '../elements/Polyline'
 import { Canvas } from '../Canvas'
-import { Path, Tool } from '../types'
+import { Path } from '../elements/Path'
+import { Polyline } from '../elements/Polyline'
+import { Tool } from '../types'
 
 export class Paint extends Tool {
     static cursor = 'none'
@@ -17,7 +18,7 @@ export class Paint extends Tool {
             Paint.currentPath.lineTo(e.pageX, e.pageY)
             Paint.currentPath.moveTo(e.pageX, e.pageY)
             Paint.interactionCanvas.clear()
-            Paint.interactionCanvas.drawPath(Paint.currentPath)
+            Paint.interactionCanvas.addPath(Paint.currentPath)
         }
         requestAnimationFrame(Paint.draw)
     }
@@ -36,16 +37,13 @@ export class Paint extends Tool {
             const coalescedEvents = e.getCoalescedEvents()
             Paint.pointerEvents.push(...coalescedEvents)
         } else {
+            const cursorPath = new Path({
+                filled: true,
+                stroked: false,
+            })
+            cursorPath.arc(e.clientX, e.clientY, 5, 0, 2 * Math.PI)
             Paint.interactionCanvas.clear()
-            Paint.interactionCanvas.ctx.beginPath()
-            Paint.interactionCanvas.ctx.arc(
-                e.clientX,
-                e.clientY,
-                5,
-                0,
-                2 * Math.PI
-            )
-            Paint.interactionCanvas.ctx.fill()
+            Paint.interactionCanvas.addPath(cursorPath)
         }
     }
 
@@ -53,12 +51,10 @@ export class Paint extends Tool {
         if (!Paint.painting) return
         Paint.painting = false
         Paint.pointerEvents.length = 0
-        Paint.interactionCanvas.paths.length = 0
         Paint.interactionCanvas.clear()
         Paint.currentPath.offset.x = Paint.elementsCanvas.offset.x
         Paint.currentPath.offset.y = Paint.elementsCanvas.offset.y
-        Paint.elementsCanvas.paths.push(Paint.currentPath)
-        Paint.elementsCanvas.drawPath(Paint.currentPath)
+        Paint.elementsCanvas.addPath(Paint.currentPath)
     }
 
     static setUp(interactionCanvas: Canvas, elementsCanvas: Canvas) {
