@@ -1,26 +1,46 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Draw</title>
-  </head>
-  <body>
-    <div id="app">
-      <canvas id="interaction-canvas"></canvas>
-      <canvas id="elements-canvas"></canvas>
-      <div id="tools">
-        <button class="tool" id="select"><i data-lucide="mouse-pointer"></i></button>
-        <button class="tool" id="move"><i data-lucide="hand"></i></button>
-        <button class="tool" id="pen"><i data-lucide="pen"></i></button>
-        <button class="tool" id="erase"><i data-lucide="eraser"></i></button>
-        <button class="tool" id="ellipse"><i data-lucide="circle"></i></button>
-        <button class="tool" id="line"><i data-lucide="minus"></i></button>
-        <!-- <button class="tool" id="zoom-in"><i data-lucide="zoom-in"></i></button> -->
-        <!-- <button class="tool" id="zoom-out"><i data-lucide="zoom-out"></i></button> -->
-      </div>
-    </div>
-    <script type="module" src="/src/main.ts"></script>
-  </body>
+    <head>
+        <meta charset="UTF-8" />
+        <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Draw</title>
+    </head>
+    <body>
+        <div id="app">
+            <div id="history-control">
+                <button tabindex="0" class="tool" id="undo" disabled>
+                    <i data-lucide="undo"></i>
+                </button>
+                <button class="tool" id="redo" disabled>
+                    <i data-lucide="redo"></i>
+                </button>
+            </div>
+
+            <div id="tools">
+                <button class="tool" id="select">
+                    <i data-lucide="mouse-pointer"></i>
+                </button>
+                <button class="tool" id="move">
+                    <i data-lucide="hand"></i>
+                </button>
+                <button class="tool" id="pen"><i data-lucide="pen"></i></button>
+                <button class="tool" id="erase">
+                    <i data-lucide="eraser"></i>
+                </button>
+                <button class="tool" id="ellipse">
+                    <i data-lucide="circle"></i>
+                </button>
+                <button class="tool" id="line">
+                    <i data-lucide="minus"></i>
+                </button>
+
+                <!-- <button class="tool" id="zoom-in"><i data-lucide="zoom-in"></i></button> -->
+                <!-- <button class="tool" id="zoom-out"><i data-lucide="zoom-out"></i></button> -->
+            </div>
+            <canvas id="interaction-canvas"></canvas>
+            <canvas id="elements-canvas"></canvas>
+        </div>
+        <script type="module" src="/src/main.ts"></script>
+    </body>
 </html>

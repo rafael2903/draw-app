@@ -10,7 +10,7 @@ export class Erase extends Tool {
     static pointerDown(e: PointerEvent) {
         if (e.button === 0) {
             Erase.erasing = true
-            this.elementsCanvas.removePathInPoint(e.offsetX, e.offsetY)
+            Erase.elementsCanvas.removePathInPoint(e.offsetX, e.offsetY)
         }
     }
 
@@ -18,7 +18,7 @@ export class Erase extends Tool {
         if (!Erase.erasing || Erase.elementsCanvas.isEmpty) return
         const coalescedEvents = e.getCoalescedEvents()
         coalescedEvents.forEach((e) => {
-            this.elementsCanvas.removePathInPoint(e.offsetX, e.offsetY)
+            Erase.elementsCanvas.removePathInPoint(e.offsetX, e.offsetY)
         })
     }
 
@@ -29,7 +29,6 @@ export class Erase extends Tool {
     static setUp(interactionCanvas: Canvas, elementsCanvas: Canvas) {
         Erase.interactionCanvas = interactionCanvas
         Erase.elementsCanvas = elementsCanvas
-
         Erase.interactionCanvas.element.addEventListener(
             'pointerdown',
             Erase.pointerDown

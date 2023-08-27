@@ -1,12 +1,26 @@
 import { Path } from './elements/Path'
 
-export class Canvas {
+abstract class Observable {
+    private observers: (() => void)[] = []
+    subscribe(observer: () => void) {
+        this.observers.push(observer)
+    }
+
+    protected notify() {
+        for (const observer of this.observers) {
+            observer()
+        }
+    }
+}
+
+export class Canvas extends Observable {
     element: HTMLCanvasElement
     private ctx: CanvasRenderingContext2D
     private paths: Path[] = []
     readonly offset = { x: 0, y: 0 }
     scale = 1.0
     constructor(element: HTMLCanvasElement) {
+        super()
         this.element = element
         this.ctx = element.getContext('2d')!
     }
@@ -32,6 +46,7 @@ export class Canvas {
 
     clear() {
         this.paths.splice(0)
+        this.notify()
         this.erase()
     }
 
@@ -60,11 +75,13 @@ export class Canvas {
     addPath(path: Path) {
         this.paths.push(path)
         this.drawPath(path)
+        this.notify()
     }
 
     removePath(pathIndex: number) {
         this.paths.splice(pathIndex, 1)
         this.redraw()
+        this.notify()
     }
 
     removePathInPoint(x: number, y: number) {
@@ -99,4 +116,74 @@ export class Canvas {
         })
     }
 
+    getState() {
+        return this.paths
+    }
+
+    restoreState(paths: Path[]) {
+        this.paths = [...paths]
+        this.redraw()
+    }
+}
+
+export class CanvasHistory extends Observable {
+    private readonly undos: Path[][] = [[]]
+    private readonly redos: Path[][] = []
+    private sizeMax = 30
+    private _canUndo = false
+    private _canRedo = false
+
+    constructor(private canvas: Canvas) {
+        super()
+        this.canvas.subscribe(() => {
+            this.add(this.canvas.getState())
+        })
+    }
+
+    get canUndo() {
+        return this._canUndo
+    }
+
+    get canRedo() {
+        return this._canRedo
+    }
+
+    set canRedo(value) {
+        this._canRedo = value
+        this.notify()
+    }
+
+    set canUndo(value) {
+        this._canUndo = value
+        this.notify()
+    }
+
+    add(paths: Path[]) {
+        if (this.undos.length === this.sizeMax) {
+            this.undos.shift()
+        }
+        this.undos.push([...paths])
+        this.redos.splice(0)
+        this.canUndo = true
+        this.canRedo = false
+    }
+
+    undo() {
+        if (this.undos.length === 1) return
+        if (this.undos.length === 2) this.canUndo = false
+        const currentState = this.undos.pop()!
+        const previousState = this.undos[this.undos.length - 1]
+        this.canvas.restoreState(previousState)
+        this.redos.push(currentState)
+        this.canRedo = true
+    }
+
+    redo() {
+        if (this.redos.length === 0) return
+        if (this.redos.length === 1) this.canRedo = false
+        const nextState = this.redos.pop()!
+        this.canvas.restoreState(nextState)
+        this.undos.push(nextState)
+        this.canUndo = true
+    }
 }
