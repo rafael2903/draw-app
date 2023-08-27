@@ -1,16 +1,4 @@
-import {
-    Circle,
-    Eraser,
-    Hand,
-    Minus,
-    MousePointer,
-    Pen,
-    ZoomIn,
-    ZoomOut,
-    createIcons,
-} from 'lucide'
 import { Canvas } from './Canvas'
-import './style.css'
 import { DrawEllipse } from './tools/DrawEllipse'
 import { DrawLine } from './tools/DrawLine'
 import { Erase } from './tools/Erase'
@@ -18,19 +6,8 @@ import { Move } from './tools/Move'
 import { Paint } from './tools/Paint'
 import { Select } from './tools/Select'
 import { Tool, ToolName } from './types'
-
-createIcons({
-    icons: {
-        Pen,
-        Hand,
-        MousePointer,
-        Eraser,
-        Circle,
-        Minus,
-        ZoomIn,
-        ZoomOut,
-    },
-})
+import './icons'
+import './style.css'
 
 const interactionCanvasEl = document.querySelector<HTMLCanvasElement>(
     '#interaction-canvas'
