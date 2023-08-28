@@ -1,16 +1,18 @@
-import { Path } from './Path'
+import { Path, PathOptions } from './Path'
 
 export class Ellipse extends Path {
     constructor(
-        startPoint: { x: number; y: number },
-        endPoint: { x: number; y: number }
+        startPointX: number,
+        startPointY: number,
+        endPointX: number,
+        endPointY: number,
+        pathOptions?: PathOptions
     ) {
-        super()
-
-        const radiusX = Math.abs(endPoint.x - startPoint.x) / 2
-        const radiusY = Math.abs(endPoint.y - startPoint.y) / 2
-        const centerX = (endPoint.x + startPoint.x) / 2
-        const centerY = (endPoint.y + startPoint.y) / 2
+        super(pathOptions)
+        const radiusX = Math.abs(endPointX - startPointX) / 2
+        const radiusY = Math.abs(endPointY - startPointY) / 2
+        const centerX = (endPointX + startPointX) / 2
+        const centerY = (endPointY + startPointY) / 2
         this.ellipse(centerX, centerY, radiusX, radiusY, 0, 0, 2 * Math.PI)
         this.x = centerX - radiusX
         this.y = centerY - radiusY

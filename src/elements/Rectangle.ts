@@ -1,19 +1,22 @@
-import { Path } from './Path'
+import { Path, PathOptions } from './Path'
 
 export class Rectangle extends Path {
     constructor(
-        startPoint: { x: number; y: number },
-        endPoint: { x: number; y: number }
+        startPointX: number,
+        startPointY: number,
+        endPointX: number,
+        endPointY: number,
+        pathOptions?: PathOptions
     ) {
-        super()
-        this.moveTo(startPoint.x, startPoint.y)
-        this.lineTo(endPoint.x, startPoint.y)
-        this.lineTo(endPoint.x, endPoint.y)
-        this.lineTo(startPoint.x, endPoint.y)
+        super(pathOptions)
+        this.moveTo(startPointX, startPointY)
+        this.lineTo(endPointX, startPointY)
+        this.lineTo(endPointX, endPointY)
+        this.lineTo(startPointX, endPointY)
         this.closePath()
-        this.x = Math.min(startPoint.x, endPoint.x)
-        this.y = Math.min(startPoint.y, endPoint.y)
-        this.width = Math.abs(startPoint.x - endPoint.x)
-        this.height = Math.abs(startPoint.y - endPoint.y)
+        this.x = Math.min(startPointX, endPointX)
+        this.y = Math.min(startPointY, endPointY)
+        this.width = Math.abs(startPointX - endPointX)
+        this.height = Math.abs(startPointY - endPointY)
     }
 }

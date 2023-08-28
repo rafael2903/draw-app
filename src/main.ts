@@ -1,13 +1,16 @@
 import { Canvas, CanvasHistory } from './Canvas'
 import './icons'
 import './style.css'
-import { DrawEllipse } from './tools/DrawEllipse'
-import { DrawLine } from './tools/DrawLine'
-import { Erase } from './tools/Erase'
-import { HistoryControl } from './tools/HistoryControl'
-import { Move } from './tools/Move'
-import { Paint } from './tools/Paint'
-import { Select } from './tools/Select'
+import {
+    DownloadCanvasImage,
+    DrawEllipse,
+    DrawLine,
+    Erase,
+    HistoryControl,
+    Move,
+    Paint,
+    Select,
+} from './tools'
 import { Tool, ToolName } from './types'
 
 const interactionCanvasElement = document.querySelector<HTMLCanvasElement>(
@@ -15,12 +18,14 @@ const interactionCanvasElement = document.querySelector<HTMLCanvasElement>(
 )!
 const elementsCanvasElement =
     document.querySelector<HTMLCanvasElement>('#elements-canvas')!
-const pen = document.querySelector<HTMLButtonElement>('#pen')!
-const move = document.querySelector<HTMLButtonElement>('#move')!
-const select = document.querySelector<HTMLButtonElement>('#select')!
-const erase = document.querySelector<HTMLButtonElement>('#erase')!
-const ellipse = document.querySelector<HTMLButtonElement>('#ellipse')!
-const line = document.querySelector<HTMLButtonElement>('#line')!
+const clearCanvas = document.querySelector('#clear')!
+const downloadCanvasImage = document.querySelector('#download')!
+const pen = document.querySelector('#pen')!
+const move = document.querySelector('#move')!
+const select = document.querySelector('#select')!
+const erase = document.querySelector('#erase')!
+const ellipse = document.querySelector('#ellipse')!
+const line = document.querySelector('#line')!
 const undo = document.querySelector<HTMLButtonElement>('#undo')!
 const redo = document.querySelector<HTMLButtonElement>('#redo')!
 // const zoomIn = document.querySelector<HTMLButtonElement>('#zoom-in')!
@@ -49,7 +54,7 @@ const tools: Record<ToolName, Tool> = {
     [ToolName.Erase]: Erase.init(elementsCanvas, interactionCanvas),
 }
 
-function handlePointerDown (e: PointerEvent)  {
+function handlePointerDown(e: PointerEvent) {
     if (e.button === 0) {
         // @ts-ignore
         tools[activeTool].pointerDown(e)
@@ -59,7 +64,7 @@ function handlePointerDown (e: PointerEvent)  {
     }
 }
 
-function handlePointerMove(e: PointerEvent)  {
+function handlePointerMove(e: PointerEvent) {
     if (e.button === -1 && e.buttons >= 4) {
         Move.pointerMove(e)
     } else {
@@ -68,7 +73,7 @@ function handlePointerMove(e: PointerEvent)  {
     }
 }
 
-function handlePointerUp(e: PointerEvent)  {
+function handlePointerUp(e: PointerEvent) {
     if (e.button === 0) {
         // @ts-ignore
         tools[activeTool].pointerUp(e)
@@ -78,7 +83,6 @@ function handlePointerUp(e: PointerEvent)  {
         interactionCanvas.element.style.cursor = tools[activeTool].cursor
     }
 }
-
 
 let activeTool: ToolName
 const setActiveTool = (tool: ToolName) => {
@@ -94,6 +98,14 @@ const setActiveTool = (tool: ToolName) => {
 }
 
 setActiveTool(ToolName.Pen)
+
+clearCanvas.addEventListener('click', () => {
+    elementsCanvas.clear()
+})
+
+downloadCanvasImage.addEventListener('click', () => {
+    DownloadCanvasImage.downloadImage(elementsCanvas.element, 'desenho')
+})
 
 select.addEventListener('click', () => {
     setActiveTool(ToolName.Select)

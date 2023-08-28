@@ -1,17 +1,19 @@
-import { Path } from './Path'
+import { Path, PathOptions } from './Path'
 
 export class Line extends Path {
     constructor(
-        startPoint: { x: number; y: number },
-        endPoint: { x: number; y: number }
+        startPointX: number,
+        startPointY: number,
+        endPointX: number,
+        endPointY: number,
+        pathOptions?: PathOptions
     ) {
-        super()
-
-        this.moveTo(startPoint.x, startPoint.y)
-        this.lineTo(endPoint.x, endPoint.y)
-        this.x = Math.min(startPoint.x, endPoint.x)
-        this.y = Math.min(startPoint.y, endPoint.y)
-        this.width = Math.abs(endPoint.x - startPoint.x)
-        this.height = Math.abs(endPoint.y - startPoint.y)
+        super(pathOptions)
+        this.moveTo(startPointX, startPointY)
+        this.lineTo(endPointX, endPointY)
+        this.x = Math.min(startPointX, endPointX)
+        this.y = Math.min(startPointY, endPointY)
+        this.width = Math.abs(endPointX - startPointX)
+        this.height = Math.abs(endPointY - startPointY)
     }
 }

@@ -1,11 +1,11 @@
-import { Path } from './Path'
+import { Path, PathOptions } from './Path'
 
 export class Polyline extends Path {
     furthestPointX: number
     furthestPointY: number
 
-    constructor(x: number, y: number) {
-        super()
+    constructor(x: number, y: number, pathOptions?: PathOptions) {
+        super(pathOptions)
         super.moveTo(x, y)
         this.x = x
         this.y = y

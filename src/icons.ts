@@ -1,4 +1,6 @@
 import {
+    Trash,
+    FileDown,
     Pen,
     Hand,
     MousePointer,
@@ -14,6 +16,8 @@ import {
 
 createIcons({
     icons: {
+        Trash,
+        FileDown,
         Pen,
         Hand,
         MousePointer,

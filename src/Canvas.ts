@@ -35,6 +35,14 @@ export class Canvas extends Observable {
         this.redraw()
     }
 
+    get width() {
+        return this.element.width
+    }
+
+    get height() {
+        return this.element.height
+    }
+
     private erase() {
         this.ctx.clearRect(
             -this.offset.x,

@@ -19,16 +19,13 @@ export class DrawEllipse extends Tool {
 
     static pointerMove(e: PointerEvent) {
         if (!DrawEllipse.drawing) return
+        const { x, y } = DrawEllipse.startPoint!
+        const { clientX, clientY } = e
+
         if (e.shiftKey) {
-            DrawEllipse.currentPath = new Circle(DrawEllipse.startPoint!, {
-                x: e.clientX,
-                y: e.clientY,
-            })
+            DrawEllipse.currentPath = new Circle(x, y, clientX, clientY)
         } else {
-            DrawEllipse.currentPath = new Ellipse(DrawEllipse.startPoint!, {
-                x: e.clientX,
-                y: e.clientY,
-            })
+            DrawEllipse.currentPath = new Ellipse(x, y, clientX, clientY)
         }
         DrawEllipse.interactionCanvas.clear()
         DrawEllipse.interactionCanvas.addPath(DrawEllipse.currentPath)

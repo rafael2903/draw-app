@@ -40,11 +40,10 @@ export class Select extends Tool {
 
     static pointerMove(e: PointerEvent) {
         if (!Select.selecting) return
+        const { x, y } = Select.startPoint!
+        const { clientX, clientY } = e
 
-        const selectRectangle = new Rectangle(Select.startPoint!, {
-            x: e.clientX,
-            y: e.clientY,
-        })
+        const selectRectangle = new Rectangle(x, y, clientX, clientY)
         selectRectangle.filled = true
         selectRectangle.strokeStyle = '#0078d7'
         selectRectangle.lineWidth = 1

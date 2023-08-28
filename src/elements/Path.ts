@@ -1,4 +1,4 @@
-type PathOptions = {
+export type PathOptions = {
     x?: number
     y?: number
     width?: number
@@ -13,7 +13,6 @@ type PathOptions = {
     fillStyle?: string
     strokeStyle?: string
 }
-
 
 export class Path extends Path2D {
     x = 0

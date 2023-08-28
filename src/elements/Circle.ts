@@ -1,19 +1,21 @@
-import { Path } from './Path'
+import { Path, PathOptions } from './Path'
 
 export class Circle extends Path {
     constructor(
-        startPoint: { x: number; y: number },
-        endPoint: { x: number; y: number }
+        startPointX: number,
+        startPointY: number,
+        endPointX: number,
+        endPointY: number,
+        pathOptions?: PathOptions
     ) {
-        super()
-
-        const deltaX = endPoint.x - startPoint.x
-        const deltaY = endPoint.y - startPoint.y
+        super(pathOptions)
+        const deltaX = endPointX - startPointX
+        const deltaY = endPointY - startPointY
         const radiusX = Math.abs(deltaX) / 2
         const radiusY = Math.abs(deltaY) / 2
         const radius = Math.max(radiusX, radiusY)
-        const centerX = startPoint.x + radius * Math.sign(deltaX)
-        const centerY = startPoint.y + radius * Math.sign(deltaY)
+        const centerX = startPointX + radius * Math.sign(deltaX)
+        const centerY = startPointY + radius * Math.sign(deltaY)
         this.arc(centerX, centerY, radius, 0, 2 * Math.PI)
         this.x = centerX - radius
         this.y = centerY - radius

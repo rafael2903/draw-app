@@ -8,7 +8,7 @@ export class Erase extends Tool {
 
     static pointerDown(e: PointerEvent) {
         Erase.erasing = true
-        Erase.elementsCanvas.removePathInPoint(e.offsetX, e.offsetY)
+        Erase.elementsCanvas.removePathInPoint(e.offsetX, e.offsetY) // todo: remover path sob todo o cursor, não apenas no ponto
     }
 
     static pointerMove(e: PointerEvent) {
