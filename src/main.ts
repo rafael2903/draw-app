@@ -1,5 +1,5 @@
 import { Canvas, CanvasHistory } from './Canvas'
-import './icons'
+import './config-icons'
 import './style.css'
 import {
     DownloadCanvasImage,
