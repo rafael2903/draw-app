@@ -1,13 +1,11 @@
 import { Canvas } from '../Canvas'
+import { Path } from '../elements/Path'
 import { Rectangle } from '../elements/Rectangle'
 import { Tool } from '../types'
-import { Path } from '../elements/Path'
 
 export class Select extends Tool {
     static cursor = 'default'
-    private static currentPath: Path
     private static selecting = false
-    private static pointerEvents: PointerEvent[] = []
     private static interactionCanvas: Canvas
     private static elementsCanvas: Canvas
     private static selectedPaths: Path[] = []
@@ -26,19 +24,17 @@ export class Select extends Tool {
     // }
 
     static pointerDown(e: PointerEvent) {
-        if (e.button === 0) {
-            // Select.erasing = true
-            const selectedPath = Select.elementsCanvas.getPathInPoint(
-                e.clientX,
-                e.clientY
-            )
+        // Select.erasing = true
+        const selectedPath = Select.elementsCanvas.getPathInPoint(
+            e.clientX,
+            e.clientY
+        )
 
-            if (selectedPath) {
-                Select.selectedPaths.push(selectedPath)
-            } else {
-                Select.selecting = true
-                Select.startPoint = { x: e.clientX, y: e.clientY }
-            }
+        if (selectedPath) {
+            Select.selectedPaths.push(selectedPath)
+        } else {
+            Select.selecting = true
+            Select.startPoint = { x: e.clientX, y: e.clientY }
         }
     }
 
@@ -69,23 +65,9 @@ export class Select extends Tool {
         // Select.elementsCanvas.redraw()
     }
 
-    static setUp(interactionCanvas: Canvas, elementsCanvas: Canvas) {
-        Select.interactionCanvas = interactionCanvas
+    static init(elementsCanvas: Canvas, interactionCanvas: Canvas) {
         Select.elementsCanvas = elementsCanvas
-        Select.interactionCanvas.element.addEventListener(
-            'pointerdown',
-            Select.pointerDown
-        )
-        window.addEventListener('pointermove', Select.pointerMove)
-        window.addEventListener('pointerup', Select.pointerUp)
-    }
-
-    static tearDown() {
-        Select.interactionCanvas.element.removeEventListener(
-            'pointerdown',
-            Select.pointerDown
-        )
-        window.removeEventListener('pointermove', Select.pointerMove)
-        window.removeEventListener('pointerup', Select.pointerUp)
+        Select.interactionCanvas = interactionCanvas
+        return Select
     }
 }

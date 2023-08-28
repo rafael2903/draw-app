@@ -1,8 +1,8 @@
+import { Canvas } from '../Canvas'
 import { Circle } from '../elements/Circle'
 import { Ellipse } from '../elements/Ellipse'
-import { Canvas } from '../Canvas'
-import { Tool } from '../types'
 import { Path } from '../elements/Path'
+import { Tool } from '../types'
 
 export class DrawEllipse extends Tool {
     static cursor = 'crosshair'
@@ -13,10 +13,8 @@ export class DrawEllipse extends Tool {
     private static elementsCanvas: Canvas
 
     static pointerDown(e: PointerEvent) {
-        if (e.button === 0) {
-            DrawEllipse.drawing = true
-            DrawEllipse.startPoint = { x: e.clientX, y: e.clientY }
-        }
+        DrawEllipse.drawing = true
+        DrawEllipse.startPoint = { x: e.clientX, y: e.clientY }
     }
 
     static pointerMove(e: PointerEvent) {
@@ -45,24 +43,9 @@ export class DrawEllipse extends Tool {
         DrawEllipse.interactionCanvas.clear()
     }
 
-    static setUp(interactionCanvas: Canvas, elementsCanvas: Canvas) {
-        DrawEllipse.interactionCanvas = interactionCanvas
+    static init(elementsCanvas: Canvas, interactionCanvas: Canvas) {
         DrawEllipse.elementsCanvas = elementsCanvas
-
-        DrawEllipse.interactionCanvas.element.addEventListener(
-            'pointerdown',
-            DrawEllipse.pointerDown
-        )
-        window.addEventListener('pointermove', DrawEllipse.pointerMove)
-        window.addEventListener('pointerup', DrawEllipse.pointerUp)
-    }
-
-    static tearDown() {
-        DrawEllipse.interactionCanvas.element.removeEventListener(
-            'pointerdown',
-            DrawEllipse.pointerDown
-        )
-        window.removeEventListener('pointermove', DrawEllipse.pointerMove)
-        window.removeEventListener('pointerup', DrawEllipse.pointerUp)
+        DrawEllipse.interactionCanvas = interactionCanvas
+        return DrawEllipse
     }
 }

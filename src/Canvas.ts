@@ -78,10 +78,15 @@ export class Canvas extends Observable {
         this.notify()
     }
 
-    removePath(pathIndex: number) {
+    removePathByIndex(pathIndex: number) {
         this.paths.splice(pathIndex, 1)
         this.redraw()
         this.notify()
+    }
+
+    removePath(path: Path) {
+        const pathIndex = this.paths.indexOf(path)
+        if (pathIndex !== -1) this.removePathByIndex(pathIndex)
     }
 
     removePathInPoint(x: number, y: number) {
@@ -92,7 +97,7 @@ export class Canvas extends Observable {
                 y + path.offset.y
             )
         })
-        if (pathToRemoveIndex !== -1) this.removePath(pathToRemoveIndex)
+        if (pathToRemoveIndex !== -1) this.removePathByIndex(pathToRemoveIndex)
     }
 
     get isEmpty() {

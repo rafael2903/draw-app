@@ -24,12 +24,10 @@ export class Paint extends Tool {
     }
 
     static pointerDown(e: PointerEvent) {
-        if (e.button === 0) {
             Paint.painting = true
             Paint.currentPath = new Polyline(e.offsetX, e.offsetY)
             Paint.pointerEvents.push(e)
             Paint.draw()
-        }
     }
 
     static pointerMove(e: PointerEvent) {
@@ -57,23 +55,9 @@ export class Paint extends Tool {
         Paint.elementsCanvas.addPath(Paint.currentPath)
     }
 
-    static setUp(interactionCanvas: Canvas, elementsCanvas: Canvas) {
-        Paint.interactionCanvas = interactionCanvas
+    static init(elementsCanvas: Canvas, interactionCanvas: Canvas) {
         Paint.elementsCanvas = elementsCanvas
-        Paint.interactionCanvas.element.addEventListener(
-            'pointerdown',
-            Paint.pointerDown
-        )
-        window.addEventListener('pointermove', Paint.pointerMove)
-        window.addEventListener('pointerup', Paint.pointerUp)
-    }
-
-    static tearDown() {
-        Paint.interactionCanvas.element.removeEventListener(
-            'pointerdown',
-            Paint.pointerDown
-        )
-        window.removeEventListener('pointermove', Paint.pointerMove)
-        window.removeEventListener('pointerup', Paint.pointerUp)
+        Paint.interactionCanvas = interactionCanvas
+        return Paint
     }
 }

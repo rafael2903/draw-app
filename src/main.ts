@@ -41,29 +41,56 @@ const drawHistory = new CanvasHistory(elementsCanvas)
 const historyControl = new HistoryControl(drawHistory, redo, undo)
 
 const tools: Record<ToolName, Tool> = {
-    [ToolName.Pen]: Paint,
-    [ToolName.Line]: DrawLine,
-    [ToolName.Move]: Move,
-    [ToolName.Select]: Select,
-    [ToolName.Ellipse]: DrawEllipse,
-    [ToolName.Erase]: Erase,
+    [ToolName.Pen]: Paint.init(elementsCanvas, interactionCanvas),
+    [ToolName.Line]: DrawLine.init(elementsCanvas, interactionCanvas),
+    [ToolName.Move]: Move.init(elementsCanvas, interactionCanvas),
+    [ToolName.Select]: Select.init(elementsCanvas, interactionCanvas),
+    [ToolName.Ellipse]: DrawEllipse.init(elementsCanvas, interactionCanvas),
+    [ToolName.Erase]: Erase.init(elementsCanvas, interactionCanvas),
 }
+
+function handlePointerDown (e: PointerEvent)  {
+    if (e.button === 0) {
+        // @ts-ignore
+        tools[activeTool].pointerDown(e)
+    } else if (e.button === 1) {
+        interactionCanvas.clear()
+        Move.pointerDown(e)
+    }
+}
+
+function handlePointerMove(e: PointerEvent)  {
+    if (e.button === -1 && e.buttons >= 4) {
+        Move.pointerMove(e)
+    } else {
+        // @ts-ignore
+        tools[activeTool].pointerMove(e)
+    }
+}
+
+function handlePointerUp(e: PointerEvent)  {
+    if (e.button === 0) {
+        // @ts-ignore
+        tools[activeTool].pointerUp(e)
+    } else if (e.button === 1) {
+        Move.pointerUp()
+        // @ts-ignore
+        interactionCanvas.element.style.cursor = tools[activeTool].cursor
+    }
+}
+
 
 let activeTool: ToolName
 const setActiveTool = (tool: ToolName) => {
     if (activeTool === tool) return
-    tools[activeTool]?.tearDown()
     activeTool = tool
-    document
-        .querySelector<HTMLButtonElement>('.tool.active')
-        ?.classList.remove('active')
-
-    document
-        .querySelector<HTMLButtonElement>(`#${tool}`)!
-        .classList.add('active')
+    document.querySelector('.tool.active')?.classList.remove('active')
+    document.querySelector(`#${tool}`)!.classList.add('active')
+    // @ts-ignore
     interactionCanvas.element.style.cursor = tools[tool].cursor
-
-    tools[tool].setUp(interactionCanvas, elementsCanvas)
+    interactionCanvas.element.onpointerdown = handlePointerDown
+    window.onpointermove = handlePointerMove
+    window.onpointerup = handlePointerUp
 }
 
 setActiveTool(ToolName.Pen)

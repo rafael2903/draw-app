@@ -2,7 +2,8 @@ import { Canvas } from '../Canvas'
 import { Tool } from '../types'
 
 export class Move extends Tool {
-    static cursor = 'move'
+    static cursor = 'grab'
+    static cursorOnPointerDown = 'grabbing'
     private static dragging = false
     private static lastX = 0
     private static lastY = 0
@@ -10,11 +11,10 @@ export class Move extends Tool {
     private static elementsCanvas: Canvas
 
     static pointerDown(e: PointerEvent) {
-        if (e.button === 0) {
-            Move.dragging = true
-            Move.lastX = e.pageX
-            Move.lastY = e.pageY
-        }
+        Move.interactionCanvas.element.style.cursor = Move.cursorOnPointerDown
+        Move.dragging = true
+        Move.lastX = e.pageX
+        Move.lastY = e.pageY
     }
 
     static pointerMove(e: PointerEvent) {
@@ -28,27 +28,14 @@ export class Move extends Tool {
     }
 
     static pointerUp() {
+        if (!Move.dragging) return
+        Move.interactionCanvas.element.style.cursor = Move.cursor
         Move.dragging = false
     }
 
-    static setUp(interactionCanvas: Canvas, elementsCanvas: Canvas) {
-        Move.interactionCanvas = interactionCanvas
+    static init(elementsCanvas: Canvas, interactionCanvas: Canvas) {
         Move.elementsCanvas = elementsCanvas
-
-        Move.interactionCanvas.element.addEventListener(
-            'pointerdown',
-            Move.pointerDown
-        )
-        window.addEventListener('pointermove', Move.pointerMove)
-        window.addEventListener('pointerup', Move.pointerUp)
-    }
-
-    static tearDown() {
-        Move.interactionCanvas.element.removeEventListener(
-            'pointerdown',
-            Move.pointerDown
-        )
-        window.removeEventListener('pointermove', Move.pointerMove)
-        window.removeEventListener('pointerup', Move.pointerUp)
+        Move.interactionCanvas = interactionCanvas
+        return Move
     }
 }

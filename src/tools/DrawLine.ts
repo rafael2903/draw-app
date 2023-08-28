@@ -1,7 +1,7 @@
-import { Line } from '../elements/Line'
 import { Canvas } from '../Canvas'
-import { Tool } from '../types'
+import { Line } from '../elements/Line'
 import { Path } from '../elements/Path'
+import { Tool } from '../types'
 
 export class DrawLine extends Tool {
     static cursor = 'crosshair'
@@ -12,10 +12,8 @@ export class DrawLine extends Tool {
     private static elementsCanvas: Canvas
 
     static pointerDown(e: PointerEvent) {
-        if (e.button === 0) {
-            DrawLine.drawing = true
-            DrawLine.startPoint = { x: e.clientX, y: e.clientY }
-        }
+        DrawLine.drawing = true
+        DrawLine.startPoint = { x: e.clientX, y: e.clientY }
     }
 
     static pointerMove(e: PointerEvent) {
@@ -38,24 +36,9 @@ export class DrawLine extends Tool {
         DrawLine.interactionCanvas.clear()
     }
 
-    static setUp(interactionCanvas: Canvas, elementsCanvas: Canvas) {
-        DrawLine.interactionCanvas = interactionCanvas
+    static init(elementsCanvas: Canvas, interactionCanvas: Canvas) {
         DrawLine.elementsCanvas = elementsCanvas
-
-        DrawLine.interactionCanvas.element.addEventListener(
-            'pointerdown',
-            DrawLine.pointerDown
-        )
-        window.addEventListener('pointermove', DrawLine.pointerMove)
-        window.addEventListener('pointerup', DrawLine.pointerUp)
-    }
-
-    static tearDown() {
-        DrawLine.interactionCanvas.element.removeEventListener(
-            'pointerdown',
-            DrawLine.pointerDown
-        )
-        window.removeEventListener('pointermove', DrawLine.pointerMove)
-        window.removeEventListener('pointerup', DrawLine.pointerUp)
+        DrawLine.interactionCanvas = interactionCanvas
+        return DrawLine
     }
 }

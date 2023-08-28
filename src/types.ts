@@ -1,4 +1,4 @@
-import { Canvas } from "./Canvas";
+import { Canvas } from './Canvas'
 
 export enum ToolName {
     Pen = 'pen',
@@ -11,10 +11,15 @@ export enum ToolName {
 
 export abstract class Tool {
     static cursor: string
-    static setUp: (
+    static cursorOnPointerDown?: string
+    static setUp?: (
         interactionCanvas: Canvas,
         elementsCanvas: Canvas,
         paths: Path2D[]
     ) => void
-    static tearDown: () => void
+    static tearDown?: () => void
+    static init: (elementsCanvas: Canvas, interactionCanvas: Canvas) => Tool
+    static pointerDown: (e: PointerEvent) => void
+    static pointerMove: (e: PointerEvent) => void
+    static pointerUp: () => void
 }
