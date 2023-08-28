@@ -2,7 +2,7 @@ import { Canvas } from '../Canvas'
 import { Tool } from '../types'
 
 export class Erase extends Tool {
-    static cursor = 'url(eraser.png) 13 18, default'
+    static cursor = 'url(eraser-cursor.png) 13 18, default'
     private static erasing = false
     private static elementsCanvas: Canvas
 
