@@ -11,31 +11,30 @@ export class Move extends Tool {
     private static elementsCanvas: Canvas
 
     static pointerDown(e: PointerEvent) {
-        Move.interactionCanvas.element.style.cursor = Move.cursorOnPointerDown
-        Move.dragging = true
-        Move.lastX = e.pageX
-        Move.lastY = e.pageY
+        this.interactionCanvas.element.style.cursor = this.cursorOnPointerDown
+        this.dragging = true
+        this.lastX = e.pageX
+        this.lastY = e.pageY
     }
 
     static pointerMove(e: PointerEvent) {
-        if (Move.dragging) {
-            const deltaX = e.pageX - Move.lastX
-            const deltaY = e.pageY - Move.lastY
-            Move.lastX = e.pageX
-            Move.lastY = e.pageY
-            Move.elementsCanvas.translate(deltaX, deltaY)
-        }
+        if (!this.dragging) return
+        const deltaX = e.pageX - this.lastX
+        const deltaY = e.pageY - this.lastY
+        this.lastX = e.pageX
+        this.lastY = e.pageY
+        this.elementsCanvas.translate(deltaX, deltaY)
     }
 
     static pointerUp() {
-        if (!Move.dragging) return
-        Move.interactionCanvas.element.style.cursor = Move.cursor
-        Move.dragging = false
+        if (!this.dragging) return
+        this.interactionCanvas.element.style.cursor = this.cursor
+        this.dragging = false
     }
 
     static init(elementsCanvas: Canvas, interactionCanvas: Canvas) {
-        Move.elementsCanvas = elementsCanvas
-        Move.interactionCanvas = interactionCanvas
-        return Move
+        this.elementsCanvas = elementsCanvas
+        this.interactionCanvas = interactionCanvas
+        return this
     }
 }

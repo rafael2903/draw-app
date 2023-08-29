@@ -13,35 +13,35 @@ export class DrawEllipse extends Tool {
     private static elementsCanvas: Canvas
 
     static pointerDown(e: PointerEvent) {
-        DrawEllipse.drawing = true
-        DrawEllipse.startPoint = { x: e.clientX, y: e.clientY }
+        this.drawing = true
+        this.startPoint = { x: e.clientX, y: e.clientY }
     }
 
     static pointerMove(e: PointerEvent) {
-        if (!DrawEllipse.drawing) return
-        const { x, y } = DrawEllipse.startPoint!
+        if (!this.drawing) return
+        const { x, y } = this.startPoint!
         const { clientX, clientY } = e
 
         if (e.shiftKey) {
-            DrawEllipse.currentPath = new Circle(x, y, clientX, clientY)
+            this.currentPath = new Circle(x, y, clientX, clientY)
         } else {
-            DrawEllipse.currentPath = new Ellipse(x, y, clientX, clientY)
+            this.currentPath = new Ellipse(x, y, clientX, clientY)
         }
-        DrawEllipse.interactionCanvas.replacePaths(DrawEllipse.currentPath)
+        this.interactionCanvas.replacePaths(this.currentPath)
     }
 
     static pointerUp() {
-        if (!DrawEllipse.drawing) return
-        DrawEllipse.drawing = false
-        DrawEllipse.currentPath.offset.x = DrawEllipse.elementsCanvas.offset.x
-        DrawEllipse.currentPath.offset.y = DrawEllipse.elementsCanvas.offset.y
-        DrawEllipse.elementsCanvas.addPath(DrawEllipse.currentPath)
-        DrawEllipse.interactionCanvas.clear()
+        if (!this.drawing) return
+        this.drawing = false
+        this.currentPath.offset.x = this.elementsCanvas.offset.x
+        this.currentPath.offset.y = this.elementsCanvas.offset.y
+        this.elementsCanvas.addPath(this.currentPath)
+        this.interactionCanvas.clear()
     }
 
     static init(elementsCanvas: Canvas, interactionCanvas: Canvas) {
-        DrawEllipse.elementsCanvas = elementsCanvas
-        DrawEllipse.interactionCanvas = interactionCanvas
-        return DrawEllipse
+        this.elementsCanvas = elementsCanvas
+        this.interactionCanvas = interactionCanvas
+        return this
     }
 }

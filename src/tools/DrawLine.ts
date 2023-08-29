@@ -12,30 +12,30 @@ export class DrawLine extends Tool {
     private static elementsCanvas: Canvas
 
     static pointerDown(e: PointerEvent) {
-        DrawLine.drawing = true
-        DrawLine.startPoint = { x: e.clientX, y: e.clientY }
+        this.drawing = true
+        this.startPoint = { x: e.clientX, y: e.clientY }
     }
 
     static pointerMove(e: PointerEvent) {
-        if (!DrawLine.drawing) return
-        const { x, y } = DrawLine.startPoint!
+        if (!this.drawing) return
+        const { x, y } = this.startPoint!
         const { clientX, clientY } = e
-        DrawLine.currentPath = new Line(x, y, clientX, clientY)
-        DrawLine.interactionCanvas.replacePaths(DrawLine.currentPath)
+        this.currentPath = new Line(x, y, clientX, clientY)
+        this.interactionCanvas.replacePaths(this.currentPath)
     }
 
     static pointerUp() {
-        if (!DrawLine.drawing) return
-        DrawLine.drawing = false
-        DrawLine.currentPath.offset.x = DrawLine.elementsCanvas.offset.x
-        DrawLine.currentPath.offset.y = DrawLine.elementsCanvas.offset.y
-        DrawLine.elementsCanvas.addPath(DrawLine.currentPath)
-        DrawLine.interactionCanvas.clear()
+        if (!this.drawing) return
+        this.drawing = false
+        this.currentPath.offset.x = this.elementsCanvas.offset.x
+        this.currentPath.offset.y = this.elementsCanvas.offset.y
+        this.elementsCanvas.addPath(this.currentPath)
+        this.interactionCanvas.clear()
     }
 
     static init(elementsCanvas: Canvas, interactionCanvas: Canvas) {
-        DrawLine.elementsCanvas = elementsCanvas
-        DrawLine.interactionCanvas = interactionCanvas
-        return DrawLine
+        this.elementsCanvas = elementsCanvas
+        this.interactionCanvas = interactionCanvas
+        return this
     }
 }

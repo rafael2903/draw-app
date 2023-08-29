@@ -7,24 +7,24 @@ export class Erase extends Tool {
     private static elementsCanvas: Canvas
 
     static pointerDown(e: PointerEvent) {
-        Erase.erasing = true
-        Erase.elementsCanvas.removePathInPoint(e.offsetX, e.offsetY) // todo: remover path sob todo o cursor, não apenas no ponto
+        this.erasing = true
+        this.elementsCanvas.removePathInPoint(e.offsetX, e.offsetY) // todo: remover path sob todo o cursor, não apenas no ponto
     }
 
     static pointerMove(e: PointerEvent) {
-        if (!Erase.erasing || Erase.elementsCanvas.isEmpty) return
+        if (!this.erasing || this.elementsCanvas.isEmpty) return
         const coalescedEvents = e.getCoalescedEvents()
         coalescedEvents.forEach((e) => {
-            Erase.elementsCanvas.removePathInPoint(e.offsetX, e.offsetY)
+            this.elementsCanvas.removePathInPoint(e.offsetX, e.offsetY)
         })
     }
 
     static pointerUp() {
-        Erase.erasing = false
+        this.erasing = false
     }
 
     static init(elementsCanvas: Canvas, _interactionCanvas: Canvas) {
-        Erase.elementsCanvas = elementsCanvas
-        return Erase
+        this.elementsCanvas = elementsCanvas
+        return this
     }
 }

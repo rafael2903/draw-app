@@ -12,35 +12,35 @@ export class Select extends Tool {
     private static startPoint: { x: number; y: number } | null = null
 
     // private static draw() {
-    //     if (!Select.selecting) return
-    //     while (Select.pointerEvents.length > 0) {
-    //         const e = Select.pointerEvents.shift()!
-    //         Select.currentPath.lineTo(e.pageX, e.pageY)
-    //         Select.currentPath.moveTo(e.pageX, e.pageY)
-    //         Select.interactionCanvas.paths[0] = Select.currentPath
-    //         Select.interactionCanvas.redraw()
+    //     if (!this.selecting) return
+    //     while (this.pointerEvents.length > 0) {
+    //         const e = this.pointerEvents.shift()!
+    //         this.currentPath.lineTo(e.pageX, e.pageY)
+    //         this.currentPath.moveTo(e.pageX, e.pageY)
+    //         this.interactionCanvas.paths[0] = this.currentPath
+    //         this.interactionCanvas.redraw()
     //     }
-    //     requestAnimationFrame(Select.draw)
+    //     requestAnimationFrame(this.draw)
     // }
 
     static pointerDown(e: PointerEvent) {
-        // Select.erasing = true
-        const selectedPath = Select.elementsCanvas.getPathInPoint(
+        // this.erasing = true
+        const selectedPath = this.elementsCanvas.getPathInPoint(
             e.clientX,
             e.clientY
         )
 
         if (selectedPath) {
-            Select.selectedPaths.push(selectedPath)
+            this.selectedPaths.push(selectedPath)
         } else {
-            Select.selecting = true
-            Select.startPoint = { x: e.clientX, y: e.clientY }
+            this.selecting = true
+            this.startPoint = { x: e.clientX, y: e.clientY }
         }
     }
 
     static pointerMove(e: PointerEvent) {
-        if (!Select.selecting) return
-        const { x, y } = Select.startPoint!
+        if (!this.selecting) return
+        const { x, y } = this.startPoint!
         const { clientX, clientY } = e
 
         const selectRectangle = new Rectangle(x, y, clientX, clientY)
@@ -48,24 +48,24 @@ export class Select extends Tool {
         selectRectangle.strokeStyle = '#0078d7'
         selectRectangle.lineWidth = 1
         selectRectangle.fillStyle = 'rgba(0, 120, 215, 0.1)'
-        Select.interactionCanvas.replacePaths(selectRectangle)
+        this.interactionCanvas.replacePaths(selectRectangle)
     }
 
     static pointerUp() {
-        if (!Select.selecting) return
-        Select.selecting = false
-        Select.interactionCanvas.clear()
-        // Select.pointerEvents.length = 0
-        // Select.interactionCanvas.paths.length = 0
-        // Select.currentPath.offset.x = Select.elementsCanvas.offset.x
-        // Select.currentPath.offset.y = Select.elementsCanvas.offset.y
-        // Select.elementsCanvas.paths.push(Select.currentPath)
-        // Select.elementsCanvas.redraw()
+        if (!this.selecting) return
+        this.selecting = false
+        this.interactionCanvas.clear()
+        // this.pointerEvents.length = 0
+        // this.interactionCanvas.paths.length = 0
+        // this.currentPath.offset.x = this.elementsCanvas.offset.x
+        // this.currentPath.offset.y = this.elementsCanvas.offset.y
+        // this.elementsCanvas.paths.push(this.currentPath)
+        // this.elementsCanvas.redraw()
     }
 
     static init(elementsCanvas: Canvas, interactionCanvas: Canvas) {
-        Select.elementsCanvas = elementsCanvas
-        Select.interactionCanvas = interactionCanvas
-        return Select
+        this.elementsCanvas = elementsCanvas
+        this.interactionCanvas = interactionCanvas
+        return this
     }
 }
