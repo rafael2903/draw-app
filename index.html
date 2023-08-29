@@ -1,60 +1,66 @@
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-        <meta charset="UTF-8" />
-        <link rel="icon" type="image/png" href="/icon.png" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>Paint</title>
-    </head>
-    <body>
-        <div id="app">
 
-            <div id="canvas-control">
-                <button class="tool" id="clear">
-                    <i data-lucide="trash"></i>
-                </button>
-                <button class="tool" id="download">
-                    <i data-lucide="file-down"></i>
-                </button>
-            </div>
+<head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/png" href="/icon.png" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Paint</title>
+</head>
 
-            <div id="history-control">
-                <button class="tool" id="undo" disabled>
-                    <i data-lucide="undo"></i>
-                </button>
-                <button class="tool" id="redo" disabled>
-                    <i data-lucide="redo"></i>
-                </button>
-            </div>
+<body>
+    <div id="app">
 
-            <div id="tools">
-                <button class="tool" id="select">
-                    <i data-lucide="mouse-pointer"></i>
-                </button>
-                <button class="tool" id="move">
-                    <i data-lucide="hand"></i>
-                </button>
-                <button class="tool" id="pen"><i data-lucide="pen"></i></button>
-                <button class="tool" id="erase">
-                    <i data-lucide="eraser"></i>
-                </button>
-                <button class="tool" id="ellipse">
-                    <i data-lucide="circle"></i>
-                </button>
-                <button class="tool" id="line">
-                    <i data-lucide="minus"></i>
-                </button>
-                <label class="tool" for="add-image">
-                <i data-lucide="image"></i></label>
-                <input type="file" id="add-image" accept="image/*">
-                </input>
-
-                <!-- <button class="tool" id="zoom-in"><i data-lucide="zoom-in"></i></button> -->
-                <!-- <button class="tool" id="zoom-out"><i data-lucide="zoom-out"></i></button> -->
-            </div>
-            <canvas id="interaction-canvas"></canvas>
-            <canvas id="elements-canvas" style="background-color: #f5f5f5;"></canvas>
+        <div id="canvas-control">
+            <button class="tool" id="clear" title="Clear">
+                <i data-lucide="trash"></i>
+            </button>
+            <button class="tool" id="download" title="Export as image">
+                <i data-lucide="file-down"></i>
+            </button>
         </div>
-        <script type="module" src="/src/main.ts"></script>
-    </body>
+
+        <div id="history-control">
+            <button class="tool" id="undo" disabled title="Undo - Ctrl + Z">
+                <i data-lucide="undo"></i>
+            </button>
+            <button class="tool" id="redo" disabled title="Redo - Ctrl + Y">
+                <i data-lucide="redo"></i>
+            </button>
+        </div>
+
+        <div id="tools">
+            <button class="tool" id="select" title="Select">
+                <i data-lucide="mouse-pointer"></i>
+            </button>
+            <button class="tool" id="move" title="Move">
+                <i data-lucide="hand"></i>
+            </button>
+            <button class="tool" id="pen" title="Pen">
+                <i data-lucide="pen"></i>
+            </button>
+            <button class="tool" id="erase" title="Eraser">
+                <i data-lucide="eraser"></i>
+            </button>
+            <button class="tool" id="ellipse" title="Ellipse">
+                <i data-lucide="circle"></i>
+            </button>
+            <button class="tool" id="line" title="Line">
+                <i data-lucide="minus"></i>
+            </button>
+            <label class="tool" for="add-image" title="Add image">
+                <i data-lucide="image"></i>
+            </label>
+            <input type="file" id="add-image" accept="image/*">
+            </input>
+
+            <!-- <button class="tool" id="zoom-in"><i data-lucide="zoom-in"></i></button> -->
+            <!-- <button class="tool" id="zoom-out"><i data-lucide="zoom-out"></i></button> -->
+        </div>
+        <canvas id="interaction-canvas"></canvas>
+        <canvas id="elements-canvas" style="background-color: #f5f5f5;"></canvas>
+    </div>
+    <script type="module" src="/src/main.ts"></script>
+</body>
+
 </html>
