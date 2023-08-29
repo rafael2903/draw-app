@@ -1,13 +1,12 @@
 import { Canvas } from '../Canvas'
 import { Circle } from '../elements/Circle'
 import { Ellipse } from '../elements/Ellipse'
-import { Path } from '../elements/Path'
 import { Tool } from '../types'
 
 export class DrawEllipse extends Tool {
     static cursor = 'crosshair'
     private static startPoint: { x: number; y: number } | null = null
-    private static currentPath: Path
+    private static currentPath: Circle | Ellipse
     private static drawing = false
     private static interactionCanvas: Canvas
     private static elementsCanvas: Canvas

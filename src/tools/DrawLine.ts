@@ -1,12 +1,11 @@
 import { Canvas } from '../Canvas'
 import { Line } from '../elements/Line'
-import { Path } from '../elements/Path'
 import { Tool } from '../types'
 
 export class DrawLine extends Tool {
     static cursor = 'crosshair'
     private static startPoint: { x: number; y: number } | null = null
-    private static currentPath: Path
+    private static currentPath: Line
     private static drawing = false
     private static interactionCanvas: Canvas
     private static elementsCanvas: Canvas
