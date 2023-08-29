@@ -24,11 +24,23 @@ export class Canvas extends Observable {
     private ctx: CanvasRenderingContext2D
     private paths: Path[] = []
     readonly offset = { x: 0, y: 0 }
-    scale = 1.0
+    // private scale = 1.0
     constructor(element: HTMLCanvasElement) {
         super()
         this.element = element
         this.ctx = element.getContext('2d')!
+    }
+
+    get isEmpty() {
+        return this.paths.length === 0
+    }
+
+    get width() {
+        return this.element.width
+    }
+
+    get height() {
+        return this.element.height
     }
 
     set width(value: number) {
@@ -39,14 +51,6 @@ export class Canvas extends Observable {
     set height(value: number) {
         this.element.height = value
         this.redraw(EraseMode.HARD)
-    }
-
-    get width() {
-        return this.element.width
-    }
-
-    get height() {
-        return this.element.height
     }
 
     private erase(eraseMode = EraseMode.SOFT) {
@@ -70,6 +74,22 @@ export class Canvas extends Observable {
         this.notify()
     }
 
+    private drawPath(path: Path) {
+        this.ctx.lineWidth = path.lineWidth
+        this.ctx.lineCap = path.lineCap
+        path.strokeStyle && (this.ctx.strokeStyle = path.strokeStyle)
+        path.fillStyle && (this.ctx.fillStyle = path.fillStyle)
+        path.font && (this.ctx.font = path.font)
+        path.lineJoin && (this.ctx.lineJoin = path.lineJoin)
+        this.ctx.save()
+        this.ctx.translate(-path.offset.x, -path.offset.y)
+        path.filled && this.ctx.fill(path)
+        path.stroked && this.ctx.stroke(path)
+        if (path instanceof ImagePath)
+            this.ctx.drawImage(path.imageElement, path.x, path.y)
+        this.ctx.restore()
+    }
+
     private drawPaths() {
         for (const path of this.paths) {
             this.drawPath(path)
@@ -86,22 +106,6 @@ export class Canvas extends Observable {
         this.paths.splice(0, Infinity, ...newPaths)
         this.redraw()
         this.notify()
-    }
-
-    private drawPath(path: Path) {
-        this.ctx.lineWidth = path.lineWidth
-        this.ctx.lineCap = path.lineCap
-        path.strokeStyle && (this.ctx.strokeStyle = path.strokeStyle)
-        path.fillStyle && (this.ctx.fillStyle = path.fillStyle)
-        path.font && (this.ctx.font = path.font)
-        path.lineJoin && (this.ctx.lineJoin = path.lineJoin)
-        this.ctx.save()
-        this.ctx.translate(-path.offset.x, -path.offset.y)
-        path.filled && this.ctx.fill(path)
-        path.stroked && this.ctx.stroke(path)
-        if (path instanceof ImagePath)
-            this.ctx.drawImage(path.imageElement, path.x, path.y)
-        this.ctx.restore()
     }
 
     addPath(path: Path) {
@@ -132,17 +136,6 @@ export class Canvas extends Observable {
         if (pathToRemoveIndex !== -1) this.removePathByIndex(pathToRemoveIndex)
     }
 
-    get isEmpty() {
-        return this.paths.length === 0
-    }
-
-    translate(x: number, y: number) {
-        this.ctx.translate(x, y)
-        this.offset.x += x
-        this.offset.y += y
-        this.redraw()
-    }
-
     getPathInPoint(x: number, y: number) {
         return this.paths.find((path) => {
             return this.ctx.isPointInStroke(
@@ -151,6 +144,13 @@ export class Canvas extends Observable {
                 y + path.offset.y
             )
         })
+    }
+
+    translate(x: number, y: number) {
+        this.ctx.translate(x, y)
+        this.offset.x += x
+        this.offset.y += y
+        this.redraw()
     }
 
     getState() {
@@ -164,8 +164,8 @@ export class Canvas extends Observable {
 }
 
 export class CanvasHistory extends Observable {
-    private readonly undos: Path[][] = [[]]
-    private readonly redos: Path[][] = []
+    private undos: Path[][] = [[]]
+    private redos: Path[][] = []
     private sizeMax = 30
     private _canUndo = false
     private _canRedo = false
