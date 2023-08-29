@@ -13,7 +13,7 @@ export class Line extends Path {
         this.lineTo(endPointX, endPointY)
         this.x = Math.min(startPointX, endPointX)
         this.y = Math.min(startPointY, endPointY)
-        this.width = Math.abs(endPointX - startPointX)
-        this.height = Math.abs(endPointY - startPointY)
+        this.width = Math.max(Math.abs(endPointX - startPointX), this.lineWidth)
+        this.height = Math.max(Math.abs(endPointY - startPointY), this.lineWidth)
     }
 }

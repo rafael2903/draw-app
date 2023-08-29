@@ -1,8 +1,8 @@
 import { Path, PathOptions } from './Path'
 
 export class Polyline extends Path {
-    furthestPointX: number
-    furthestPointY: number
+    private furthestPointX: number
+    private furthestPointY: number
 
     constructor(x: number, y: number, pathOptions?: PathOptions) {
         super(pathOptions)
