@@ -5,7 +5,7 @@ import { Tool } from '../types'
 
 export class Paint extends Tool {
     static cursor = 'none'
-    private static currentPath: Path
+    private static currentPath: Polyline
     private static painting = false
     private static pointerEvents: PointerEvent[] = []
     private static interactionCanvas: Canvas
@@ -15,8 +15,7 @@ export class Paint extends Tool {
         if (!Paint.painting) return
         while (Paint.pointerEvents.length > 0) {
             const e = Paint.pointerEvents.shift()!
-            Paint.currentPath.lineTo(e.pageX, e.pageY)
-            Paint.currentPath.moveTo(e.pageX, e.pageY)
+            Paint.currentPath.addPoint(e.pageX, e.pageY)
             Paint.interactionCanvas.clear()
             Paint.interactionCanvas.addPath(Paint.currentPath)
         }
