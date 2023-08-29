@@ -2,26 +2,26 @@ import { CanvasHistory } from '../Canvas'
 
 export class HistoryControl {
     constructor(
-        private drawHistory: CanvasHistory,
+        private history: CanvasHistory,
         private redoButton: HTMLButtonElement,
         private undoButton: HTMLButtonElement
     ) {
-        this.drawHistory.subscribe(() => {
+        this.history.subscribe(() => {
             this.updateButtons()
         })
     }
 
     private updateButtons() {
-        this.undoButton.disabled = !this.drawHistory.canUndo
-        this.redoButton.disabled = !this.drawHistory.canRedo
+        this.undoButton.disabled = !this.history.canUndo
+        this.redoButton.disabled = !this.history.canRedo
     }
 
     undo() {
-        this.drawHistory.undo()
+        this.history.undo()
     }
 
     redo() {
-        this.drawHistory.redo()
+        this.history.redo()
     }
 
     onUndoPress() {

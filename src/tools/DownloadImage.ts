@@ -1,5 +1,5 @@
 export class DownloadCanvasImage {
-    static downloadImage(canvas: HTMLCanvasElement, fileName: string) {
+    static download(canvas: HTMLCanvasElement, fileName: string) {
         const offScreenCanvas = document.createElement('canvas')
         offScreenCanvas.width = canvas.width
         offScreenCanvas.height = canvas.height

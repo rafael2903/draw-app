@@ -31,6 +31,10 @@ body,
     margin: 0;
 }
 
+#app {
+    position: relative;
+}
+
 canvas {
     position: absolute;
     top: 0;
@@ -45,6 +49,41 @@ canvas {
 canvas#interaction-canvas {
     background: transparent;
     z-index: 2;
+    position: relative;
+}
+
+#interaction-canvas.dropping {
+    background-color: rgba(22, 116, 170, 0.1);
+    outline: 2px dashed rgba(22, 116, 170, 0.5);
+    outline-offset: -0.5rem;
+}
+
+#app:has(#interaction-canvas.dropping)::before {
+    content: '';
+    background-image: url('drop-icon.svg');
+    background-size: cover;
+    display: block;
+    width: 100px;
+    height: 100px;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) translate(0, -40%);
+    z-index: 2;
+}
+
+#app:has(#interaction-canvas.dropping)::after {
+    content: 'Drop to add';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) translate(0, 100%);
+    color: rgb(22, 116, 170);
+    font-size: 1.4rem;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.1rem;
+    z-index: 1;
 }
 
 #tools,
@@ -88,12 +127,11 @@ canvas#interaction-canvas {
     transform: translateX(-50%);
 }
 
-
 .tool {
     border-radius: 0.4rem;
     background-color: white;
     padding: 0.6rem;
-    color: black;
+    color: #1f1f1f;
 }
 
 .tool:hover,
@@ -126,4 +164,11 @@ canvas#interaction-canvas {
     background-color: rgb(85, 85, 85);
     border-bottom-left-radius: 0;
     border-bottom-right-radius: 0;
+}
+
+input[type='file'] {
+    visibility: hidden;
+    width: 0;
+    height: 0;
+    overflow: hidden;
 }

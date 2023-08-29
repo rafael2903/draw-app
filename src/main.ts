@@ -2,6 +2,7 @@ import { Canvas, CanvasHistory } from './Canvas'
 import './config-icons'
 import './style.css'
 import {
+    AddImage,
     DownloadCanvasImage,
     DrawEllipse,
     DrawLine,
@@ -18,16 +19,17 @@ const interactionCanvasElement = document.querySelector<HTMLCanvasElement>(
 )!
 const elementsCanvasElement =
     document.querySelector<HTMLCanvasElement>('#elements-canvas')!
-const clearCanvas = document.querySelector('#clear')!
-const downloadCanvasImage = document.querySelector('#download')!
-const pen = document.querySelector('#pen')!
-const move = document.querySelector('#move')!
-const select = document.querySelector('#select')!
-const erase = document.querySelector('#erase')!
-const ellipse = document.querySelector('#ellipse')!
-const line = document.querySelector('#line')!
-const undo = document.querySelector<HTMLButtonElement>('#undo')!
-const redo = document.querySelector<HTMLButtonElement>('#redo')!
+const clearCanvasButton = document.querySelector('#clear')!
+const downloadCanvasImageButton = document.querySelector('#download')!
+const penButton = document.querySelector('#pen')!
+const moveButton = document.querySelector('#move')!
+const selectButton = document.querySelector('#select')!
+const eraseButton = document.querySelector('#erase')!
+const ellipseButton = document.querySelector('#ellipse')!
+const lineButton = document.querySelector('#line')!
+const addImageButton = document.querySelector<HTMLInputElement>('#add-image')!
+const undoButton = document.querySelector<HTMLButtonElement>('#undo')!
+const redoButton = document.querySelector<HTMLButtonElement>('#redo')!
 // const zoomIn = document.querySelector<HTMLButtonElement>('#zoom-in')!
 // const zoomOut = document.querySelector<HTMLButtonElement>('#zoom-out')!
 
@@ -43,7 +45,7 @@ window.addEventListener('resize', () => {
 })
 
 const drawHistory = new CanvasHistory(elementsCanvas)
-const historyControl = new HistoryControl(drawHistory, redo, undo)
+const historyControl = new HistoryControl(drawHistory, redoButton, undoButton)
 
 const tools: Record<ToolName, Tool> = {
     [ToolName.Pen]: Paint.init(elementsCanvas, interactionCanvas),
@@ -99,40 +101,52 @@ const setActiveTool = (tool: ToolName) => {
 
 setActiveTool(ToolName.Pen)
 
-clearCanvas.addEventListener('click', () => {
+clearCanvasButton.addEventListener('click', () => {
     elementsCanvas.clear()
 })
 
-downloadCanvasImage.addEventListener('click', () => {
-    DownloadCanvasImage.downloadImage(elementsCanvas.element, 'desenho')
+downloadCanvasImageButton.addEventListener('click', () => {
+    DownloadCanvasImage.download(elementsCanvas.element, 'picture')
 })
 
-select.addEventListener('click', () => {
+selectButton.addEventListener('click', () => {
     setActiveTool(ToolName.Select)
 })
 
-move.addEventListener('click', () => {
+moveButton.addEventListener('click', () => {
     setActiveTool(ToolName.Move)
 })
 
-pen.addEventListener('click', () => {
+penButton.addEventListener('click', () => {
     setActiveTool(ToolName.Pen)
 })
 
-erase.addEventListener('click', () => {
+eraseButton.addEventListener('click', () => {
     setActiveTool(ToolName.Erase)
 })
 
-ellipse.addEventListener('click', () => {
+ellipseButton.addEventListener('click', () => {
     setActiveTool(ToolName.Ellipse)
 })
 
-line.addEventListener('click', () => {
+lineButton.addEventListener('click', () => {
     setActiveTool(ToolName.Line)
 })
 
-undo.addEventListener('click', historyControl.undo.bind(historyControl))
-redo.addEventListener('click', historyControl.redo.bind(historyControl))
+addImageButton.addEventListener('change', () => {
+    const file = addImageButton.files?.[0]
+    if (file) {
+        AddImage.add(
+            file,
+            elementsCanvas,
+            elementsCanvas.width / 2,
+            elementsCanvas.height / 2
+        )
+    }
+})
+
+undoButton.addEventListener('click', historyControl.undo.bind(historyControl))
+redoButton.addEventListener('click', historyControl.redo.bind(historyControl))
 
 window.addEventListener('keydown', (e) => {
     if (e.key === 'z' && e.ctrlKey) {
@@ -143,12 +157,57 @@ window.addEventListener('keydown', (e) => {
 })
 
 window.addEventListener('keyup', (e) => {
-    if (e.key === 'z' && undo.classList.contains('pressed')) {
+    if (e.key === 'z' && undoButton.classList.contains('pressed')) {
         historyControl.onUndoRelease()
-    } else if (e.key === 'y' && redo.classList.contains('pressed')) {
+    } else if (e.key === 'y' && redoButton.classList.contains('pressed')) {
         historyControl.onRedoRelease()
     }
 })
+
+document.onpaste = function (event) {
+    event.preventDefault()
+    const file = event.clipboardData?.files[0]
+    if (file) {
+        AddImage.add(
+            file,
+            elementsCanvas,
+            elementsCanvas.width / 2,
+            elementsCanvas.height / 2
+        )
+    }
+}
+
+interactionCanvas.element.ondragover = (e) => {
+    e.preventDefault()
+}
+
+interactionCanvas.element.ondragstart = (e) => {
+    e.preventDefault()
+}
+
+interactionCanvas.element.ondragleave = (e) => {
+    e.preventDefault()
+    interactionCanvas.element.classList.remove('dropping')
+}
+
+interactionCanvas.element.ondragend = (e) => {
+    e.preventDefault()
+    interactionCanvas.element.classList.remove('dropping')
+}
+
+interactionCanvas.element.ondragenter = (e) => {
+    e.preventDefault()
+    interactionCanvas.element.classList.add('dropping')
+}
+
+interactionCanvas.element.ondrop = (e) => {
+    e.preventDefault()
+    interactionCanvas.element.classList.remove('dropping')
+    const file = e.dataTransfer?.files[0]
+    if (file) {
+        AddImage.add(file, elementsCanvas, e.clientX, e.clientY)
+    }
+}
 
 // zoomIn.addEventListener('click', () => {
 //     elementsCanvas.scale += 0.1

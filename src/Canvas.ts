@@ -1,3 +1,4 @@
+import { ImagePath } from './elements/Image'
 import { Path } from './elements/Path'
 
 abstract class Observable {
@@ -44,12 +45,8 @@ export class Canvas extends Observable {
     }
 
     private erase() {
-        this.ctx.clearRect(
-            -this.offset.x,
-            -this.offset.y,
-            this.element.width,
-            this.element.height
-        )
+        this.ctx.reset()
+        this.ctx.translate(this.offset.x, this.offset.y)
     }
 
     clear() {
@@ -77,6 +74,8 @@ export class Canvas extends Observable {
         this.ctx.translate(-path.offset.x, -path.offset.y)
         path.filled && this.ctx.fill(path)
         path.stroked && this.ctx.stroke(path)
+        if (path instanceof ImagePath)
+            this.ctx.drawImage(path.imageElement, path.x, path.y)
         this.ctx.restore()
     }
 
