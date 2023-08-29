@@ -48,8 +48,7 @@ export class Select extends Tool {
         selectRectangle.strokeStyle = '#0078d7'
         selectRectangle.lineWidth = 1
         selectRectangle.fillStyle = 'rgba(0, 120, 215, 0.1)'
-        Select.interactionCanvas.clear()
-        Select.interactionCanvas.addPath(selectRectangle)
+        Select.interactionCanvas.replacePaths(selectRectangle)
     }
 
     static pointerUp() {

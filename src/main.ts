@@ -44,6 +44,7 @@ window.addEventListener('resize', () => {
     interactionCanvas.height = elementsCanvas.height = window.innerHeight
 })
 
+
 const drawHistory = new CanvasHistory(elementsCanvas)
 const historyControl = new HistoryControl(drawHistory, redoButton, undoButton)
 

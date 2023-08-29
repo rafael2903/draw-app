@@ -16,8 +16,7 @@ export class Paint extends Tool {
         while (Paint.pointerEvents.length > 0) {
             const e = Paint.pointerEvents.shift()!
             Paint.currentPath.addPoint(e.pageX, e.pageY)
-            Paint.interactionCanvas.clear()
-            Paint.interactionCanvas.addPath(Paint.currentPath)
+            Paint.interactionCanvas.replacePaths(Paint.currentPath)
         }
         requestAnimationFrame(Paint.draw)
     }
@@ -39,8 +38,7 @@ export class Paint extends Tool {
                 stroked: false,
             })
             cursorPath.arc(e.clientX, e.clientY, 5, 0, 2 * Math.PI)
-            Paint.interactionCanvas.clear()
-            Paint.interactionCanvas.addPath(cursorPath)
+            Paint.interactionCanvas.replacePaths(cursorPath)
         }
     }
 

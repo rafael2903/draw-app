@@ -21,8 +21,7 @@ export class DrawLine extends Tool {
         const { x, y } = DrawLine.startPoint!
         const { clientX, clientY } = e
         DrawLine.currentPath = new Line(x, y, clientX, clientY)
-        DrawLine.interactionCanvas.clear()
-        DrawLine.interactionCanvas.addPath(DrawLine.currentPath)
+        DrawLine.interactionCanvas.replacePaths(DrawLine.currentPath)
     }
 
     static pointerUp() {

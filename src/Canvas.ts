@@ -14,6 +14,11 @@ abstract class Observable {
     }
 }
 
+enum EraseMode {
+    SOFT,
+    HARD,
+}
+
 export class Canvas extends Observable {
     element: HTMLCanvasElement
     private ctx: CanvasRenderingContext2D
@@ -28,12 +33,12 @@ export class Canvas extends Observable {
 
     set width(value: number) {
         this.element.width = value
-        this.redraw()
+        this.redraw(EraseMode.HARD)
     }
 
     set height(value: number) {
         this.element.height = value
-        this.redraw()
+        this.redraw(EraseMode.HARD)
     }
 
     get width() {
@@ -44,23 +49,43 @@ export class Canvas extends Observable {
         return this.element.height
     }
 
-    private erase() {
-        this.ctx.reset()
-        this.ctx.translate(this.offset.x, this.offset.y)
+    private erase(eraseMode = EraseMode.SOFT) {
+        if (eraseMode === EraseMode.SOFT) {
+            this.ctx.clearRect(
+                -this.offset.x,
+                -this.offset.y,
+                this.element.width,
+                this.element.height
+            )
+        } else {
+            // Use reset() instead of clearRect() to avoid bugs when resizing the canvas
+            this.ctx.reset()
+            this.ctx.translate(this.offset.x, this.offset.y)
+        }
     }
 
     clear() {
         this.paths.splice(0)
-        this.notify()
         this.erase()
+        this.notify()
     }
 
-    private redraw() {
-        this.erase()
-        this.ctx.scale(this.scale, this.scale)
+    private drawPaths() {
         for (const path of this.paths) {
             this.drawPath(path)
         }
+    }
+
+    private redraw(eraseMode?: EraseMode) {
+        this.erase(eraseMode)
+        // this.ctx.scale(this.scale, this.scale)
+        this.drawPaths()
+    }
+
+    replacePaths(...newPaths: Path[]) {
+        this.paths.splice(0, Infinity, ...newPaths)
+        this.redraw()
+        this.notify()
     }
 
     private drawPath(path: Path) {
@@ -133,7 +158,7 @@ export class Canvas extends Observable {
     }
 
     restoreState(paths: Path[]) {
-        this.paths = [...paths]
+        this.paths.splice(0, Infinity, ...paths)
         this.redraw()
     }
 }

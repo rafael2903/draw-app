@@ -27,8 +27,7 @@ export class DrawEllipse extends Tool {
         } else {
             DrawEllipse.currentPath = new Ellipse(x, y, clientX, clientY)
         }
-        DrawEllipse.interactionCanvas.clear()
-        DrawEllipse.interactionCanvas.addPath(DrawEllipse.currentPath)
+        DrawEllipse.interactionCanvas.replacePaths(DrawEllipse.currentPath)
     }
 
     static pointerUp() {
