@@ -60,7 +60,7 @@ canvas#interaction-canvas {
 
 #app:has(#interaction-canvas.dropping)::before {
     content: '';
-    background-image: url('drop-icon.svg');
+    background-image: url('/drop-icon.svg');
     background-size: cover;
     display: block;
     width: 100px;
