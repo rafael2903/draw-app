@@ -14,24 +14,25 @@ import {
 } from './tools'
 import { Tool, ToolName } from './types'
 
-const interactionCanvasElement = document.querySelector<HTMLCanvasElement>(
-    '#interaction-canvas'
-)!
-const elementsCanvasElement =
-    document.querySelector<HTMLCanvasElement>('#elements-canvas')!
-const clearCanvasButton = document.querySelector('#clear')!
-const downloadCanvasImageButton = document.querySelector('#download')!
-const penButton = document.querySelector('#pen')!
-const moveButton = document.querySelector('#move')!
-const selectButton = document.querySelector('#select')!
-const eraseButton = document.querySelector('#erase')!
-const ellipseButton = document.querySelector('#ellipse')!
-const lineButton = document.querySelector('#line')!
-const addImageButton = document.querySelector<HTMLInputElement>('#add-image')!
-const undoButton = document.querySelector<HTMLButtonElement>('#undo')!
-const redoButton = document.querySelector<HTMLButtonElement>('#redo')!
-// const zoomIn = document.querySelector<HTMLButtonElement>('#zoom-in')!
-// const zoomOut = document.querySelector<HTMLButtonElement>('#zoom-out')!
+const interactionCanvasElement = document.getElementById(
+    'interaction-canvas'
+)! as HTMLCanvasElement
+const elementsCanvasElement = document.getElementById(
+    'elements-canvas'
+)! as HTMLCanvasElement
+const clearCanvasButton = document.getElementById('clear')!
+const downloadCanvasImageButton = document.getElementById('download')!
+const penButton = document.getElementById('pen')!
+const moveButton = document.getElementById('move')!
+const selectButton = document.getElementById('select')!
+const eraseButton = document.getElementById('erase')!
+const ellipseButton = document.getElementById('ellipse')!
+const lineButton = document.getElementById('line')!
+const addImageButton = document.getElementById('add-image')! as HTMLInputElement
+const undoButton = document.getElementById('undo')! as HTMLButtonElement
+const redoButton = document.getElementById('redo')! as HTMLButtonElement
+// const zoomIn = document.getElementById<HTMLButtonElement>('#zoom-in')!
+// const zoomOut = document.getElementById<HTMLButtonElement>('#zoom-out')!
 
 const interactionCanvas = new Canvas(interactionCanvasElement)
 const elementsCanvas = new Canvas(elementsCanvasElement)
@@ -43,7 +44,6 @@ window.addEventListener('resize', () => {
     interactionCanvas.width = elementsCanvas.width = window.innerWidth
     interactionCanvas.height = elementsCanvas.height = window.innerHeight
 })
-
 
 const drawHistory = new CanvasHistory(elementsCanvas)
 const historyControl = new HistoryControl(drawHistory, redoButton, undoButton)
@@ -92,7 +92,7 @@ const setActiveTool = (tool: ToolName) => {
     if (activeTool === tool) return
     activeTool = tool
     document.querySelector('.tool.active')?.classList.remove('active')
-    document.querySelector(`#${tool}`)!.classList.add('active')
+    document.getElementById(tool)!.classList.add('active')
     // @ts-ignore
     interactionCanvas.element.style.cursor = tools[tool].cursor
     interactionCanvas.element.onpointerdown = handlePointerDown
