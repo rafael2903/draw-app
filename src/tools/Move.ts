@@ -13,16 +13,16 @@ export class Move extends Tool {
     static pointerDown(e: PointerEvent) {
         this.interactionCanvas.element.style.cursor = this.cursorOnPointerDown
         this.dragging = true
-        this.lastX = e.pageX
-        this.lastY = e.pageY
+        this.lastX = e.x
+        this.lastY = e.y
     }
 
     static pointerMove(e: PointerEvent) {
         if (!this.dragging) return
-        const deltaX = e.pageX - this.lastX
-        const deltaY = e.pageY - this.lastY
-        this.lastX = e.pageX
-        this.lastY = e.pageY
+        const deltaX = e.x - this.lastX
+        const deltaY = e.y - this.lastY
+        this.lastX = e.x
+        this.lastY = e.y
         this.elementsCanvas.translate(deltaX, deltaY)
     }
 

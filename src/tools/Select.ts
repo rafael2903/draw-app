@@ -15,8 +15,8 @@ export class Select extends Tool {
     //     if (!this.selecting) return
     //     while (this.pointerEvents.length > 0) {
     //         const e = this.pointerEvents.shift()!
-    //         this.currentPath.lineTo(e.pageX, e.pageY)
-    //         this.currentPath.moveTo(e.pageX, e.pageY)
+    //         this.currentPath.lineTo(e.x, e.y)
+    //         this.currentPath.moveTo(e.x, e.y)
     //         this.interactionCanvas.paths[0] = this.currentPath
     //         this.interactionCanvas.redraw()
     //     }
@@ -25,25 +25,21 @@ export class Select extends Tool {
 
     static pointerDown(e: PointerEvent) {
         // this.erasing = true
-        const selectedPath = this.elementsCanvas.getPathInPoint(
-            e.clientX,
-            e.clientY
-        )
+        const selectedPath = this.elementsCanvas.getPathInPoint(e.x, e.y)
 
         if (selectedPath) {
             this.selectedPaths.push(selectedPath)
         } else {
             this.selecting = true
-            this.startPoint = { x: e.clientX, y: e.clientY }
+            this.startPoint = { x: e.x, y: e.y }
         }
     }
 
     static pointerMove(e: PointerEvent) {
         if (!this.selecting) return
         const { x, y } = this.startPoint!
-        const { clientX, clientY } = e
 
-        const selectRectangle = new Rectangle(x, y, clientX, clientY)
+        const selectRectangle = new Rectangle(x, y, e.x, e.y)
         selectRectangle.filled = true
         selectRectangle.strokeStyle = '#0078d7'
         selectRectangle.lineWidth = 1

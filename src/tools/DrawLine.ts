@@ -13,14 +13,13 @@ export class DrawLine extends Tool {
 
     static pointerDown(e: PointerEvent) {
         this.drawing = true
-        this.startPoint = { x: e.clientX, y: e.clientY }
+        this.startPoint = { x: e.x, y: e.y }
     }
 
     static pointerMove(e: PointerEvent) {
         if (!this.drawing) return
         const { x, y } = this.startPoint!
-        const { clientX, clientY } = e
-        this.currentPath = new Line(x, y, clientX, clientY)
+        this.currentPath = new Line(x, y, e.x, e.y)
         this.interactionCanvas.replacePaths(this.currentPath)
     }
 

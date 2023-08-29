@@ -132,6 +132,7 @@ canvas#interaction-canvas {
     background-color: white;
     padding: 0.6rem;
     color: #1f1f1f;
+    display: flex;
 }
 
 .tool:hover,

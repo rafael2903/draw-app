@@ -165,9 +165,9 @@ window.addEventListener('keyup', (e) => {
     }
 })
 
-document.onpaste = function (event) {
-    event.preventDefault()
-    const file = event.clipboardData?.files[0]
+document.onpaste = function (e) {
+    e.preventDefault()
+    const file = e.clipboardData?.files[0]
     if (file) {
         AddImage.add(
             file,
@@ -206,7 +206,7 @@ interactionCanvas.element.ondrop = (e) => {
     interactionCanvas.element.classList.remove('dropping')
     const file = e.dataTransfer?.files[0]
     if (file) {
-        AddImage.add(file, elementsCanvas, e.clientX, e.clientY)
+        AddImage.add(file, elementsCanvas, e.x, e.y)
     }
 }
 

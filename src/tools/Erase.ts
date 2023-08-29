@@ -8,14 +8,14 @@ export class Erase extends Tool {
 
     static pointerDown(e: PointerEvent) {
         this.erasing = true
-        this.elementsCanvas.removePathInPoint(e.offsetX, e.offsetY) // todo: remover path sob todo o cursor, não apenas no ponto
+        this.elementsCanvas.removePathInPoint(e.x, e.y) // todo: remover path sob todo o cursor, não apenas no ponto
     }
 
     static pointerMove(e: PointerEvent) {
         if (!this.erasing || this.elementsCanvas.isEmpty) return
         const coalescedEvents = e.getCoalescedEvents()
         coalescedEvents.forEach((e) => {
-            this.elementsCanvas.removePathInPoint(e.offsetX, e.offsetY)
+            this.elementsCanvas.removePathInPoint(e.x, e.y)
         })
     }
 

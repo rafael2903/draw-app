@@ -15,7 +15,7 @@ export class Paint extends Tool {
         if (!this.painting) return
         while (this.pointerEvents.length > 0) {
             const e = this.pointerEvents.shift()!
-            this.currentPath.addPoint(e.pageX, e.pageY)
+            this.currentPath.addPoint(e.x, e.y)
             this.interactionCanvas.replacePaths(this.currentPath)
         }
         requestAnimationFrame(() => Paint.draw())
@@ -23,7 +23,7 @@ export class Paint extends Tool {
 
     static pointerDown(e: PointerEvent) {
         this.painting = true
-        this.currentPath = new Polyline(e.offsetX, e.offsetY)
+        this.currentPath = new Polyline(e.x, e.y)
         this.pointerEvents.push(e)
         this.draw()
     }
@@ -37,7 +37,7 @@ export class Paint extends Tool {
                 filled: true,
                 stroked: false,
             })
-            cursorPath.arc(e.clientX, e.clientY, 5, 0, 2 * Math.PI)
+            cursorPath.arc(e.x, e.y, 5, 0, 2 * Math.PI)
             this.interactionCanvas.replacePaths(cursorPath)
         }
     }
