@@ -1,11 +1,7 @@
 :root {
-    font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
-    line-height: 1.5;
     font-weight: 400;
-
     color-scheme: light dark;
     color: rgba(255, 255, 255, 0.87);
-
     font-synthesis: none;
     text-rendering: optimizeLegibility;
     -webkit-font-smoothing: antialiased;
@@ -14,6 +10,7 @@
 }
 
 * {
+    font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
     box-sizing: border-box;
     margin: 0;
     padding: 0;
@@ -87,7 +84,8 @@ canvas#interaction-canvas {
 }
 
 #tools,
-#history-control,
+#history-controls,
+#zoom-controls,
 #canvas-control {
     width: min-content;
     padding: 0.2rem;
@@ -108,21 +106,22 @@ canvas#interaction-canvas {
     border-top-right-radius: 0;
 }
 
-#canvas-control svg {
-    width: 20px;
-    height: 20px;
-}
-#canvas-control .tool {
-    padding: 0.5rem;
+#history-controls {
+    bottom: 0.5rem;
+    left: 0.5rem;
 }
 
-#history-control {
-    bottom: 1rem;
-    left: 1rem;
+#zoom-controls {
+    bottom: 0.5rem;
+    right: 0.5rem;
+}
+
+#scale-display {
+    width: 4rem;
 }
 
 #tools {
-    bottom: 1rem;
+    bottom: 0.5rem;
     left: 50%;
     transform: translateX(-50%);
 }
@@ -133,6 +132,20 @@ canvas#interaction-canvas {
     padding: 0.6rem;
     color: #1f1f1f;
     display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 500;
+    font-size: 0.9rem;
+    user-select: none;
+}
+
+.tool.small svg {
+    width: 20px;
+    height: 20px;
+}
+
+.tool.small {
+    padding: 0.5rem;
 }
 
 .tool:hover,
@@ -172,4 +185,30 @@ input[type='file'] {
     width: 0;
     height: 0;
     overflow: hidden;
+}
+
+#github-link {
+    color: white;
+    background: #1f2328;
+    width: 100px;
+    height: 28px;
+    border-bottom-right-radius: 1.1rem;
+    border-bottom-left-radius: 1.1rem;
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 3;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 0.3rem;
+    font-size: 0.8rem;
+    font-weight: 500;
+    user-select: none;
+}
+
+#github-link svg {
+    width: 1.1rem;
+    height: 1.1rem;
 }

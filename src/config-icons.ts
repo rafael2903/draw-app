@@ -13,6 +13,7 @@ import {
     ZoomIn,
     ZoomOut,
     createIcons,
+    Github
 } from 'lucide'
 
 createIcons({
@@ -30,5 +31,6 @@ createIcons({
         Image,
         ZoomIn,
         ZoomOut,
+        Github
     },
 })
