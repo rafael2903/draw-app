@@ -6,9 +6,7 @@ export class HistoryControl {
         private redoButton: HTMLButtonElement,
         private undoButton: HTMLButtonElement
     ) {
-        this.history.subscribe(() => {
-            this.updateButtons()
-        })
+        this.history.on('change', () => this.updateButtons())
     }
 
     private updateButtons() {

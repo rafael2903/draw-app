@@ -1,38 +1,30 @@
-import { ImagePath } from './elements/Image'
-import { Path } from './elements/Path'
+import { EventsManager } from './EventsManager'
+import { Element, ImageElement, Polyline, Shape } from './elements'
 
-abstract class Observable {
-    private observers: (() => void)[] = []
-    subscribe(observer: () => void) {
-        this.observers.push(observer)
-    }
-
-    protected notify() {
-        for (const observer of this.observers) {
-            observer()
-        }
-    }
+interface CanvasEventMap {
+    change: Element[]
 }
 
-enum EraseMode {
-    SOFT,
-    HARD,
-}
-
-export class Canvas extends Observable {
-    element: HTMLCanvasElement
+export class Canvas extends EventsManager<CanvasEventMap> {
+    element: HTMLCanvasElement // todo: tornar privado e criar métodos para notificar eventos
     private ctx: CanvasRenderingContext2D
-    private paths: Path[] = []
-    readonly offset = { x: 0, y: 0 }
-    // private scale = 1.0
+    private elements: Element[] = []
+    private _translationX = 0
+    private _translationY = 0
+    private _currentScale = 1.0
+    private static readonly MAX_SCALE = 10.0
+    private static readonly MIN_SCALE = 0.1
+
     constructor(element: HTMLCanvasElement) {
         super()
         this.element = element
         this.ctx = element.getContext('2d')!
+        this.ctx.lineCap = 'round'
+        this.ctx.lineJoin = 'round'
     }
 
     get isEmpty() {
-        return this.paths.length === 0
+        return this.elements.length === 0
     }
 
     get width() {
@@ -45,136 +37,204 @@ export class Canvas extends Observable {
 
     set width(value: number) {
         this.element.width = value
-        this.redraw(EraseMode.HARD)
+        this.redraw()
     }
 
     set height(value: number) {
         this.element.height = value
-        this.redraw(EraseMode.HARD)
+        this.redraw()
     }
 
-    private erase(eraseMode = EraseMode.SOFT) {
-        if (eraseMode === EraseMode.SOFT) {
-            this.ctx.clearRect(
-                -this.offset.x,
-                -this.offset.y,
-                this.element.width,
-                this.element.height
-            )
-        } else {
-            // Use reset() instead of clearRect() to avoid bugs when resizing the canvas
-            this.ctx.reset()
-            this.ctx.translate(this.offset.x, this.offset.y)
+    private updateTransformationMatrix() {
+        this.ctx.setTransform(
+            this._currentScale,
+            0,
+            0,
+            this._currentScale,
+            this._translationX,
+            this._translationY
+        )
+    }
+
+    private erase() {
+        // Use reset() instead of clearRect() to avoid bugs when resizing and scaling the canvas
+        this.ctx.reset()
+        this.updateTransformationMatrix()
+        this.ctx.lineCap = 'round'
+        this.ctx.lineJoin = 'round'
+    }
+
+    private drawElement(element: Element) {
+        this.ctx.lineWidth = element.lineWidth
+        element.strokeStyle && (this.ctx.strokeStyle = element.strokeStyle)
+        element.fillStyle && (this.ctx.fillStyle = element.fillStyle)
+        if (element instanceof ImageElement)
+            this.ctx.drawImage(element.image, element.x, element.y)
+        if (element instanceof Shape || element instanceof Polyline) {
+            element.filled && this.ctx.fill(element.path)
+            element.stroked && this.ctx.stroke(element.path)
         }
+    }
+
+    private drawElements() {
+        for (const element of this.elements) {
+            this.drawElement(element)
+        }
+    }
+
+    private redraw() {
+        this.erase()
+        this.drawElements()
+    }
+
+    replaceElements(...newElements: Element[]) {
+        this.elements.splice(0, Infinity, ...newElements)
+        this.redraw()
     }
 
     clear() {
-        this.paths.splice(0)
-        this.erase()
-        this.notify()
+        this.replaceElements()
     }
 
-    private drawPath(path: Path) {
-        this.ctx.lineWidth = path.lineWidth
-        this.ctx.lineCap = path.lineCap
-        path.strokeStyle && (this.ctx.strokeStyle = path.strokeStyle)
-        path.fillStyle && (this.ctx.fillStyle = path.fillStyle)
-        path.font && (this.ctx.font = path.font)
-        path.lineJoin && (this.ctx.lineJoin = path.lineJoin)
-        this.ctx.save()
-        this.ctx.translate(-path.offset.x, -path.offset.y)
-        path.filled && this.ctx.fill(path)
-        path.stroked && this.ctx.stroke(path)
-        if (path instanceof ImagePath)
-            this.ctx.drawImage(path.imageElement, path.x, path.y)
-        this.ctx.restore()
+    private onElementChange = () => {
+        this.redraw()
     }
 
-    private drawPaths() {
-        for (const path of this.paths) {
-            this.drawPath(path)
+    addElement(element: Element) {
+        this.elements.push(element)
+        this.drawElement(element)
+        element.on('change', this.onElementChange)
+    }
+
+    removeElementByIndex(elementIndex: number) {
+        const element = this.elements[elementIndex]
+        element.off('change', this.onElementChange)
+        this.elements.splice(elementIndex, 1)
+        this.redraw()
+        return element
+    }
+
+    removeElement(element: Element) {
+        const elementIndex = this.elements.indexOf(element)
+        if (elementIndex !== -1) {
+            return this.removeElementByIndex(elementIndex)
         }
     }
 
-    private redraw(eraseMode?: EraseMode) {
-        this.erase(eraseMode)
-        // this.ctx.scale(this.scale, this.scale)
-        this.drawPaths()
-    }
-
-    replacePaths(...newPaths: Path[]) {
-        this.paths.splice(0, Infinity, ...newPaths)
-        this.redraw()
-        this.notify()
-    }
-
-    addPath(path: Path) {
-        this.paths.push(path)
-        this.drawPath(path)
-        this.notify()
-    }
-
-    removePathByIndex(pathIndex: number) {
-        this.paths.splice(pathIndex, 1)
-        this.redraw()
-        this.notify()
-    }
-
-    removePath(path: Path) {
-        const pathIndex = this.paths.indexOf(path)
-        if (pathIndex !== -1) this.removePathByIndex(pathIndex)
-    }
-
-    removePathInPoint(x: number, y: number) {
-        const pathToRemoveIndex = this.paths.findIndex((path) => {
-            return this.ctx.isPointInStroke(
-                path,
-                x + path.offset.x,
-                y + path.offset.y
+    private isPointInStroke(element: Element, x: number, y: number) {
+        if (element instanceof ImageElement) {
+            return (
+                x - this._translationX >= element.x &&
+                x - this._translationX <= element.x + element.width &&
+                y - this._translationY >= element.y &&
+                y - this._translationY <= element.y + element.height
             )
+        }
+        if (element instanceof Polyline || element instanceof Shape) {
+            return this.ctx.isPointInStroke(element.path, x, y)
+        }
+    }
+
+    removeElementInPoint(x: number, y: number) {
+        const elementToRemoveIndex = this.elements.findLastIndex((element) => {
+            return this.isPointInStroke(element, x, y)
         })
-        if (pathToRemoveIndex !== -1) this.removePathByIndex(pathToRemoveIndex)
+        if (elementToRemoveIndex !== -1) {
+            return this.removeElementByIndex(elementToRemoveIndex)
+        }
     }
 
-    getPathInPoint(x: number, y: number) {
-        return this.paths.find((path) => {
-            return this.ctx.isPointInStroke(
-                path,
-                x + path.offset.x,
-                y + path.offset.y
-            )
+    getElementInPoint(x: number, y: number) {
+        return this.elements.findLast((element) => {
+            return this.isPointInStroke(element, x, y)
         })
     }
 
     translate(x: number, y: number) {
-        this.ctx.translate(x, y)
-        this.offset.x += x
-        this.offset.y += y
+        this._translationX += x
+        this._translationY += y
         this.redraw()
+    }
+
+    setTranslation(x: number, y: number) {
+        this._translationX = x
+        this._translationY = y
+        this.redraw()
+    }
+
+    get translationX() {
+        return this._translationX
+    }
+
+    get translationY() {
+        return this._translationY
+    }
+
+    setScale(newScale: number) {
+        if (newScale <= Canvas.MIN_SCALE) newScale = Canvas.MIN_SCALE
+        if (newScale >= Canvas.MAX_SCALE) newScale = Canvas.MAX_SCALE
+        this._currentScale = newScale
+        this.updateTransformationMatrix()
+        this.redraw()
+        return this._currentScale
+    }
+
+    scale(scalingFactor: number) {
+        let newScale = this._currentScale + scalingFactor
+        return this.setScale(newScale)
+    }
+
+    get currentScale() {
+        return this._currentScale
     }
 
     getState() {
-        return this.paths
+        return this.elements
     }
 
-    restoreState(paths: Path[]) {
-        this.paths.splice(0, Infinity, ...paths)
+    restoreState(elements: Element[]) {
+        this.elements.splice(0, Infinity, ...elements)
         this.redraw()
+    }
+
+    toImageURL(type?: string, quality?: number) {
+        // Create offScreenCanvas to keep the background color when downloading the image
+        const offScreenCanvas = document.createElement('canvas')
+        offScreenCanvas.width = this.width
+        offScreenCanvas.height = this.height
+        const offScreenCanvasContext = offScreenCanvas.getContext('2d')!
+
+        const backgroundColor = this.element.style.backgroundColor
+        offScreenCanvasContext.fillStyle = backgroundColor
+        offScreenCanvasContext.fillRect(0, 0, this.width, this.height)
+        offScreenCanvasContext.drawImage(this.element, 0, 0)
+
+        return offScreenCanvas.toDataURL(type, quality)
     }
 }
 
-export class CanvasHistory extends Observable {
-    private undos: Path[][] = [[]]
-    private redos: Path[][] = []
-    private sizeMax = 30
+interface CanvasHistoryEventMap {
+    'undo-change': boolean
+    'redo-change': boolean
+    change: {
+        canRedo: boolean
+        canUndo: boolean
+    }
+}
+
+export class CanvasHistory extends EventsManager<CanvasHistoryEventMap> {
+    private undos: Element[][] = [[]]
+    private redos: Element[][] = []
+    private sizeMax = 50
     private _canUndo = false
     private _canRedo = false
 
     constructor(private canvas: Canvas) {
         super()
-        this.canvas.subscribe(() => {
-            this.add(this.canvas.getState())
-        })
+    }
+
+    save() {
+        this.add(this.canvas.getState())
     }
 
     get canUndo() {
@@ -187,19 +247,22 @@ export class CanvasHistory extends Observable {
 
     set canRedo(value) {
         this._canRedo = value
-        this.notify()
+        this.emit('redo-change', value)
+        this.emit('change', { canRedo: value, canUndo: this.canUndo })
     }
 
     set canUndo(value) {
         this._canUndo = value
-        this.notify()
+        this.emit('undo-change', value)
+        this.emit('change', { canRedo: this.canRedo, canUndo: value })
     }
 
-    add(paths: Path[]) {
+    add(elements: Element[]) {
         if (this.undos.length === this.sizeMax) {
             this.undos.shift()
         }
-        this.undos.push([...paths])
+        const newState = elements.map((element) => element.clone())
+        this.undos.push(newState)
         this.redos.splice(0)
         this.canUndo = true
         this.canRedo = false
@@ -209,7 +272,7 @@ export class CanvasHistory extends Observable {
         if (this.undos.length === 1) return
         if (this.undos.length === 2) this.canUndo = false
         const currentState = this.undos.pop()!
-        const previousState = this.undos[this.undos.length - 1]
+        const previousState = this.undos.at(-1)!
         this.canvas.restoreState(previousState)
         this.redos.push(currentState)
         this.canRedo = true

@@ -1,19 +1,19 @@
 import {
-    Trash,
-    FileDown,
-    Pen,
-    Hand,
-    MousePointer,
-    Eraser,
     Circle,
-    Minus,
-    Undo,
-    Redo,
+    Eraser,
+    FileDown,
+    Github,
+    Hand,
     Image,
+    Minus,
+    MousePointer,
+    Pen,
+    Redo,
+    Trash,
+    Undo,
     ZoomIn,
     ZoomOut,
-    createIcons,
-    Github
+    createIcons
 } from 'lucide'
 
 createIcons({

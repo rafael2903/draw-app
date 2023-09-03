@@ -1,6 +1,6 @@
 import { Canvas } from '../Canvas'
-import { Path } from '../elements/Path'
-import { Polyline } from '../elements/Polyline'
+import { Circle, Polyline } from '../elements'
+import { canvasHistory } from '../main'
 import { Tool } from '../types'
 
 export class Paint extends Tool {
@@ -16,7 +16,7 @@ export class Paint extends Tool {
         while (this.pointerEvents.length > 0) {
             const e = this.pointerEvents.shift()!
             this.currentPath.addPoint(e.x, e.y)
-            this.interactionCanvas.replacePaths(this.currentPath)
+            this.interactionCanvas.replaceElements(this.currentPath)
         }
         requestAnimationFrame(() => Paint.draw())
     }
@@ -33,12 +33,11 @@ export class Paint extends Tool {
             const coalescedEvents = e.getCoalescedEvents()
             this.pointerEvents.push(...coalescedEvents)
         } else {
-            const cursorPath = new Path({
+            const cursorPath = new Circle(e.x, e.y, 5, {
                 filled: true,
                 stroked: false,
             })
-            cursorPath.arc(e.x, e.y, 5, 0, 2 * Math.PI)
-            this.interactionCanvas.replacePaths(cursorPath)
+            this.interactionCanvas.replaceElements(cursorPath)
         }
     }
 
@@ -47,9 +46,12 @@ export class Paint extends Tool {
         this.painting = false
         this.pointerEvents.length = 0
         this.interactionCanvas.clear()
-        this.currentPath.offset.x = this.elementsCanvas.offset.x
-        this.currentPath.offset.y = this.elementsCanvas.offset.y
-        this.elementsCanvas.addPath(this.currentPath)
+        this.currentPath.translate(
+            -this.elementsCanvas.translationX,
+            -this.elementsCanvas.translationY
+        )
+        this.elementsCanvas.addElement(this.currentPath)
+        canvasHistory.save()
     }
 
     static init(elementsCanvas: Canvas, interactionCanvas: Canvas) {

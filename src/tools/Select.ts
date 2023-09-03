@@ -1,34 +1,34 @@
 import { Canvas } from '../Canvas'
-import { Path } from '../elements/Path'
-import { Rectangle } from '../elements/Rectangle'
+import { Element, Rectangle } from '../elements'
+import { canvasHistory } from '../main'
 import { Tool } from '../types'
 
 export class Select extends Tool {
     static cursor = 'default'
     private static selecting = false
+    private static dragging = false
     private static interactionCanvas: Canvas
     private static elementsCanvas: Canvas
-    private static selectedPaths: Path[] = []
-    private static startPoint: { x: number; y: number } | null = null
-
-    // private static draw() {
-    //     if (!this.selecting) return
-    //     while (this.pointerEvents.length > 0) {
-    //         const e = this.pointerEvents.shift()!
-    //         this.currentPath.lineTo(e.x, e.y)
-    //         this.currentPath.moveTo(e.x, e.y)
-    //         this.interactionCanvas.paths[0] = this.currentPath
-    //         this.interactionCanvas.redraw()
-    //     }
-    //     requestAnimationFrame(this.draw)
-    // }
+    private static lastX: number
+    private static lastY: number
+    // private static selectedPaths: Path[] = []
+    private static selectedPath: Element
+    private static startPoint: { x: number; y: number }
 
     static pointerDown(e: PointerEvent) {
-        // this.erasing = true
-        const selectedPath = this.elementsCanvas.getPathInPoint(e.x, e.y)
+        const selectedPath = this.elementsCanvas.getElementInPoint(e.x, e.y)
 
         if (selectedPath) {
-            this.selectedPaths.push(selectedPath)
+            this.dragging = true
+            this.selectedPath = selectedPath
+            this.elementsCanvas.removeElement(selectedPath)
+            selectedPath.translate(
+                this.elementsCanvas.translationX,
+                this.elementsCanvas.translationY
+            )
+            this.interactionCanvas.addElement(selectedPath)
+            this.lastX = e.x
+            this.lastY = e.y
         } else {
             this.selecting = true
             this.startPoint = { x: e.x, y: e.y }
@@ -36,27 +36,44 @@ export class Select extends Tool {
     }
 
     static pointerMove(e: PointerEvent) {
-        if (!this.selecting) return
-        const { x, y } = this.startPoint!
-
-        const selectRectangle = new Rectangle(x, y, e.x, e.y)
-        selectRectangle.filled = true
-        selectRectangle.strokeStyle = '#0078d7'
-        selectRectangle.lineWidth = 1
-        selectRectangle.fillStyle = 'rgba(0, 120, 215, 0.1)'
-        this.interactionCanvas.replacePaths(selectRectangle)
+        if (this.selecting) {
+            const { x, y } = this.startPoint
+            const selectRectangle = Rectangle.fromStartAndEnd(x, y, e.x, e.y, {
+                filled: true,
+                strokeStyle: '#0078d7',
+                lineWidth: 1,
+                fillStyle: 'rgba(0, 120, 215, 0.1)',
+            })
+            this.interactionCanvas.replaceElements(selectRectangle)
+        } else if (this.dragging) {
+            const deltaX = e.x - this.lastX
+            const deltaY = e.y - this.lastY
+            this.selectedPath.translate(deltaX, deltaY)
+            this.lastX = e.x
+            this.lastY = e.y
+        } else {
+            const selectedPath = this.elementsCanvas.getElementInPoint(e.x, e.y)
+            if (selectedPath) {
+                this.interactionCanvas.element.style.cursor = 'move'
+            } else {
+                this.interactionCanvas.element.style.cursor = 'default'
+            }
+        }
     }
 
     static pointerUp() {
-        if (!this.selecting) return
-        this.selecting = false
+        if (this.dragging) {
+            this.dragging = false
+            this.selectedPath.translate(
+                -this.elementsCanvas.translationX,
+                -this.elementsCanvas.translationY
+            )
+            this.elementsCanvas.addElement(this.selectedPath)
+            canvasHistory.save()
+        } else {
+            this.selecting = false
+        }
         this.interactionCanvas.clear()
-        // this.pointerEvents.length = 0
-        // this.interactionCanvas.paths.length = 0
-        // this.currentPath.offset.x = this.elementsCanvas.offset.x
-        // this.currentPath.offset.y = this.elementsCanvas.offset.y
-        // this.elementsCanvas.paths.push(this.currentPath)
-        // this.elementsCanvas.redraw()
     }
 
     static init(elementsCanvas: Canvas, interactionCanvas: Canvas) {

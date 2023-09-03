@@ -44,9 +44,7 @@ canvas {
     z-index: 1;
 }
 canvas#interaction-canvas {
-    background: transparent;
     z-index: 2;
-    position: relative;
 }
 
 #interaction-canvas.dropping {
@@ -83,10 +81,7 @@ canvas#interaction-canvas {
     z-index: 1;
 }
 
-#tools,
-#history-controls,
-#zoom-controls,
-#canvas-control {
+.buttons-container {
     width: min-content;
     padding: 0.2rem;
     background-color: white;
@@ -98,7 +93,7 @@ canvas#interaction-canvas {
     position: absolute;
 }
 
-#canvas-control {
+#canvas-options {
     top: 0rem;
     left: 0rem;
     border-top-left-radius: 0;
@@ -111,6 +106,12 @@ canvas#interaction-canvas {
     left: 0.5rem;
 }
 
+#tools {
+    bottom: 0.5rem;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
 #zoom-controls {
     bottom: 0.5rem;
     right: 0.5rem;
@@ -120,13 +121,7 @@ canvas#interaction-canvas {
     width: 4rem;
 }
 
-#tools {
-    bottom: 0.5rem;
-    left: 50%;
-    transform: translateX(-50%);
-}
-
-.tool {
+.button {
     border-radius: 0.4rem;
     background-color: white;
     padding: 0.6rem;
@@ -139,36 +134,40 @@ canvas#interaction-canvas {
     user-select: none;
 }
 
-.tool.small svg {
+.button.small svg {
     width: 20px;
     height: 20px;
 }
 
-.tool.small {
+.button.small {
     padding: 0.5rem;
 }
 
-.tool:hover,
-.tool.active {
+.button:hover,
+.button.active {
     background-color: #f1f1f1;
 }
 
-.tool:active,
-.tool.pressed {
+.button:active,
+.button.pressed {
     background-color: #e0e0e0;
 }
 
-.tool.active {
+.button.active {
     border-bottom-left-radius: 0;
     border-bottom-right-radius: 0;
     position: relative;
 }
 
-.tool:disabled {
+.button:disabled {
     opacity: 0.3;
 }
+.button img {
+    width: 100px;
+    height: auto;
+}
 
-.tool.active::after {
+.button.active::after {
     content: '';
     position: absolute;
     bottom: -3px;
@@ -191,7 +190,8 @@ input[type='file'] {
     color: white;
     background: #1f2328;
     width: 100px;
-    height: 28px;
+    padding-bottom: 0.4rem;
+    padding-top: 0.4rem;
     border-bottom-right-radius: 1.1rem;
     border-bottom-left-radius: 1.1rem;
     position: absolute;
@@ -211,4 +211,18 @@ input[type='file'] {
 #github-link svg {
     width: 1.1rem;
     height: 1.1rem;
+}
+
+@media print {
+    .buttons-container,
+    #github-link,
+    #interaction-canvas {
+        display: none;
+    }
+
+    canvas {
+        position: static;
+        width: 100%;
+        height: auto;
+    }
 }

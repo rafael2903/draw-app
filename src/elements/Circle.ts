@@ -1,14 +1,26 @@
-import { Path, PathOptions } from './Path'
+import { ElementProperties, Shape } from './Element'
 
-export class Circle extends Path {
+export class Circle extends Shape {
     constructor(
+        x: number,
+        y: number,
+        radius: number,
+        elementProperties?: ElementProperties
+    ) {
+        super(elementProperties)
+        this.x = x
+        this.y = y
+        this.width = radius * 2
+        this.height = radius * 2
+    }
+
+    static fromStartAndEnd(
         startPointX: number,
         startPointY: number,
         endPointX: number,
         endPointY: number,
-        pathOptions?: PathOptions
+        elementProperties?: ElementProperties
     ) {
-        super(pathOptions)
         const deltaX = endPointX - startPointX
         const deltaY = endPointY - startPointY
         const radiusX = Math.abs(deltaX) / 2
@@ -16,10 +28,24 @@ export class Circle extends Path {
         const radius = Math.max(radiusX, radiusY)
         const centerX = startPointX + radius * Math.sign(deltaX)
         const centerY = startPointY + radius * Math.sign(deltaY)
-        this.arc(centerX, centerY, radius, 0, 2 * Math.PI)
-        this.x = centerX - radius
-        this.y = centerY - radius
-        this.width = radius * 2
-        this.height = radius * 2
+        return new Circle(centerX, centerY, radius, elementProperties)
     }
+
+    clone() {
+        return new Circle(this.x, this.y, this.width / 2, this)
+    }
+
+    get path() {
+        const path = new Path2D()
+        path.arc(this.x, this.y, this.width / 2, 0, 2 * Math.PI)
+        return path
+    }
+
+    // draw(ctx: CanvasRenderingContext2D) {
+    //     ctx.beginPath()
+    //     this.applyProperties(ctx)
+    //     ctx.arc(this.x, this.y, this.width / 2, 0, 2 * Math.PI)
+    //     ctx.closePath()
+    //     this.fillAndStroke(ctx)
+    // }
 }

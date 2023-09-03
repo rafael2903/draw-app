@@ -1,6 +1,6 @@
 import { Canvas } from '../Canvas'
-import { Circle } from '../elements/Circle'
-import { Ellipse } from '../elements/Ellipse'
+import { Circle, Ellipse } from '../elements'
+import { canvasHistory } from '../main'
 import { Tool } from '../types'
 
 export class DrawEllipse extends Tool {
@@ -21,19 +21,22 @@ export class DrawEllipse extends Tool {
         const { x, y } = this.startPoint!
 
         if (e.shiftKey) {
-            this.currentPath = new Circle(x, y, e.x, e.y)
+            this.currentPath = Circle.fromStartAndEnd(x, y, e.x, e.y)
         } else {
-            this.currentPath = new Ellipse(x, y, e.x, e.y)
+            this.currentPath = Ellipse.fromStartAndEnd(x, y, e.x, e.y)
         }
-        this.interactionCanvas.replacePaths(this.currentPath)
+        this.interactionCanvas.replaceElements(this.currentPath)
     }
 
     static pointerUp() {
         if (!this.drawing) return
         this.drawing = false
-        this.currentPath.offset.x = this.elementsCanvas.offset.x
-        this.currentPath.offset.y = this.elementsCanvas.offset.y
-        this.elementsCanvas.addPath(this.currentPath)
+        this.currentPath.translate(
+            -this.elementsCanvas.translationX,
+            -this.elementsCanvas.translationY
+        )
+        this.elementsCanvas.addElement(this.currentPath)
+        canvasHistory.save()
         this.interactionCanvas.clear()
     }
 

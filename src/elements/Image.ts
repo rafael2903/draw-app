@@ -1,27 +1,54 @@
-import { Path, PathOptions } from './Path'
+import { Element, ElementProperties } from './Element'
 
-export class ImagePath extends Path {
-    readonly imageElement: HTMLImageElement
+export class ImageElement extends Element {
+    readonly image: HTMLImageElement
+
     constructor(
-        imageFile: File,
+        image: File | HTMLImageElement,
         private centerX: number,
         private centerY: number,
-        pathOptions?: PathOptions
+        elementProperties?: ElementProperties
     ) {
-        if (!imageFile.type.startsWith('image/'))
+        super(elementProperties)
+        if (image instanceof HTMLImageElement) {
+            this.image = image
+            this.setProperties()
+            return
+        }
+        if (!image.type.startsWith('image/'))
             throw new Error('File is not an image')
-        super(pathOptions)
-        this.imageElement = new Image()
-        this.imageElement.src = URL.createObjectURL(imageFile)
+        this.image = new Image()
+        this.image.src = URL.createObjectURL(image)
+    }
+
+    private setProperties() {
+        this.width ||= this.image.naturalWidth
+        this.height ||= this.image.naturalHeight
+        this.x = Math.round(this.centerX - this.width / 2)
+        this.y = Math.round(this.centerY - this.height / 2)
     }
 
     async load() {
-        await this.imageElement.decode()
-        this.width ||= this.imageElement.naturalWidth
-        this.height ||= this.imageElement.naturalHeight
-        this.x = Math.round(this.centerX - this.width / 2)
-        this.y = Math.round(this.centerY - this.height / 2)
-        URL.revokeObjectURL(this.imageElement.src)
+        await this.image.decode()
+        this.setProperties()
+        URL.revokeObjectURL(this.image.src)
         return this
     }
+
+    clone() {
+        return new ImageElement(this.image, this.centerX, this.centerY, this)
+    }
+
+    // isInPoint(x: number, y: number, _ctx: CanvasRenderingContext2D) {
+    //     return (
+    //         x >= this.x &&
+    //         x <= this.x + this.width &&
+    //         y >= this.y &&
+    //         y <= this.y + this.height
+    //     )
+    // }
+
+    // draw(ctx: CanvasRenderingContext2D) {
+    //     ctx.drawImage(this.image, this.x, this.y)
+    // }
 }

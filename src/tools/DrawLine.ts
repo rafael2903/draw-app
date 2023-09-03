@@ -1,5 +1,6 @@
 import { Canvas } from '../Canvas'
-import { Line } from '../elements/Line'
+import { Line } from '../elements'
+import { canvasHistory } from '../main'
 import { Tool } from '../types'
 
 export class DrawLine extends Tool {
@@ -19,15 +20,18 @@ export class DrawLine extends Tool {
         if (!this.drawing) return
         const { x, y } = this.startPoint!
         this.currentPath = new Line(x, y, e.x, e.y)
-        this.interactionCanvas.replacePaths(this.currentPath)
+        this.interactionCanvas.replaceElements(this.currentPath)
     }
 
     static pointerUp() {
         if (!this.drawing) return
         this.drawing = false
-        this.currentPath.offset.x = this.elementsCanvas.offset.x
-        this.currentPath.offset.y = this.elementsCanvas.offset.y
-        this.elementsCanvas.addPath(this.currentPath)
+        this.currentPath.translate(
+            -this.elementsCanvas.translationX,
+            -this.elementsCanvas.translationY
+        )
+        this.elementsCanvas.addElement(this.currentPath)
+        canvasHistory.save()
         this.interactionCanvas.clear()
     }
 

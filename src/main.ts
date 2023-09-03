@@ -31,8 +31,11 @@ const lineButton = document.getElementById('line')!
 const addImageButton = document.getElementById('add-image')! as HTMLInputElement
 const undoButton = document.getElementById('undo')! as HTMLButtonElement
 const redoButton = document.getElementById('redo')! as HTMLButtonElement
-// const zoomIn = document.getElementById<HTMLButtonElement>('#zoom-in')!
-// const zoomOut = document.getElementById<HTMLButtonElement>('#zoom-out')!
+const zoomOutButton = document.getElementById('zoom-out')! as HTMLButtonElement
+const zoomInButton = document.getElementById('zoom-in')! as HTMLButtonElement
+const scaleDisplay = document.getElementById(
+    'scale-display'
+)! as HTMLButtonElement
 
 const interactionCanvas = new Canvas(interactionCanvasElement)
 const elementsCanvas = new Canvas(elementsCanvasElement)
@@ -45,8 +48,8 @@ window.addEventListener('resize', () => {
     interactionCanvas.height = elementsCanvas.height = window.innerHeight
 })
 
-const drawHistory = new CanvasHistory(elementsCanvas)
-const historyControl = new HistoryControl(drawHistory, redoButton, undoButton)
+export const canvasHistory = new CanvasHistory(elementsCanvas)
+const historyControl = new HistoryControl(canvasHistory, redoButton, undoButton)
 
 const tools: Record<ToolName, Tool> = {
     [ToolName.Pen]: Paint.init(elementsCanvas, interactionCanvas),
@@ -91,7 +94,7 @@ let activeTool: ToolName
 const setActiveTool = (tool: ToolName) => {
     if (activeTool === tool) return
     activeTool = tool
-    document.querySelector('.tool.active')?.classList.remove('active')
+    document.querySelector('#tools .button.active')?.classList.remove('active')
     document.getElementById(tool)!.classList.add('active')
     // @ts-ignore
     interactionCanvas.element.style.cursor = tools[tool].cursor
@@ -104,10 +107,11 @@ setActiveTool(ToolName.Pen)
 
 clearCanvasButton.addEventListener('click', () => {
     elementsCanvas.clear()
+    canvasHistory.save()
 })
 
 downloadCanvasImageButton.addEventListener('click', () => {
-    DownloadCanvasImage.download(elementsCanvas.element, 'picture')
+    DownloadCanvasImage.download(elementsCanvas)
 })
 
 selectButton.addEventListener('click', () => {
@@ -134,18 +138,6 @@ lineButton.addEventListener('click', () => {
     setActiveTool(ToolName.Line)
 })
 
-addImageButton.addEventListener('change', () => {
-    const file = addImageButton.files?.[0]
-    if (file) {
-        AddImage.add(
-            file,
-            elementsCanvas,
-            elementsCanvas.width / 2,
-            elementsCanvas.height / 2
-        )
-    }
-})
-
 undoButton.addEventListener('click', historyControl.undo.bind(historyControl))
 redoButton.addEventListener('click', historyControl.redo.bind(historyControl))
 
@@ -154,7 +146,18 @@ window.addEventListener('keydown', (e) => {
         historyControl.onUndoPress()
     } else if (e.key === 'y' && e.ctrlKey) {
         historyControl.onRedoPress()
-    }
+    } else if ((e.key === '+' && e.ctrlKey) || (e.key === '=' && e.ctrlKey)) {
+        const newScale = elementsCanvas.scale(0.1)
+        scaleDisplay.innerText = `${Math.round(newScale * 100)}%`
+    } else if ((e.key === '-' && e.ctrlKey) || (e.key === '_' && e.ctrlKey)) {
+        const newScale = elementsCanvas.scale(-0.1)
+        scaleDisplay.innerText = `${Math.round(newScale * 100)}%`
+    } else if (e.key === '0' && e.ctrlKey) {
+        const newScale = elementsCanvas.setScale(1)
+        scaleDisplay.innerText = `${Math.round(newScale * 100)}%`
+    } else return
+
+    e.preventDefault()
 })
 
 window.addEventListener('keyup', (e) => {
@@ -164,19 +167,6 @@ window.addEventListener('keyup', (e) => {
         historyControl.onRedoRelease()
     }
 })
-
-document.onpaste = function (e) {
-    e.preventDefault()
-    const file = e.clipboardData?.files[0]
-    if (file) {
-        AddImage.add(
-            file,
-            elementsCanvas,
-            elementsCanvas.width / 2,
-            elementsCanvas.height / 2
-        )
-    }
-}
 
 interactionCanvas.element.ondragover = (e) => {
     e.preventDefault()
@@ -206,16 +196,66 @@ interactionCanvas.element.ondrop = (e) => {
     interactionCanvas.element.classList.remove('dropping')
     const file = e.dataTransfer?.files[0]
     if (file) {
-        AddImage.add(file, elementsCanvas, e.x, e.y)
+        AddImage.add(
+            file,
+            elementsCanvas,
+            e.x - elementsCanvas.translationX,
+            e.y - elementsCanvas.translationY
+        )
     }
 }
 
-// zoomIn.addEventListener('click', () => {
-//     elementsCanvas.scale += 0.1
-//     elementsCanvas.redraw()
-// })
+document.onpaste = function (e) {
+    e.preventDefault()
+    const file = e.clipboardData?.files[0]
+    if (file) {
+        AddImage.add(
+            file,
+            elementsCanvas,
+            elementsCanvas.width / 2 - elementsCanvas.translationX,
+            elementsCanvas.height / 2 - elementsCanvas.translationY
+        )
+    }
+}
 
-// zoomOut.addEventListener('click', () => {
-//     elementsCanvas.scale -= 0.1
-//     elementsCanvas.redraw()
-// })
+addImageButton.addEventListener('change', () => {
+    const file = addImageButton.files?.[0]
+    if (file) {
+        AddImage.add(
+            file,
+            elementsCanvas,
+            elementsCanvas.width / 2 - elementsCanvas.translationX,
+            elementsCanvas.height / 2 - elementsCanvas.translationY
+        )
+    }
+})
+
+zoomInButton.addEventListener('click', () => {
+    const newScale = elementsCanvas.scale(0.1)
+    scaleDisplay.innerText = `${Math.round(newScale * 100)}%`
+})
+
+scaleDisplay.addEventListener('click', () => {
+    const newScale = elementsCanvas.setScale(1)
+    scaleDisplay.innerText = `${Math.round(newScale * 100)}%`
+})
+
+zoomOutButton.addEventListener('click', () => {
+    const newScale = elementsCanvas.scale(-0.1)
+    scaleDisplay.innerText = `${Math.round(newScale * 100)}%`
+})
+
+interactionCanvas.element.onwheel = (e) => {
+    e.preventDefault()
+    if (e.ctrlKey) {
+        const ZOOM_SPEED = 0.0025
+        elementsCanvas.setTranslation(
+            (window.innerWidth / 2) * Math.sign(e.deltaY),
+            (window.innerHeight / 2) * Math.sign(e.deltaY)
+        )
+        const newScale = elementsCanvas.scale(e.deltaY * -ZOOM_SPEED)
+        scaleDisplay.innerText = `${Math.round(newScale * 100)}%`
+    } else {
+        elementsCanvas.translate(-e.deltaX, -e.deltaY)
+    }
+}
