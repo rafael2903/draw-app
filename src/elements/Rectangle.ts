@@ -1,4 +1,5 @@
-import { ElementProperties, Shape } from './Element'
+import { ElementProperties } from './Element'
+import { Shape } from './Shape'
 
 export class Rectangle extends Shape {
     constructor(
@@ -38,11 +39,4 @@ export class Rectangle extends Shape {
         path.rect(this.x, this.y, this.width, this.height)
         return path
     }
-
-    // draw(ctx: CanvasRenderingContext2D) {
-    //     ctx.beginPath()
-    //     this.applyProperties(ctx)
-    //     ctx.rect(this.x, this.y, this.width, this.height)
-    //     this.fillAndStroke(ctx)
-    // }
 }

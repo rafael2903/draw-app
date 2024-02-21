@@ -1,4 +1,5 @@
-import { Canvas, CanvasHistory } from './Canvas'
+import { Canvas } from './Canvas'
+import { CanvasHistory } from './CanvasHistory'
 import './config-icons'
 import './style.css'
 import {

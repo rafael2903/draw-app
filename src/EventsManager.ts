@@ -16,10 +16,8 @@ export class EventsManager<T> {
         }
     }
 
-    protected emit<K extends keyof T>(type: K, event: T[K]) {
+    protected emit<K extends keyof T>(type: K, data: T[K]) {
         const callbacks = this.events.get(type) || []
-        for (const callback of callbacks) {
-            callback(event)
-        }
+        callbacks.forEach(callback => callback(data))
     }
 }

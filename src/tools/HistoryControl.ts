@@ -1,4 +1,4 @@
-import { CanvasHistory } from '../Canvas'
+import { CanvasHistory } from '../CanvasHistory'
 
 export class HistoryControl {
     constructor(

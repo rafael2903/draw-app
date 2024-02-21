@@ -17,8 +17,8 @@ export class DrawLine extends Tool {
     }
 
     static pointerMove(e: PointerEvent) {
-        if (!this.drawing) return
-        const { x, y } = this.startPoint!
+        if (!this.drawing || !this.startPoint) return
+        const { x, y } = this.startPoint
         this.currentPath = new Line(x, y, e.x, e.y)
         this.interactionCanvas.replaceElements(this.currentPath)
     }

@@ -15,8 +15,10 @@ export class ImageElement extends Element {
             this.setProperties()
             return
         }
+
         if (!image.type.startsWith('image/'))
             throw new Error('File is not an image')
+
         this.image = new Image()
         this.image.src = URL.createObjectURL(image)
     }
@@ -38,17 +40,4 @@ export class ImageElement extends Element {
     clone() {
         return new ImageElement(this.image, this.centerX, this.centerY, this)
     }
-
-    // isInPoint(x: number, y: number, _ctx: CanvasRenderingContext2D) {
-    //     return (
-    //         x >= this.x &&
-    //         x <= this.x + this.width &&
-    //         y >= this.y &&
-    //         y <= this.y + this.height
-    //     )
-    // }
-
-    // draw(ctx: CanvasRenderingContext2D) {
-    //     ctx.drawImage(this.image, this.x, this.y)
-    // }
 }

@@ -68,8 +68,11 @@ export class Canvas extends EventsManager<CanvasEventMap> {
         this.ctx.lineWidth = element.lineWidth
         element.strokeStyle && (this.ctx.strokeStyle = element.strokeStyle)
         element.fillStyle && (this.ctx.fillStyle = element.fillStyle)
-        if (element instanceof ImageElement)
+
+        if (element instanceof ImageElement) {
             this.ctx.drawImage(element.image, element.x, element.y)
+        }
+
         if (element instanceof Shape || element instanceof Polyline) {
             element.filled && this.ctx.fill(element.path)
             element.stroked && this.ctx.stroke(element.path)
@@ -77,9 +80,7 @@ export class Canvas extends EventsManager<CanvasEventMap> {
     }
 
     private drawElements() {
-        for (const element of this.elements) {
-            this.drawElement(element)
-        }
+        this.elements.forEach((element) => this.drawElement(element))
     }
 
     private redraw() {
@@ -122,6 +123,10 @@ export class Canvas extends EventsManager<CanvasEventMap> {
     }
 
     private isPointInStroke(element: Element, x: number, y: number) {
+        if (element instanceof Polyline || element instanceof Shape) {
+            return this.ctx.isPointInStroke(element.path, x, y)
+        }
+
         if (element instanceof ImageElement) {
             return (
                 x - this._translationX >= element.x &&
@@ -130,15 +135,13 @@ export class Canvas extends EventsManager<CanvasEventMap> {
                 y - this._translationY <= element.y + element.height
             )
         }
-        if (element instanceof Polyline || element instanceof Shape) {
-            return this.ctx.isPointInStroke(element.path, x, y)
-        }
     }
 
     removeElementInPoint(x: number, y: number) {
         const elementToRemoveIndex = this.elements.findLastIndex((element) => {
             return this.isPointInStroke(element, x, y)
         })
+
         if (elementToRemoveIndex !== -1) {
             return this.removeElementByIndex(elementToRemoveIndex)
         }
@@ -193,8 +196,7 @@ export class Canvas extends EventsManager<CanvasEventMap> {
     }
 
     restoreState(elements: Element[]) {
-        this.elements.splice(0, Infinity, ...elements)
-        this.redraw()
+        this.replaceElements(...elements)
     }
 
     toImageURL(type?: string, quality?: number) {
@@ -210,80 +212,5 @@ export class Canvas extends EventsManager<CanvasEventMap> {
         offScreenCanvasContext.drawImage(this.element, 0, 0)
 
         return offScreenCanvas.toDataURL(type, quality)
-    }
-}
-
-interface CanvasHistoryEventMap {
-    'undo-change': boolean
-    'redo-change': boolean
-    change: {
-        canRedo: boolean
-        canUndo: boolean
-    }
-}
-
-export class CanvasHistory extends EventsManager<CanvasHistoryEventMap> {
-    private undos: Element[][] = [[]]
-    private redos: Element[][] = []
-    private sizeMax = 50
-    private _canUndo = false
-    private _canRedo = false
-
-    constructor(private canvas: Canvas) {
-        super()
-    }
-
-    save() {
-        this.add(this.canvas.getState())
-    }
-
-    get canUndo() {
-        return this._canUndo
-    }
-
-    get canRedo() {
-        return this._canRedo
-    }
-
-    set canRedo(value) {
-        this._canRedo = value
-        this.emit('redo-change', value)
-        this.emit('change', { canRedo: value, canUndo: this.canUndo })
-    }
-
-    set canUndo(value) {
-        this._canUndo = value
-        this.emit('undo-change', value)
-        this.emit('change', { canRedo: this.canRedo, canUndo: value })
-    }
-
-    add(elements: Element[]) {
-        if (this.undos.length === this.sizeMax) {
-            this.undos.shift()
-        }
-        const newState = elements.map((element) => element.clone())
-        this.undos.push(newState)
-        this.redos.splice(0)
-        this.canUndo = true
-        this.canRedo = false
-    }
-
-    undo() {
-        if (this.undos.length === 1) return
-        if (this.undos.length === 2) this.canUndo = false
-        const currentState = this.undos.pop()!
-        const previousState = this.undos.at(-1)!
-        this.canvas.restoreState(previousState)
-        this.redos.push(currentState)
-        this.canRedo = true
-    }
-
-    redo() {
-        if (this.redos.length === 0) return
-        if (this.redos.length === 1) this.canRedo = false
-        const nextState = this.redos.pop()!
-        this.canvas.restoreState(nextState)
-        this.undos.push(nextState)
-        this.canUndo = true
     }
 }

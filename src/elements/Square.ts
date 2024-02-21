@@ -1,4 +1,5 @@
-import { ElementProperties, Shape } from './Element'
+import { ElementProperties } from './Element'
+import { Shape } from './Shape'
 
 export class Square extends Shape {
     constructor(

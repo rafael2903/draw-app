@@ -1,4 +1,5 @@
-import { ElementProperties, Shape } from './Element'
+import { ElementProperties } from './Element'
+import { Shape } from './Shape'
 
 export class Line extends Shape {
     private deltaX: number
@@ -43,13 +44,4 @@ export class Line extends Shape {
         path.lineTo(this.x + this.deltaX, this.y + this.deltaY)
         return path
     }
-
-    // draw(ctx: CanvasRenderingContext2D) {
-    //     ctx.beginPath()
-    //     this.applyProperties(ctx)
-    //     ctx.moveTo(this.x, this.y)
-    //     ctx.lineTo(this.x + this.deltaX, this.y + this.deltaY)
-    //     ctx.closePath()
-    //     this.fillAndStroke(ctx)
-    // }
 }

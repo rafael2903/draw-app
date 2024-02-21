@@ -55,14 +55,4 @@ export class Polyline extends Element {
         })
         return path
     }
-
-    // draw(ctx: CanvasRenderingContext2D) {
-    //     ctx.beginPath()
-    //     this.applyProperties(ctx)
-    //     ctx.moveTo(this.x, this.y)
-    //     this.points.forEach(({ deltaX, deltaY }) => {
-    //         ctx.lineTo(this.x + deltaX, this.y + deltaY)
-    //     })
-    //     this.fillAndStroke(ctx)
-    // }
 }

@@ -1,4 +1,5 @@
-import { ElementProperties, Shape } from './Element'
+import { ElementProperties } from './Element'
+import { Shape } from './Shape'
 
 export class Circle extends Shape {
     constructor(
@@ -40,12 +41,4 @@ export class Circle extends Shape {
         path.arc(this.x, this.y, this.width / 2, 0, 2 * Math.PI)
         return path
     }
-
-    // draw(ctx: CanvasRenderingContext2D) {
-    //     ctx.beginPath()
-    //     this.applyProperties(ctx)
-    //     ctx.arc(this.x, this.y, this.width / 2, 0, 2 * Math.PI)
-    //     ctx.closePath()
-    //     this.fillAndStroke(ctx)
-    // }
 }

@@ -1,4 +1,5 @@
-import { ElementProperties, Shape } from './Element'
+import { ElementProperties } from './Element'
+import { Shape } from './Shape'
 
 export class Ellipse extends Shape {
     constructor(
@@ -58,12 +59,4 @@ export class Ellipse extends Shape {
         )
         return path
     }
-
-    // draw(ctx: CanvasRenderingContext2D) {
-    //     ctx.beginPath()
-    //     this.applyProperties(ctx)
-    //     ctx.ellipse(this.x, this.y, this.width / 2, this.height / 2, 0, 0, 2 * Math.PI)
-    //     ctx.closePath()
-    //     this.fillAndStroke(ctx)
-    // }
 }
