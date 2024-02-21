@@ -8,8 +8,6 @@ The app is hosted on vercel and can be accessed [here](https://painting-canvas.v
 
 -   Draw with the mouse
 -   Draw shapes like lines, rectangles, and circles
-<!-- -   Change the color of the brush -->
-<!-- -   Change the size of the brush -->
 -   Add images to the drawing
 -   Export the drawing as an image
 -   Undo and redo
@@ -17,7 +15,9 @@ The app is hosted on vercel and can be accessed [here](https://painting-canvas.v
 -   Pan though an infinite canvas
 -   Easily erase elements of the drawing
 -   Zoom in and out
-<!-- -   Change the background color
+<!-- -   Change the size of the brush
+-   Change the color of the brush
+-   Change the background color
 -   Add text to the drawing
 -   Change the font size and color of the text
 -   Change the font family of the text
@@ -25,6 +25,6 @@ The app is hosted on vercel and can be accessed [here](https://painting-canvas.v
 -   Change the style of the text
 -   Change the weight of the text -->
 
-## Images
+## Preview
 
 ![Draw app](./public/preview.png)
