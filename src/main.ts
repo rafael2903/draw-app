@@ -14,7 +14,43 @@ import {
     Paint,
     Select,
 } from './tools'
-import { Tool, ToolName } from './types'
+import { OnEvent, Tool, ToolName } from './types'
+
+const onEvent: OnEvent = function (
+    element: HTMLElement | Document | Window,
+    event: unknown,
+    listener: (ev: Event) => void
+) {
+    const events = Array.isArray(event) ? event : [event]
+    events.forEach((e) => {
+        element.addEventListener(e, listener)
+    })
+}
+
+function addClassOnEvent(
+    element: HTMLElement,
+    event: keyof HTMLElementEventMap | Array<keyof HTMLElementEventMap>,
+    className: string
+) {
+    // @ts-ignore
+    onEvent(element, event, (e) => {
+        e.preventDefault()
+        element.classList.add(className)
+    })
+}
+
+function removeClassOnEvent(
+    element: HTMLElement,
+    event: keyof HTMLElementEventMap | Array<keyof HTMLElementEventMap>,
+    className: string
+) {
+    // @ts-ignore
+    onEvent(element, event, (e) => {
+        e.preventDefault()
+        element.classList.remove(className)
+    })
+}
+
 
 const interactionCanvasElement = document.getElementById(
     'interaction-canvas'
@@ -232,68 +268,3 @@ onEvent(interactionCanvas.element, 'wheel', (e) => {
         elementsCanvas.translate(-e.deltaX, -e.deltaY)
     }
 })
-
-function onEvent<K extends keyof HTMLElementEventMap>(
-    element: HTMLElement,
-    event: K,
-    listener: (ev: HTMLElementEventMap[K]) => void
-): void
-function onEvent(
-    element: HTMLElement,
-    event: Array<keyof HTMLElementEventMap>,
-    listener: (ev: Event) => void
-): void
-function onEvent<K extends keyof DocumentEventMap>(
-    element: Document,
-    event: K,
-    listener: (ev: DocumentEventMap[K]) => void
-): void
-function onEvent(
-    element: Document,
-    event: Array<keyof DocumentEventMap>,
-    listener: (ev: Event) => void
-): void
-function onEvent<K extends keyof WindowEventMap>(
-    element: Window,
-    event: K,
-    listener: (ev: WindowEventMap[K]) => void
-): void
-function onEvent(
-    element: Window,
-    event: Array<keyof WindowEventMap>,
-    listener: (ev: Event) => void
-): void
-function onEvent(
-    element: HTMLElement | Document | Window,
-    event: unknown,
-    listener: (ev: Event) => void
-) {
-    const events = Array.isArray(event) ? event : [event]
-    events.forEach((e) => {
-        element.addEventListener(e, listener)
-    })
-}
-
-function addClassOnEvent(
-    element: HTMLElement,
-    event: keyof HTMLElementEventMap | Array<keyof HTMLElementEventMap>,
-    className: string
-) {
-    // @ts-ignore
-    onEvent(element, event, (e) => {
-        e.preventDefault()
-        element.classList.add(className)
-    })
-}
-
-function removeClassOnEvent(
-    element: HTMLElement,
-    event: keyof HTMLElementEventMap | Array<keyof HTMLElementEventMap>,
-    className: string
-) {
-    // @ts-ignore
-    onEvent(element, event, (e) => {
-        e.preventDefault()
-        element.classList.remove(className)
-    })
-}
