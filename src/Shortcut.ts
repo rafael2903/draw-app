@@ -1,61 +1,90 @@
-type Key = '+' | '-' | '_' | '=' | 'y' | 'z' | 'Y' | 'Z'
+type Key = '+' | '-' | '_' | '=' | 'y' | 'z' | 'Y' | 'Z' | '0'
 
-type BindOptions = {
+interface BindData {
     key: Key
     ctrl?: boolean
     shift?: boolean
     alt?: boolean
     meta?: boolean
+    preventDefault?: boolean
+}
+
+interface options {
+    preventDefault?: boolean
     caseSensitive?: boolean
 }
 
+interface stringBindOptions extends options {
+    keysSeparator?: string
+    shortcutsSeparator?: string
+}
+
+interface BindInfo extends BindData, options {}
+
+type KeyBindType = 'keydown' | 'keyup' | 'keypress'
+type KeyboardEventHandler = (e: KeyboardEvent) => void
+
 type KeyBind = {
-    type: 'keydown' | 'keyup' | 'keypress'
-    bindOptions: BindOptions
-    callback: (e: KeyboardEvent) => void
+    type: KeyBindType
+    bindData: BindData
+    callback: KeyboardEventHandler
 }
 
 export class Shortcut {
-    private static keys: Key[] = ['+', '-', '_', '=', 'y', 'z', 'Y', 'Z']
+    private static keys: Key[] = ['+', '-', '_', '=', 'y', 'z', 'Y', 'Z', '0']
     private static binds = new Map<Key, KeyBind[]>()
-    private static listeningUp = false
-    private static listeningDown = false
-    private static listeningPress = false
+    private static listeningEvents: Record<KeyBindType, boolean> = {
+        keydown: false,
+        keyup: false,
+        keypress: false,
+    }
 
     private static handleKeyEvent(e: KeyboardEvent) {
-        e.preventDefault()
         const key = e.key as Key
         if (!this.binds.has(key)) return
         const keyBinds = this.binds.get(key) as KeyBind[]
-        keyBinds.forEach(({ bindOptions, type, callback }) => {
-            if (this.matchBind(type, bindOptions, e)) {
+        keyBinds.forEach(({ bindData, type, callback }) => {
+            if (this.matchBind(type, bindData, e)) {
+                if (bindData.preventDefault) {
+                    e.preventDefault()
+                }
                 callback(e)
             }
         })
     }
 
     private static matchBind(
-        type: KeyBind['type'],
-        bindOptions: BindOptions,
+        type: KeyBindType,
+        bindData: BindData,
         e: KeyboardEvent
     ) {
         if (type !== e.type) return false
-        if (bindOptions.ctrl && !e.ctrlKey) return false
-        if (bindOptions.shift && !e.shiftKey) return false
-        if (bindOptions.alt && !e.altKey) return false
-        if (bindOptions.meta && !e.metaKey) return false
+        if (bindData.ctrl && !e.ctrlKey) return false
+        if (bindData.shift && !e.shiftKey) return false
+        if (bindData.alt && !e.altKey) return false
+        if (bindData.meta && !e.metaKey) return false
         return true
     }
 
     private static parseShortcuts(
-        shortcut: string
-    ): Array<BindOptions | false> {
-        const shortcuts = shortcut.split(',').map((s) => s.trim())
-        return shortcuts.map((shortcut) => this.parseShortcut(shortcut))
+        shortcut: string,
+        options?: stringBindOptions
+    ): Array<BindInfo | false> {
+        const shortcutsSeparator = options?.shortcutsSeparator || ','
+        const shortcuts = shortcut
+            .split(shortcutsSeparator)
+            .map((s) => s.trim())
+        return shortcuts.map((shortcut) =>
+            this.parseShortcut(shortcut, options)
+        )
     }
 
-    private static parseShortcut(shortcut: string): BindOptions | false {
-        const keys = shortcut.split('+').map((s) => s.trim())
+    private static parseShortcut(
+        shortcut: string,
+        options?: stringBindOptions
+    ): BindInfo | false {
+        const keysSeparator = options?.keysSeparator || '+'
+        const keys = shortcut.split(keysSeparator).map((s) => s.trim())
 
         const ctrlIndex = keys.indexOf('ctrl')
         if (ctrlIndex !== -1) {
@@ -78,10 +107,12 @@ export class Shortcut {
         }
 
         if (keys.length > 1) {
+            console.error(`Shortcut: "${shortcut}" has more than one key.`)
             return false
         }
 
         if (!this.keys.includes(keys[0] as Key)) {
+            console.error(`Shortcut: "${shortcut}" has an invalid key.`)
             return false
         }
 
@@ -94,78 +125,131 @@ export class Shortcut {
         }
     }
 
-    private static getKeys(bindOptions: BindOptions): Key[] {
-        if (!bindOptions.caseSensitive && /[a-z]/i.test(bindOptions.key)) {
+    private static getKeys(bindData: BindData, caseSensitive = false): Key[] {
+        if (!caseSensitive && /[a-z]/i.test(bindData.key)) {
             return [
-                bindOptions.key.toUpperCase() as Key,
-                bindOptions.key.toLowerCase() as Key,
+                bindData.key.toUpperCase() as Key,
+                bindData.key.toLowerCase() as Key,
             ]
         }
-        return [bindOptions.key]
+        return [bindData.key]
     }
 
-    private static addBind(keyBind: KeyBind) {
-        const keys = this.getKeys(keyBind.bindOptions)
+    private static addBind(
+        type: KeyBindType,
+        bindInfo: BindInfo,
+        callback: KeyboardEventHandler,
+        options?: options
+    ) {
+        const keys = this.getKeys(
+            bindInfo,
+            bindInfo.caseSensitive ?? options?.caseSensitive ?? false
+        )
         keys.forEach((key) => {
             if (!this.binds.has(key)) {
                 this.binds.set(key, [])
+            }
+            const keyBind = {
+                type,
+                callback,
+                bindData: {
+                    key,
+                    ctrl: bindInfo.ctrl,
+                    shift: bindInfo.shift,
+                    alt: bindInfo.alt,
+                    meta: bindInfo.meta,
+                    preventDefault:
+                        bindInfo.preventDefault ??
+                        options?.preventDefault ??
+                        true,
+                },
             }
             this.binds.get(key)?.push(keyBind)
         })
     }
 
-    private static onKeyEvent(
-        type: KeyBind['type'],
-        shortcut: string | BindOptions[],
-        callback: (e: KeyboardEvent) => void
+    private static addBinds(
+        type: KeyBindType,
+        shortcut: string | BindInfo[],
+        callback: KeyboardEventHandler,
+        options?: options | stringBindOptions
     ) {
         const results = Array.isArray(shortcut)
             ? shortcut
-            : this.parseShortcuts(shortcut)
+            : this.parseShortcuts(shortcut, options)
 
-        results.forEach((result) => {
-            if (result !== false) {
-                this.addBind({
-                    type,
-                    bindOptions: result,
-                    callback,
-                })
+        results.forEach((bindInfo) => {
+            if (bindInfo !== false) {
+                this.addBind(type, bindInfo, callback, options)
             }
         })
     }
 
-    static onKeyDown(
-        shortcut: string | BindOptions[],
-        callback: (e: KeyboardEvent) => void
+    private static onKeyEvent(
+        type: KeyBindType,
+        shortcut: string | BindInfo[],
+        callback: KeyboardEventHandler,
+        options?: options | stringBindOptions
     ) {
-        if (!this.listeningDown) {
-            window.addEventListener('keydown', (e) => this.handleKeyEvent(e))
-            this.listeningDown = true
+        if (!this.listeningEvents[type]) {
+            window.addEventListener(type, (e) => this.handleKeyEvent(e))
+            this.listeningEvents[type] = true
         }
 
-        this.onKeyEvent('keydown', shortcut, callback)
+        this.addBinds(type, shortcut, callback, options)
+    }
+
+    static onKeyDown(
+        shortcut: string,
+        callback: KeyboardEventHandler,
+        options?: stringBindOptions
+    ): void
+    static onKeyDown(
+        shortcut: BindInfo[],
+        callback: KeyboardEventHandler,
+        options?: options
+    ): void
+    static onKeyDown(
+        shortcut: string | BindInfo[],
+        callback: KeyboardEventHandler,
+        options?: options | stringBindOptions
+    ) {
+        this.onKeyEvent('keydown', shortcut, callback, options)
     }
 
     static onKeyUp(
-        shortcut: string | BindOptions[],
-        callback: (e: KeyboardEvent) => void
+        shortcut: string,
+        callback: KeyboardEventHandler,
+        options?: stringBindOptions
+    ): void
+    static onKeyUp(
+        shortcut: BindInfo[],
+        callback: KeyboardEventHandler,
+        options?: options
+    ): void
+    static onKeyUp(
+        shortcut: string | BindInfo[],
+        callback: KeyboardEventHandler,
+        options?: options | stringBindOptions
     ) {
-        if (!this.listeningUp) {
-            window.addEventListener('keyup', (e) => this.handleKeyEvent(e))
-            this.listeningUp = true
-        }
-
-        this.onKeyEvent('keyup', shortcut, callback)
+        this.onKeyEvent('keyup', shortcut, callback, options)
     }
 
     static onKeyPress(
-        shortcut: string | BindOptions[],
-        callback: (e: KeyboardEvent) => void
+        shortcut: string,
+        callback: KeyboardEventHandler,
+        options?: stringBindOptions
+    ): void
+    static onKeyPress(
+        shortcut: BindInfo[],
+        callback: KeyboardEventHandler,
+        options?: options
+    ): void
+    static onKeyPress(
+        shortcut: string | BindInfo[],
+        callback: KeyboardEventHandler,
+        options?: options | stringBindOptions
     ) {
-        if (!this.listeningPress) {
-            window.addEventListener('keypress', (e) => this.handleKeyEvent(e))
-            this.listeningPress = true
-        }
-        this.onKeyEvent('keypress', shortcut, callback)
+        this.onKeyEvent('keypress', shortcut, callback, options)
     }
 }

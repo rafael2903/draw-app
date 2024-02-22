@@ -39,6 +39,10 @@ const scaleDisplay = document.getElementById(
 
 const interactionCanvas = new Canvas(interactionCanvasElement)
 const elementsCanvas = new Canvas(elementsCanvasElement)
+export const canvasHistory = new CanvasHistory(elementsCanvas)
+const historyControl = new HistoryControl(canvasHistory, redoButton, undoButton)
+
+let activeTool: ToolName
 
 interactionCanvas.width = elementsCanvas.width = window.innerWidth
 interactionCanvas.height = elementsCanvas.height = window.innerHeight
@@ -47,9 +51,6 @@ onEvent(window, 'resize', () => {
     interactionCanvas.width = elementsCanvas.width = window.innerWidth
     interactionCanvas.height = elementsCanvas.height = window.innerHeight
 })
-
-export const canvasHistory = new CanvasHistory(elementsCanvas)
-const historyControl = new HistoryControl(canvasHistory, redoButton, undoButton)
 
 const toolButtonsIds: Record<ToolName, string> = {
     [ToolName.Select]: 'select-button',
@@ -71,7 +72,6 @@ const tools: Record<ToolName, Tool> = {
 
 function handlePointerDown(e: PointerEvent) {
     if (e.button === 0) {
-        // @ts-ignore
         tools[activeTool].onPointerDown(e)
     } else if (e.button === 1) {
         interactionCanvas.clear()
@@ -83,29 +83,24 @@ function handlePointerMove(e: PointerEvent) {
     if (e.button === -1 && e.buttons >= 4) {
         tools[ToolName.Move].onPointerMove(e)
     } else {
-        // @ts-ignore
         tools[activeTool].onPointerMove(e)
     }
 }
 
 function handlePointerUp(e: PointerEvent) {
     if (e.button === 0) {
-        // @ts-ignore
-        tools[activeTool].onPointerUp(e)
+        tools[activeTool].onPointerUp()
     } else if (e.button === 1) {
         tools[ToolName.Move].onPointerUp()
-        // @ts-ignore
         interactionCanvas.element.style.cursor = tools[activeTool].cursor
     }
 }
 
-let activeTool: ToolName
 const setActiveTool = (tool: ToolName) => {
     if (activeTool === tool) return
     activeTool = tool
     document.querySelector('#tools .button.active')?.classList.remove('active')
-    document.getElementById(toolButtonsIds[tool])!.classList.add('active')
-    // @ts-ignore
+    document.getElementById(toolButtonsIds[tool])?.classList.add('active')
     interactionCanvas.element.style.cursor = tools[tool].cursor
     interactionCanvas.element.onpointerdown = handlePointerDown
     window.onpointermove = handlePointerMove
@@ -113,6 +108,12 @@ const setActiveTool = (tool: ToolName) => {
 }
 
 setActiveTool(ToolName.Pen)
+
+for (const [tool, toolButtonId] of Object.entries(toolButtonsIds)) {
+    document.getElementById(toolButtonId)?.addEventListener('click', () => {
+        setActiveTool(tool as ToolName)
+    })
+}
 
 onEvent(clearCanvasButton, 'click', () => {
     elementsCanvas.clear()
@@ -122,12 +123,6 @@ onEvent(clearCanvasButton, 'click', () => {
 onEvent(downloadCanvasImageButton, 'click', () => {
     DownloadCanvasImage.download(elementsCanvas)
 })
-
-for (const [tool, toolButtonId] of Object.entries(toolButtonsIds)) {
-    document.getElementById(toolButtonId)!.addEventListener('click', () => {
-        setActiveTool(tool as ToolName)
-    })
-}
 
 onEvent(undoButton, 'click', historyControl.undo.bind(historyControl))
 onEvent(redoButton, 'click', historyControl.redo.bind(historyControl))
@@ -170,7 +165,7 @@ removeClassOnEvent(
 
 addClassOnEvent(interactionCanvas.element, 'dragenter', 'dropping')
 
-onEvent(interactionCanvas.element, 'drop', (e: DragEvent) => {
+onEvent(interactionCanvas.element, 'drop', (e) => {
     e.preventDefault()
     interactionCanvas.element.classList.remove('dropping')
     const file = e.dataTransfer?.files[0]
@@ -183,8 +178,6 @@ onEvent(interactionCanvas.element, 'drop', (e: DragEvent) => {
         )
     }
 })
-
-window.addEventListener
 
 onEvent(document, 'paste', (e) => {
     e.preventDefault()
@@ -226,7 +219,7 @@ onEvent(zoomOutButton, 'click', () => {
     scaleDisplay.innerText = `${Math.round(newScale * 100)}%`
 })
 
-interactionCanvas.element.onwheel = (e) => {
+onEvent(interactionCanvas.element, 'wheel', (e) => {
     e.preventDefault()
     if (e.ctrlKey) {
         const ZOOM_SPEED = 0.0025
@@ -239,7 +232,7 @@ interactionCanvas.element.onwheel = (e) => {
     } else {
         elementsCanvas.translate(-e.deltaX, -e.deltaY)
     }
-}
+})
 
 function onEvent<K extends keyof HTMLElementEventMap>(
     element: HTMLElement,
@@ -292,18 +285,6 @@ function addClassOnEvent(
         e.preventDefault()
         element.classList.add(className)
     })
-
-    // if (Array.isArray(event)) {
-    //     onEvent(element, event, (e) => {
-    //         e.preventDefault()
-    //         element.classList.add(className)
-    //     })
-    // } else {
-    //     onEvent(element, event, (e: HTMLElementEventMap[typeof event]) => {
-    //         e.preventDefault()
-    //         element.classList.add(className)
-    //     })
-    // }
 }
 
 function removeClassOnEvent(
@@ -316,15 +297,4 @@ function removeClassOnEvent(
         e.preventDefault()
         element.classList.remove(className)
     })
-    // if (Array.isArray(event)) {
-    //     onEvent(element, event, (e) => {
-    //         e.preventDefault()
-    //         element.classList.remove(className)
-    //     })
-    // } else {
-    //     onEvent(element, event, (e: HTMLElementEventMap[typeof event]) => {
-    //         e.preventDefault()
-    //         element.classList.remove(className)
-    //     })
-    // }
 }
