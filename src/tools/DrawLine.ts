@@ -1,31 +1,35 @@
 import { Canvas } from '../Canvas'
 import { Line } from '../elements'
 import { canvasHistory } from '../main'
-import { Tool } from '../types'
+import { Point, Tool } from '../types'
 
-export class DrawLine extends Tool {
-    static cursor = 'crosshair'
-    private static startPoint: { x: number; y: number } | null = null
-    private static currentPath: Line
-    private static drawing = false
-    private static interactionCanvas: Canvas
-    private static elementsCanvas: Canvas
+export class DrawLine implements Tool {
+    cursor = 'crosshair'
+    private startPoint: Point | null = null
+    private currentPath?: Line
+    private drawing = false
 
-    static pointerDown(e: PointerEvent) {
+    constructor(
+        private elementsCanvas: Canvas,
+        private interactionCanvas: Canvas
+    ) {}
+
+    onPointerDown(e: PointerEvent) {
         this.drawing = true
-        this.startPoint = { x: e.x, y: e.y }
+        this.startPoint = new Point(e.x, e.y)
     }
 
-    static pointerMove(e: PointerEvent) {
-        if (!this.drawing || !this.startPoint) return
-        const { x, y } = this.startPoint
+    onPointerMove(e: PointerEvent) {
+        if (!this.drawing) return
+        const { x, y } = this.startPoint!
         this.currentPath = new Line(x, y, e.x, e.y)
         this.interactionCanvas.replaceElements(this.currentPath)
     }
 
-    static pointerUp() {
+    onPointerUp() {
         if (!this.drawing) return
         this.drawing = false
+        if (!this.currentPath) return
         this.currentPath.translate(
             -this.elementsCanvas.translationX,
             -this.elementsCanvas.translationY
@@ -33,11 +37,5 @@ export class DrawLine extends Tool {
         this.elementsCanvas.addElement(this.currentPath)
         canvasHistory.save()
         this.interactionCanvas.clear()
-    }
-
-    static init(elementsCanvas: Canvas, interactionCanvas: Canvas) {
-        this.elementsCanvas = elementsCanvas
-        this.interactionCanvas = interactionCanvas
-        return this
     }
 }

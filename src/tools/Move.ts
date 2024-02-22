@@ -1,40 +1,36 @@
 import { Canvas } from '../Canvas'
-import { Tool } from '../types'
+import { Point, Tool } from '../types'
 
-export class Move extends Tool {
-    static cursor = 'grab'
-    static cursorOnPointerDown = 'grabbing'
-    private static dragging = false
-    private static lastX = 0
-    private static lastY = 0
-    private static interactionCanvas: Canvas
-    private static elementsCanvas: Canvas
+export class Move implements Tool {
+    cursor = 'grab'
+    cursorOnPointerDown = 'grabbing'
+    private dragging = false
+    private lastPoint = new Point()
 
-    static pointerDown(e: PointerEvent) {
+    constructor(
+        private elementsCanvas: Canvas,
+        private interactionCanvas: Canvas
+    ) {}
+
+    onPointerDown(e: PointerEvent) {
         this.interactionCanvas.element.style.cursor = this.cursorOnPointerDown
         this.dragging = true
-        this.lastX = e.x
-        this.lastY = e.y
+        this.lastPoint.x = e.x
+        this.lastPoint.y = e.y
     }
 
-    static pointerMove(e: PointerEvent) {
+    onPointerMove(e: PointerEvent) {
         if (!this.dragging) return
-        const deltaX = e.x - this.lastX
-        const deltaY = e.y - this.lastY
-        this.lastX = e.x
-        this.lastY = e.y
+        const deltaX = e.x - this.lastPoint.x
+        const deltaY = e.y - this.lastPoint.y
+        this.lastPoint.x = e.x
+        this.lastPoint.y = e.y
         this.elementsCanvas.translate(deltaX, deltaY)
     }
 
-    static pointerUp() {
+    onPointerUp() {
         if (!this.dragging) return
         this.interactionCanvas.element.style.cursor = this.cursor
         this.dragging = false
-    }
-
-    static init(elementsCanvas: Canvas, interactionCanvas: Canvas) {
-        this.elementsCanvas = elementsCanvas
-        this.interactionCanvas = interactionCanvas
-        return this
     }
 }

@@ -3,20 +3,23 @@ import { Circle, Ellipse } from '../elements'
 import { canvasHistory } from '../main'
 import { Tool } from '../types'
 
-export class DrawEllipse extends Tool {
-    static cursor = 'crosshair'
-    private static startPoint: { x: number; y: number } | null = null
-    private static currentPath: Circle | Ellipse
-    private static drawing = false
-    private static interactionCanvas: Canvas
-    private static elementsCanvas: Canvas
+export class DrawEllipse implements Tool {
+    cursor = 'crosshair'
+    private startPoint: { x: number; y: number } | null = null
+    private currentPath?: Circle | Ellipse
+    private drawing = false
 
-    static pointerDown(e: PointerEvent) {
+    constructor(
+        private elementsCanvas: Canvas,
+        private interactionCanvas: Canvas
+    ) {}
+
+    onPointerDown(e: PointerEvent) {
         this.drawing = true
         this.startPoint = { x: e.x, y: e.y }
     }
 
-    static pointerMove(e: PointerEvent) {
+    onPointerMove(e: PointerEvent) {
         if (!this.drawing) return
         const { x, y } = this.startPoint!
 
@@ -28,9 +31,10 @@ export class DrawEllipse extends Tool {
         this.interactionCanvas.replaceElements(this.currentPath)
     }
 
-    static pointerUp() {
+    onPointerUp() {
         if (!this.drawing) return
         this.drawing = false
+        if (!this.currentPath) return
         this.currentPath.translate(
             -this.elementsCanvas.translationX,
             -this.elementsCanvas.translationY
@@ -40,9 +44,9 @@ export class DrawEllipse extends Tool {
         this.interactionCanvas.clear()
     }
 
-    static init(elementsCanvas: Canvas, interactionCanvas: Canvas) {
-        this.elementsCanvas = elementsCanvas
-        this.interactionCanvas = interactionCanvas
-        return this
-    }
+    // init(elementsCanvas: Canvas, interactionCanvas: Canvas) {
+    //     this.elementsCanvas = elementsCanvas
+    //     this.interactionCanvas = interactionCanvas
+    //     return this
+    // }
 }

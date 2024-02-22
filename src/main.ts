@@ -60,41 +60,40 @@ const toolButtonsIds: Record<ToolName, string> = {
     [ToolName.Line]: 'line-button',
 }
 
-
 const tools: Record<ToolName, Tool> = {
-    [ToolName.Pen]: Paint.init(elementsCanvas, interactionCanvas),
-    [ToolName.Line]: DrawLine.init(elementsCanvas, interactionCanvas),
-    [ToolName.Move]: Move.init(elementsCanvas, interactionCanvas),
-    [ToolName.Select]: Select.init(elementsCanvas, interactionCanvas),
-    [ToolName.Ellipse]: DrawEllipse.init(elementsCanvas, interactionCanvas),
-    [ToolName.Erase]: Erase.init(elementsCanvas, interactionCanvas),
+    [ToolName.Pen]: new Paint(elementsCanvas, interactionCanvas),
+    [ToolName.Line]: new DrawLine(elementsCanvas, interactionCanvas),
+    [ToolName.Move]: new Move(elementsCanvas, interactionCanvas),
+    [ToolName.Select]: new Select(elementsCanvas, interactionCanvas),
+    [ToolName.Ellipse]: new DrawEllipse(elementsCanvas, interactionCanvas),
+    [ToolName.Erase]: new Erase(elementsCanvas, interactionCanvas),
 }
 
 function handlePointerDown(e: PointerEvent) {
     if (e.button === 0) {
         // @ts-ignore
-        tools[activeTool].pointerDown(e)
+        tools[activeTool].onPointerDown(e)
     } else if (e.button === 1) {
         interactionCanvas.clear()
-        Move.pointerDown(e)
+        tools[ToolName.Move].onPointerDown(e)
     }
 }
 
 function handlePointerMove(e: PointerEvent) {
     if (e.button === -1 && e.buttons >= 4) {
-        Move.pointerMove(e)
+        tools[ToolName.Move].onPointerMove(e)
     } else {
         // @ts-ignore
-        tools[activeTool].pointerMove(e)
+        tools[activeTool].onPointerMove(e)
     }
 }
 
 function handlePointerUp(e: PointerEvent) {
     if (e.button === 0) {
         // @ts-ignore
-        tools[activeTool].pointerUp(e)
+        tools[activeTool].onPointerUp(e)
     } else if (e.button === 1) {
-        Move.pointerUp()
+        tools[ToolName.Move].onPointerUp()
         // @ts-ignore
         interactionCanvas.element.style.cursor = tools[activeTool].cursor
     }

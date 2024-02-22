@@ -1,5 +1,6 @@
 import { EventsManager } from './EventsManager'
 import { Element, ImageElement, Polyline, Shape } from './elements'
+import { Point } from './types'
 
 interface CanvasEventMap {
     change: Element[]
@@ -122,24 +123,24 @@ export class Canvas extends EventsManager<CanvasEventMap> {
         }
     }
 
-    private isPointInStroke(element: Element, x: number, y: number) {
+    private isPointInStroke(element: Element, point: Point) {
         if (element instanceof Polyline || element instanceof Shape) {
-            return this.ctx.isPointInStroke(element.path, x, y)
+            return this.ctx.isPointInStroke(element.path, point.x, point.y)
         }
 
         if (element instanceof ImageElement) {
             return (
-                x - this._translationX >= element.x &&
-                x - this._translationX <= element.x + element.width &&
-                y - this._translationY >= element.y &&
-                y - this._translationY <= element.y + element.height
+                point.x - this._translationX >= element.x &&
+                point.x - this._translationX <= element.x + element.width &&
+                point.y - this._translationY >= element.y &&
+                point.y - this._translationY <= element.y + element.height
             )
         }
     }
 
-    removeElementInPoint(x: number, y: number) {
+    removeElementInPoint(point: Point) {
         const elementToRemoveIndex = this.elements.findLastIndex((element) => {
-            return this.isPointInStroke(element, x, y)
+            return this.isPointInStroke(element, point)
         })
 
         if (elementToRemoveIndex !== -1) {
@@ -147,9 +148,9 @@ export class Canvas extends EventsManager<CanvasEventMap> {
         }
     }
 
-    getElementInPoint(x: number, y: number) {
+    getElementInPoint(point: Point) {
         return this.elements.findLast((element) => {
-            return this.isPointInStroke(element, x, y)
+            return this.isPointInStroke(element, point)
         })
     }
 

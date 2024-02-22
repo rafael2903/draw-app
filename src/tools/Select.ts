@@ -1,22 +1,24 @@
 import { Canvas } from '../Canvas'
 import { Element, Rectangle } from '../elements'
 import { canvasHistory } from '../main'
-import { Tool } from '../types'
+import { Point, Tool } from '../types'
 
-export class Select extends Tool {
-    static cursor = 'default'
-    private static selecting = false
-    private static dragging = false
-    private static interactionCanvas: Canvas
-    private static elementsCanvas: Canvas
-    private static lastX: number
-    private static lastY: number
-    // private static selectedPaths: Path[] = []
-    private static selectedPath: Element
-    private static startPoint: { x: number; y: number }
+export class Select implements Tool {
+    cursor = 'default'
+    private selecting = false
+    private dragging = false
+    private startPoint = new Point()
+    private lastPoint = new Point()
+    private selectedPath?: Element
+    // private selectedPaths: Path[] = []
 
-    static pointerDown(e: PointerEvent) {
-        const selectedPath = this.elementsCanvas.getElementInPoint(e.x, e.y)
+    constructor(
+        private elementsCanvas: Canvas,
+        private interactionCanvas: Canvas
+    ) {}
+
+    onPointerDown(e: PointerEvent) {
+        const selectedPath = this.elementsCanvas.getElementInPoint(e)
 
         if (selectedPath) {
             this.dragging = true
@@ -27,15 +29,15 @@ export class Select extends Tool {
                 this.elementsCanvas.translationY
             )
             this.interactionCanvas.addElement(selectedPath)
-            this.lastX = e.x
-            this.lastY = e.y
+            this.lastPoint.x = e.x
+            this.lastPoint.y = e.y
         } else {
             this.selecting = true
-            this.startPoint = { x: e.x, y: e.y }
+            this.startPoint = new Point(e.x, e.y)
         }
     }
 
-    static pointerMove(e: PointerEvent) {
+    onPointerMove(e: PointerEvent) {
         if (this.selecting) {
             const { x, y } = this.startPoint
             const selectRectangle = Rectangle.fromStartAndEnd(x, y, e.x, e.y, {
@@ -46,13 +48,13 @@ export class Select extends Tool {
             })
             this.interactionCanvas.replaceElements(selectRectangle)
         } else if (this.dragging) {
-            const deltaX = e.x - this.lastX
-            const deltaY = e.y - this.lastY
-            this.selectedPath.translate(deltaX, deltaY)
-            this.lastX = e.x
-            this.lastY = e.y
+            const deltaX = e.x - this.lastPoint.x
+            const deltaY = e.y - this.lastPoint.y
+            this.selectedPath!.translate(deltaX, deltaY)
+            this.lastPoint.x = e.x
+            this.lastPoint.y = e.y
         } else {
-            const selectedPath = this.elementsCanvas.getElementInPoint(e.x, e.y)
+            const selectedPath = this.elementsCanvas.getElementInPoint(e)
             if (selectedPath) {
                 this.interactionCanvas.element.style.cursor = 'move'
             } else {
@@ -61,24 +63,18 @@ export class Select extends Tool {
         }
     }
 
-    static pointerUp() {
+    onPointerUp() {
         if (this.dragging) {
             this.dragging = false
-            this.selectedPath.translate(
+            this.selectedPath!.translate(
                 -this.elementsCanvas.translationX,
                 -this.elementsCanvas.translationY
             )
-            this.elementsCanvas.addElement(this.selectedPath)
+            this.elementsCanvas.addElement(this.selectedPath!)
             canvasHistory.save()
         } else {
             this.selecting = false
         }
         this.interactionCanvas.clear()
-    }
-
-    static init(elementsCanvas: Canvas, interactionCanvas: Canvas) {
-        this.elementsCanvas = elementsCanvas
-        this.interactionCanvas = interactionCanvas
-        return this
     }
 }
