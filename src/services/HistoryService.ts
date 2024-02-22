@@ -1,6 +1,6 @@
 import { CanvasHistory } from '../CanvasHistory'
 
-export class HistoryControl {
+export class HistoryService {
     constructor(
         private history: CanvasHistory,
         private redoButton: HTMLButtonElement,

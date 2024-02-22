@@ -13,8 +13,6 @@ export class Canvas extends Observable<CanvasEventMap> {
     private _translationX = 0
     private _translationY = 0
     private _currentScale = 1.0
-    private static readonly MAX_SCALE = 10.0
-    private static readonly MIN_SCALE = 0.1
 
     constructor(element: HTMLCanvasElement) {
         super()
@@ -175,8 +173,6 @@ export class Canvas extends Observable<CanvasEventMap> {
     }
 
     setScale(newScale: number) {
-        if (newScale <= Canvas.MIN_SCALE) newScale = Canvas.MIN_SCALE
-        if (newScale >= Canvas.MAX_SCALE) newScale = Canvas.MAX_SCALE
         this._currentScale = newScale
         this.updateTransformationMatrix()
         this.redraw()
@@ -184,7 +180,7 @@ export class Canvas extends Observable<CanvasEventMap> {
     }
 
     scale(scalingFactor: number) {
-        let newScale = this._currentScale + scalingFactor
+        const newScale = this._currentScale + scalingFactor
         return this.setScale(newScale)
     }
 

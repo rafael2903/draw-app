@@ -2,7 +2,7 @@ import { Canvas } from './Canvas'
 import { CanvasHistory } from './CanvasHistory'
 import './ConfigureIcons'
 import { Shortcut } from './Shortcut'
-import { HistoryControl } from './services'
+import { HistoryService, ZoomService } from './services'
 import './style.css'
 import {
     AddImage,
@@ -40,7 +40,12 @@ const scaleDisplay = document.getElementById(
 const interactionCanvas = new Canvas(interactionCanvasElement)
 const elementsCanvas = new Canvas(elementsCanvasElement)
 export const canvasHistory = new CanvasHistory(elementsCanvas)
-const historyControl = new HistoryControl(canvasHistory, redoButton, undoButton)
+const historyService = new HistoryService(canvasHistory, redoButton, undoButton)
+const zoomService = new ZoomService(elementsCanvas)
+
+zoomService.on('change', (scale) => {
+    scaleDisplay.innerText = `${Math.round(scale * 100)}%`
+})
 
 let activeTool: ToolName
 
@@ -124,34 +129,44 @@ onEvent(downloadCanvasImageButton, 'click', () => {
     DownloadCanvasImage.download(elementsCanvas)
 })
 
-onEvent(undoButton, 'click', historyControl.undo.bind(historyControl))
-onEvent(redoButton, 'click', historyControl.redo.bind(historyControl))
+onEvent(undoButton, 'click', historyService.undo.bind(historyService))
+onEvent(redoButton, 'click', historyService.redo.bind(historyService))
 
-Shortcut.onKeyDown('ctrl + z', historyControl.onUndoPress.bind(historyControl))
-Shortcut.onKeyDown('ctrl + y', historyControl.onRedoPress.bind(historyControl))
+Shortcut.onKeyDown('ctrl + z', historyService.onUndoPress.bind(historyService))
+Shortcut.onKeyDown('ctrl + y', historyService.onRedoPress.bind(historyService))
+
 Shortcut.onKeyDown(
     [
         { key: '+', ctrl: true },
         { key: '=', ctrl: true },
     ],
     () => {
-        const newScale = elementsCanvas.scale(0.1)
-        scaleDisplay.innerText = `${Math.round(newScale * 100)}%`
+        zoomService.zoomIn()
     }
 )
 
 Shortcut.onKeyDown('ctrl + -, ctrl + _', () => {
-    const newScale = elementsCanvas.scale(-0.1)
-    scaleDisplay.innerText = `${Math.round(newScale * 100)}%`
+    zoomService.zoomOut()
 })
 
 Shortcut.onKeyDown('ctrl + 0', () => {
-    const newScale = elementsCanvas.setScale(1)
-    scaleDisplay.innerText = `${Math.round(newScale * 100)}%`
+    zoomService.reset()
 })
 
-Shortcut.onKeyUp('z', historyControl.onUndoRelease.bind(historyControl))
-Shortcut.onKeyUp('y', historyControl.onRedoRelease.bind(historyControl))
+onEvent(zoomInButton, 'click', () => {
+    zoomService.zoomIn()
+})
+
+onEvent(scaleDisplay, 'click', () => {
+    zoomService.reset()
+})
+
+onEvent(zoomOutButton, 'click', () => {
+    zoomService.zoomOut()
+})
+
+Shortcut.onKeyUp('z', historyService.onUndoRelease.bind(historyService))
+Shortcut.onKeyUp('y', historyService.onRedoRelease.bind(historyService))
 
 onEvent(interactionCanvas.element, ['dragover', 'dragstart'], (e) => {
     e.preventDefault()
@@ -204,21 +219,6 @@ onEvent(addImageButton, 'change', () => {
     }
 })
 
-onEvent(zoomInButton, 'click', () => {
-    const newScale = elementsCanvas.scale(0.1)
-    scaleDisplay.innerText = `${Math.round(newScale * 100)}%`
-})
-
-onEvent(scaleDisplay, 'click', () => {
-    const newScale = elementsCanvas.setScale(1)
-    scaleDisplay.innerText = `${Math.round(newScale * 100)}%`
-})
-
-onEvent(zoomOutButton, 'click', () => {
-    const newScale = elementsCanvas.scale(-0.1)
-    scaleDisplay.innerText = `${Math.round(newScale * 100)}%`
-})
-
 onEvent(interactionCanvas.element, 'wheel', (e) => {
     e.preventDefault()
     if (e.ctrlKey) {
@@ -227,8 +227,7 @@ onEvent(interactionCanvas.element, 'wheel', (e) => {
             (window.innerWidth / 2) * Math.sign(e.deltaY),
             (window.innerHeight / 2) * Math.sign(e.deltaY)
         )
-        const newScale = elementsCanvas.scale(e.deltaY * -ZOOM_SPEED)
-        scaleDisplay.innerText = `${Math.round(newScale * 100)}%`
+        zoomService.zoom(e.deltaY * -ZOOM_SPEED)
     } else {
         elementsCanvas.translate(-e.deltaX, -e.deltaY)
     }

@@ -1,1 +1,2 @@
-export * from './HistoryControl'
+export * from './HistoryService'
+export * from './ZoomService'
