@@ -1,5 +1,6 @@
 import { Canvas } from './Canvas'
 import { CanvasHistory } from './CanvasHistory'
+import { Shortcut } from './Shortcut'
 import './config-icons'
 import './style.css'
 import {
@@ -21,19 +22,17 @@ const interactionCanvasElement = document.getElementById(
 const elementsCanvasElement = document.getElementById(
     'elements-canvas'
 )! as HTMLCanvasElement
-const clearCanvasButton = document.getElementById('clear')!
-const downloadCanvasImageButton = document.getElementById('download')!
-const penButton = document.getElementById('pen')!
-const moveButton = document.getElementById('move')!
-const selectButton = document.getElementById('select')!
-const eraseButton = document.getElementById('erase')!
-const ellipseButton = document.getElementById('ellipse')!
-const lineButton = document.getElementById('line')!
+const clearCanvasButton = document.getElementById('clear-button')!
+const downloadCanvasImageButton = document.getElementById('download-button')!
 const addImageButton = document.getElementById('add-image')! as HTMLInputElement
-const undoButton = document.getElementById('undo')! as HTMLButtonElement
-const redoButton = document.getElementById('redo')! as HTMLButtonElement
-const zoomOutButton = document.getElementById('zoom-out')! as HTMLButtonElement
-const zoomInButton = document.getElementById('zoom-in')! as HTMLButtonElement
+const undoButton = document.getElementById('undo-button')! as HTMLButtonElement
+const redoButton = document.getElementById('redo-button')! as HTMLButtonElement
+const zoomOutButton = document.getElementById(
+    'zoom-out-button'
+)! as HTMLButtonElement
+const zoomInButton = document.getElementById(
+    'zoom-in-button'
+)! as HTMLButtonElement
 const scaleDisplay = document.getElementById(
     'scale-display'
 )! as HTMLButtonElement
@@ -44,13 +43,23 @@ const elementsCanvas = new Canvas(elementsCanvasElement)
 interactionCanvas.width = elementsCanvas.width = window.innerWidth
 interactionCanvas.height = elementsCanvas.height = window.innerHeight
 
-window.addEventListener('resize', () => {
+onEvent(window, 'resize', () => {
     interactionCanvas.width = elementsCanvas.width = window.innerWidth
     interactionCanvas.height = elementsCanvas.height = window.innerHeight
 })
 
 export const canvasHistory = new CanvasHistory(elementsCanvas)
 const historyControl = new HistoryControl(canvasHistory, redoButton, undoButton)
+
+const toolButtonsIds: Record<ToolName, string> = {
+    [ToolName.Select]: 'select-button',
+    [ToolName.Move]: 'move-button',
+    [ToolName.Pen]: 'pen-button',
+    [ToolName.Erase]: 'erase-button',
+    [ToolName.Ellipse]: 'ellipse-button',
+    [ToolName.Line]: 'line-button',
+}
+
 
 const tools: Record<ToolName, Tool> = {
     [ToolName.Pen]: Paint.init(elementsCanvas, interactionCanvas),
@@ -96,7 +105,7 @@ const setActiveTool = (tool: ToolName) => {
     if (activeTool === tool) return
     activeTool = tool
     document.querySelector('#tools .button.active')?.classList.remove('active')
-    document.getElementById(tool)!.classList.add('active')
+    document.getElementById(toolButtonsIds[tool])!.classList.add('active')
     // @ts-ignore
     interactionCanvas.element.style.cursor = tools[tool].cursor
     interactionCanvas.element.onpointerdown = handlePointerDown
@@ -106,93 +115,63 @@ const setActiveTool = (tool: ToolName) => {
 
 setActiveTool(ToolName.Pen)
 
-clearCanvasButton.addEventListener('click', () => {
+onEvent(clearCanvasButton, 'click', () => {
     elementsCanvas.clear()
     canvasHistory.save()
 })
 
-downloadCanvasImageButton.addEventListener('click', () => {
+onEvent(downloadCanvasImageButton, 'click', () => {
     DownloadCanvasImage.download(elementsCanvas)
 })
 
-selectButton.addEventListener('click', () => {
-    setActiveTool(ToolName.Select)
-})
+for (const [tool, toolButtonId] of Object.entries(toolButtonsIds)) {
+    document.getElementById(toolButtonId)!.addEventListener('click', () => {
+        setActiveTool(tool as ToolName)
+    })
+}
 
-moveButton.addEventListener('click', () => {
-    setActiveTool(ToolName.Move)
-})
+onEvent(undoButton, 'click', historyControl.undo.bind(historyControl))
+onEvent(redoButton, 'click', historyControl.redo.bind(historyControl))
 
-penButton.addEventListener('click', () => {
-    setActiveTool(ToolName.Pen)
-})
-
-eraseButton.addEventListener('click', () => {
-    setActiveTool(ToolName.Erase)
-})
-
-ellipseButton.addEventListener('click', () => {
-    setActiveTool(ToolName.Ellipse)
-})
-
-lineButton.addEventListener('click', () => {
-    setActiveTool(ToolName.Line)
-})
-
-undoButton.addEventListener('click', historyControl.undo.bind(historyControl))
-redoButton.addEventListener('click', historyControl.redo.bind(historyControl))
-
-window.addEventListener('keydown', (e) => {
-    if (e.key === 'z' && e.ctrlKey) {
-        historyControl.onUndoPress()
-    } else if (e.key === 'y' && e.ctrlKey) {
-        historyControl.onRedoPress()
-    } else if ((e.key === '+' && e.ctrlKey) || (e.key === '=' && e.ctrlKey)) {
+Shortcut.onKeyDown('ctrl + z', historyControl.onUndoPress.bind(historyControl))
+Shortcut.onKeyDown('ctrl + y', historyControl.onRedoPress.bind(historyControl))
+Shortcut.onKeyDown(
+    [
+        { key: '+', ctrl: true },
+        { key: '=', ctrl: true },
+    ],
+    () => {
         const newScale = elementsCanvas.scale(0.1)
         scaleDisplay.innerText = `${Math.round(newScale * 100)}%`
-    } else if ((e.key === '-' && e.ctrlKey) || (e.key === '_' && e.ctrlKey)) {
-        const newScale = elementsCanvas.scale(-0.1)
-        scaleDisplay.innerText = `${Math.round(newScale * 100)}%`
-    } else if (e.key === '0' && e.ctrlKey) {
-        const newScale = elementsCanvas.setScale(1)
-        scaleDisplay.innerText = `${Math.round(newScale * 100)}%`
-    } else return
-
-    e.preventDefault()
-})
-
-window.addEventListener('keyup', (e) => {
-    if (e.key === 'z' && undoButton.classList.contains('pressed')) {
-        historyControl.onUndoRelease()
-    } else if (e.key === 'y' && redoButton.classList.contains('pressed')) {
-        historyControl.onRedoRelease()
     }
+)
+
+Shortcut.onKeyDown('ctrl + -, ctrl + _', () => {
+    const newScale = elementsCanvas.scale(-0.1)
+    scaleDisplay.innerText = `${Math.round(newScale * 100)}%`
 })
 
-interactionCanvas.element.ondragover = (e) => {
-    e.preventDefault()
-}
+Shortcut.onKeyDown('ctrl + 0', () => {
+    const newScale = elementsCanvas.setScale(1)
+    scaleDisplay.innerText = `${Math.round(newScale * 100)}%`
+})
 
-interactionCanvas.element.ondragstart = (e) => {
-    e.preventDefault()
-}
+Shortcut.onKeyUp('z', historyControl.onUndoRelease.bind(historyControl))
+Shortcut.onKeyUp('y', historyControl.onRedoRelease.bind(historyControl))
 
-interactionCanvas.element.ondragleave = (e) => {
+onEvent(interactionCanvas.element, ['dragover', 'dragstart'], (e) => {
     e.preventDefault()
-    interactionCanvas.element.classList.remove('dropping')
-}
+})
 
-interactionCanvas.element.ondragend = (e) => {
-    e.preventDefault()
-    interactionCanvas.element.classList.remove('dropping')
-}
+removeClassOnEvent(
+    interactionCanvas.element,
+    ['dragleave', 'dragend', 'drop'],
+    'dropping'
+)
 
-interactionCanvas.element.ondragenter = (e) => {
-    e.preventDefault()
-    interactionCanvas.element.classList.add('dropping')
-}
+addClassOnEvent(interactionCanvas.element, 'dragenter', 'dropping')
 
-interactionCanvas.element.ondrop = (e) => {
+onEvent(interactionCanvas.element, 'drop', (e: DragEvent) => {
     e.preventDefault()
     interactionCanvas.element.classList.remove('dropping')
     const file = e.dataTransfer?.files[0]
@@ -201,12 +180,14 @@ interactionCanvas.element.ondrop = (e) => {
             file,
             elementsCanvas,
             e.x - elementsCanvas.translationX,
-            e.y - elementsCanvas.translationY
+            e.y! - elementsCanvas.translationY
         )
     }
-}
+})
 
-document.onpaste = function (e) {
+window.addEventListener
+
+onEvent(document, 'paste', (e) => {
     e.preventDefault()
     const file = e.clipboardData?.files[0]
     if (file) {
@@ -217,9 +198,9 @@ document.onpaste = function (e) {
             elementsCanvas.height / 2 - elementsCanvas.translationY
         )
     }
-}
+})
 
-addImageButton.addEventListener('change', () => {
+onEvent(addImageButton, 'change', () => {
     const file = addImageButton.files?.[0]
     if (file) {
         AddImage.add(
@@ -231,17 +212,17 @@ addImageButton.addEventListener('change', () => {
     }
 })
 
-zoomInButton.addEventListener('click', () => {
+onEvent(zoomInButton, 'click', () => {
     const newScale = elementsCanvas.scale(0.1)
     scaleDisplay.innerText = `${Math.round(newScale * 100)}%`
 })
 
-scaleDisplay.addEventListener('click', () => {
+onEvent(scaleDisplay, 'click', () => {
     const newScale = elementsCanvas.setScale(1)
     scaleDisplay.innerText = `${Math.round(newScale * 100)}%`
 })
 
-zoomOutButton.addEventListener('click', () => {
+onEvent(zoomOutButton, 'click', () => {
     const newScale = elementsCanvas.scale(-0.1)
     scaleDisplay.innerText = `${Math.round(newScale * 100)}%`
 })
@@ -259,4 +240,92 @@ interactionCanvas.element.onwheel = (e) => {
     } else {
         elementsCanvas.translate(-e.deltaX, -e.deltaY)
     }
+}
+
+function onEvent<K extends keyof HTMLElementEventMap>(
+    element: HTMLElement,
+    event: K,
+    listener: (ev: HTMLElementEventMap[K]) => void
+): void
+function onEvent(
+    element: HTMLElement,
+    event: Array<keyof HTMLElementEventMap>,
+    listener: (ev: Event) => void
+): void
+function onEvent<K extends keyof DocumentEventMap>(
+    element: Document,
+    event: K,
+    listener: (ev: DocumentEventMap[K]) => void
+): void
+function onEvent(
+    element: Document,
+    event: Array<keyof DocumentEventMap>,
+    listener: (ev: Event) => void
+): void
+function onEvent<K extends keyof WindowEventMap>(
+    element: Window,
+    event: K,
+    listener: (ev: WindowEventMap[K]) => void
+): void
+function onEvent(
+    element: Window,
+    event: Array<keyof WindowEventMap>,
+    listener: (ev: Event) => void
+): void
+function onEvent(
+    element: HTMLElement | Document | Window,
+    event: unknown,
+    listener: (ev: Event) => void
+) {
+    const events = Array.isArray(event) ? event : [event]
+    events.forEach((e) => {
+        element.addEventListener(e, listener)
+    })
+}
+
+function addClassOnEvent(
+    element: HTMLElement,
+    event: keyof HTMLElementEventMap | Array<keyof HTMLElementEventMap>,
+    className: string
+) {
+    // @ts-ignore
+    onEvent(element, event, (e) => {
+        e.preventDefault()
+        element.classList.add(className)
+    })
+
+    // if (Array.isArray(event)) {
+    //     onEvent(element, event, (e) => {
+    //         e.preventDefault()
+    //         element.classList.add(className)
+    //     })
+    // } else {
+    //     onEvent(element, event, (e: HTMLElementEventMap[typeof event]) => {
+    //         e.preventDefault()
+    //         element.classList.add(className)
+    //     })
+    // }
+}
+
+function removeClassOnEvent(
+    element: HTMLElement,
+    event: keyof HTMLElementEventMap | Array<keyof HTMLElementEventMap>,
+    className: string
+) {
+    // @ts-ignore
+    onEvent(element, event, (e) => {
+        e.preventDefault()
+        element.classList.remove(className)
+    })
+    // if (Array.isArray(event)) {
+    //     onEvent(element, event, (e) => {
+    //         e.preventDefault()
+    //         element.classList.remove(className)
+    //     })
+    // } else {
+    //     onEvent(element, event, (e: HTMLElementEventMap[typeof event]) => {
+    //         e.preventDefault()
+    //         element.classList.remove(className)
+    //     })
+    // }
 }
