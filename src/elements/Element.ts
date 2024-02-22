@@ -1,4 +1,4 @@
-import { EventsManager } from '../EventsManager'
+import { Observable } from "../Observable"
 
 export type ElementProperties = {
     filled?: boolean
@@ -12,7 +12,7 @@ interface ElementEventMap {
     change: undefined
 }
 
-export abstract class Element extends EventsManager<ElementEventMap> {
+export abstract class Element extends Observable<ElementEventMap> {
     private _x = 0
     private _y = 0
     private _width = 0
@@ -120,7 +120,7 @@ export abstract class Element extends EventsManager<ElementEventMap> {
         this.emit('change', undefined)
     }
 
-        // isInPoint(x: number, y: number, ctx: CanvasRenderingContext2D) {
+    // isInPoint(x: number, y: number, ctx: CanvasRenderingContext2D) {
     //     return ctx.isPointInStroke(this.path, x, y)
     // }
 

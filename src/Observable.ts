@@ -1,4 +1,4 @@
-export class EventsManager<T> {
+export class Observable<T> {
     protected readonly events: Map<keyof T, Function[]> = new Map()
 
     on<K extends keyof T>(type: K, listener: (ev: T[K]) => any) {
@@ -18,6 +18,6 @@ export class EventsManager<T> {
 
     protected emit<K extends keyof T>(type: K, data: T[K]) {
         const callbacks = this.events.get(type) || []
-        callbacks.forEach(callback => callback(data))
+        callbacks.forEach((callback) => callback(data))
     }
 }

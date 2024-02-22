@@ -1,5 +1,5 @@
 import { Canvas } from './Canvas'
-import { EventsManager } from './EventsManager'
+import { Observable } from './Observable'
 import { Element } from './elements'
 
 interface CanvasHistoryEventMap {
@@ -11,7 +11,7 @@ interface CanvasHistoryEventMap {
     }
 }
 
-export class CanvasHistory extends EventsManager<CanvasHistoryEventMap> {
+export class CanvasHistory extends Observable<CanvasHistoryEventMap> {
     private undos: Element[][] = [[]]
     private redos: Element[][] = []
     private sizeMax = 50

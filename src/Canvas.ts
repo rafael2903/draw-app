@@ -1,4 +1,4 @@
-import { EventsManager } from './EventsManager'
+import { Observable } from './Observable'
 import { Element, ImageElement, Polyline, Shape } from './elements'
 import { Point } from './types'
 
@@ -6,7 +6,7 @@ interface CanvasEventMap {
     change: Element[]
 }
 
-export class Canvas extends EventsManager<CanvasEventMap> {
+export class Canvas extends Observable<CanvasEventMap> {
     element: HTMLCanvasElement // todo: tornar privado e criar métodos para notificar eventos
     private ctx: CanvasRenderingContext2D
     private elements: Element[] = []

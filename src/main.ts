@@ -1,7 +1,8 @@
 import { Canvas } from './Canvas'
 import { CanvasHistory } from './CanvasHistory'
+import './ConfigureIcons'
 import { Shortcut } from './Shortcut'
-import './config-icons'
+import { HistoryControl } from './services'
 import './style.css'
 import {
     AddImage,
@@ -9,7 +10,6 @@ import {
     DrawEllipse,
     DrawLine,
     Erase,
-    HistoryControl,
     Move,
     Paint,
     Select,
