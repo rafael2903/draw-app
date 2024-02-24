@@ -2,6 +2,7 @@ import { ElementProperties } from './Element'
 import { Shape } from './Shape'
 
 export class Line extends Shape {
+    private static readonly _15_DEGREES = Math.PI / 12
     private deltaX: number
     private deltaY: number
 
@@ -34,7 +35,7 @@ export class Line extends Shape {
         endPointX: number,
         endPointY: number,
         elementOptions?: ElementProperties,
-        stepAngleInRadian = Math.PI / 12 // 15 degrees
+        stepAngleInRadian = this._15_DEGREES
     ) {
         const angle = Math.atan2(
             endPointY - startPointY,
