@@ -22,7 +22,11 @@ export class DrawLine implements Tool {
     onPointerMove(e: PointerEvent) {
         if (!this.drawing) return
         const { x, y } = this.startPoint!
-        this.currentPath = new Line(x, y, e.x, e.y)
+        if (e.shiftKey) {
+            this.currentPath = Line.createNearStepAngle(x, y, e.x, e.y)
+        } else {
+            this.currentPath = new Line(x, y, e.x, e.y)
+        }
         this.interactionCanvas.replaceElements(this.currentPath)
     }
 
