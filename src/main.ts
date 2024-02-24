@@ -51,7 +51,6 @@ function removeClassOnEvent(
     })
 }
 
-
 const interactionCanvasElement = document.getElementById(
     'interaction-canvas'
 )! as HTMLCanvasElement
@@ -108,7 +107,7 @@ const tools: Record<ToolName, Tool> = {
     [ToolName.Move]: new Move(elementsCanvas, interactionCanvas),
     [ToolName.Select]: new Select(elementsCanvas, interactionCanvas),
     [ToolName.Ellipse]: new DrawEllipse(elementsCanvas, interactionCanvas),
-    [ToolName.Erase]: new Erase(elementsCanvas, interactionCanvas),
+    [ToolName.Erase]: new Erase(elementsCanvas),
 }
 
 function handlePointerDown(e: PointerEvent) {

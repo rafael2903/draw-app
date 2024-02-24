@@ -148,6 +148,14 @@ canvas#interaction-canvas {
     background-color: #f1f1f1;
 }
 
+#tools .button svg {
+    transition: transform 0.1s ease-in-out;
+}
+
+#tools :is(.button:hover, .button.active) svg {
+    transform: translate(0, -2px);
+}
+
 .button:active,
 .button.pressed {
     background-color: #e0e0e0;

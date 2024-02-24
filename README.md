@@ -15,6 +15,7 @@ The app is hosted on vercel and can be accessed [here](https://painting-canvas.v
 -   Pan though an infinite canvas
 -   Easily erase elements of the drawing
 -   Zoom in and out
+-   Touchpad gestures support
 <!-- -   Change the size of the brush
 -   Change the color of the brush
 -   Change the background color

@@ -6,10 +6,7 @@ export class Erase implements Tool {
     cursor = 'url(eraser-cursor.png) 13 18, default'
     private erasing = false
 
-    constructor(
-        private elementsCanvas: Canvas,
-        private interactionCanvas: Canvas
-    ) {}
+    constructor(private elementsCanvas: Canvas) {}
 
     onPointerDown(e: PointerEvent) {
         this.erasing = true
