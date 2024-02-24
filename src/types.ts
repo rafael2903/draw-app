@@ -3,6 +3,7 @@ export enum ToolName {
     Move = 'move',
     Select = 'select',
     Ellipse = 'ellipse',
+    Rectangle = 'rectangle',
     Erase = 'erase',
     Line = 'line',
 }

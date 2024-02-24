@@ -8,6 +8,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <script type="module" src="/src/main.ts" defer></script>
     <title>Paint</title>
 </head>
 
@@ -53,11 +54,14 @@
             <button class="button" id="erase-button" title="Eraser">
                 <i data-lucide="eraser"></i>
             </button>
-            <button class="button" id="ellipse-button" title="Ellipse">
-                <i data-lucide="circle"></i>
-            </button>
             <button class="button" id="line-button" title="Line">
                 <i data-lucide="minus"></i>
+            </button>
+            <button class="button" id="rectangle-button" title="Rectangle">
+                <i data-lucide="square"></i>
+            </button>
+            <button class="button" id="ellipse-button" title="Ellipse">
+                <i data-lucide="circle"></i>
             </button>
             <label class="button" for="add-image" title="Add image">
                 <i data-lucide="image"></i>
@@ -79,7 +83,5 @@
         <canvas id="interaction-canvas"></canvas>
         <canvas id="elements-canvas" style="background-color: #f5f5f5;"></canvas>
     </div>
-    <script type="module" src="/src/main.ts"></script>
 </body>
-
 </html>

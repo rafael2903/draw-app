@@ -1,6 +1,7 @@
 export * from './AddImage'
 export * from './DownloadImage'
 export * from './DrawEllipse'
+export * from './DrawRectangle'
 export * from './DrawLine'
 export * from './Erase'
 export * from './Move'

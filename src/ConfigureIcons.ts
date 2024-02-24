@@ -13,6 +13,7 @@ import {
     Undo,
     ZoomIn,
     ZoomOut,
+    Square,
     createIcons
 } from 'lucide'
 
@@ -25,6 +26,7 @@ createIcons({
         MousePointer,
         Eraser,
         Circle,
+        Square,
         Minus,
         Undo,
         Redo,

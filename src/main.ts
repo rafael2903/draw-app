@@ -9,6 +9,7 @@ import {
     DownloadCanvasImage,
     DrawEllipse,
     DrawLine,
+    DrawRectangle,
     Erase,
     Move,
     Paint,
@@ -99,6 +100,7 @@ const toolButtonsIds: Record<ToolName, string> = {
     [ToolName.Erase]: 'erase-button',
     [ToolName.Ellipse]: 'ellipse-button',
     [ToolName.Line]: 'line-button',
+    [ToolName.Rectangle]: 'rectangle-button',
 }
 
 const tools: Record<ToolName, Tool> = {
@@ -108,6 +110,7 @@ const tools: Record<ToolName, Tool> = {
     [ToolName.Select]: new Select(elementsCanvas, interactionCanvas),
     [ToolName.Ellipse]: new DrawEllipse(elementsCanvas, interactionCanvas),
     [ToolName.Erase]: new Erase(elementsCanvas),
+    [ToolName.Rectangle]: new DrawRectangle(elementsCanvas, interactionCanvas),
 }
 
 function handlePointerDown(e: PointerEvent) {
