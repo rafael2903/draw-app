@@ -2,11 +2,10 @@ import { Canvas } from './Canvas'
 import { CanvasHistory } from './CanvasHistory'
 import './ConfigureIcons'
 import { Shortcut } from './Shortcut'
-import { HistoryService, ZoomService } from './services'
+import { ExportCanvasService, HistoryService, ZoomService } from './services'
 import './style.css'
 import {
     AddImage,
-    DownloadCanvasImage,
     DrawEllipse,
     DrawLine,
     DrawRectangle,
@@ -79,8 +78,10 @@ export const canvasHistory = new CanvasHistory(elementsCanvas)
 const historyService = new HistoryService(canvasHistory, redoButton, undoButton)
 const zoomService = new ZoomService(elementsCanvas)
 
-zoomService.on('change', (scale) => {
+zoomService.on('change', ({ scale, canZoomIn, canZoomOut }) => {
     scaleDisplay.innerText = `${Math.round(scale * 100)}%`
+    zoomOutButton.disabled = !canZoomOut
+    zoomInButton.disabled = !canZoomIn
 })
 
 let activeTool: ToolName
@@ -164,7 +165,7 @@ onEvent(clearCanvasButton, 'click', () => {
 })
 
 onEvent(downloadCanvasImageButton, 'click', () => {
-    DownloadCanvasImage.download(elementsCanvas)
+    ExportCanvasService.download(elementsCanvas)
 })
 
 onEvent(undoButton, 'click', historyService.undo.bind(historyService))
@@ -261,10 +262,10 @@ onEvent(interactionCanvas.element, 'wheel', (e) => {
     e.preventDefault()
     if (e.ctrlKey) {
         const ZOOM_SPEED = 0.0025
-        elementsCanvas.setTranslation(
-            (window.innerWidth / 2) * Math.sign(e.deltaY),
-            (window.innerHeight / 2) * Math.sign(e.deltaY)
-        )
+        // elementsCanvas.setTranslation(
+        //     (window.innerWidth / 2) * Math.sign(e.deltaY),
+        //     (window.innerHeight / 2) * Math.sign(e.deltaY)
+        // )
         zoomService.zoom(e.deltaY * -ZOOM_SPEED)
     } else {
         elementsCanvas.translate(-e.deltaX, -e.deltaY)
