@@ -3,9 +3,9 @@ import { Circle, Polyline } from '../elements'
 import { canvasHistory } from '../main'
 import { Tool } from '../types'
 
-export class Paint implements Tool {
+export class Draw implements Tool {
     cursor = 'none'
-    private painting = false
+    private drawing = false
     private pointerEvents: PointerEvent[] = []
     private currentPath?: Polyline
 
@@ -15,7 +15,7 @@ export class Paint implements Tool {
     ) {}
 
     private draw() {
-        if (!this.painting || !this.currentPath) return
+        if (!this.drawing || !this.currentPath) return
         while (this.pointerEvents.length > 0) {
             const e = this.pointerEvents.shift()!
             this.currentPath.addPoint(e.x, e.y)
@@ -25,14 +25,14 @@ export class Paint implements Tool {
     }
 
     onPointerDown(e: PointerEvent) {
-        this.painting = true
+        this.drawing = true
         this.currentPath = new Polyline(e.x, e.y)
         this.pointerEvents.push(e)
         this.draw()
     }
 
     onPointerMove(e: PointerEvent) {
-        if (this.painting) {
+        if (this.drawing) {
             const coalescedEvents = e.getCoalescedEvents()
             this.pointerEvents.push(...coalescedEvents)
         } else {
@@ -45,8 +45,8 @@ export class Paint implements Tool {
     }
 
     onPointerUp() {
-        if (!this.painting) return
-        this.painting = false
+        if (!this.drawing) return
+        this.drawing = false
         this.pointerEvents.length = 0
         this.interactionCanvas.clear()
         if (!this.currentPath) return

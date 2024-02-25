@@ -40,7 +40,7 @@ export class Select implements Tool {
     onPointerMove(e: PointerEvent) {
         if (this.selecting) {
             const { x, y } = this.startPoint
-            const selectRectangle = Rectangle.fromStartAndEnd(x, y, e.x, e.y, {
+            const selectRectangle = Rectangle.fromTwoPoints(x, y, e.x, e.y, {
                 filled: true,
                 strokeStyle: '#0078d7',
                 lineWidth: 1,

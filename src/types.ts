@@ -1,11 +1,12 @@
 export enum ToolName {
-    Pen = 'pen',
-    Move = 'move',
-    Select = 'select',
-    Ellipse = 'ellipse',
-    Rectangle = 'rectangle',
-    Erase = 'erase',
-    Line = 'line',
+    Pen,
+    Move,
+    Select,
+    Ellipse,
+    Rectangle,
+    Erase,
+    Line,
+    Triangle,
 }
 
 // export abstract class Tool {

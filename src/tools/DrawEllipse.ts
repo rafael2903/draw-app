@@ -24,9 +24,9 @@ export class DrawEllipse implements Tool {
         const { x, y } = this.startPoint!
 
         if (e.shiftKey) {
-            this.currentPath = Circle.fromStartAndEnd(x, y, e.x, e.y)
+            this.currentPath = Circle.fromTwoPoints(x, y, e.x, e.y)
         } else {
-            this.currentPath = Ellipse.fromStartAndEnd(x, y, e.x, e.y)
+            this.currentPath = Ellipse.fromTwoPoints(x, y, e.x, e.y)
         }
         this.interactionCanvas.replaceElements(this.currentPath)
     }
@@ -43,10 +43,4 @@ export class DrawEllipse implements Tool {
         canvasHistory.save()
         this.interactionCanvas.clear()
     }
-
-    // init(elementsCanvas: Canvas, interactionCanvas: Canvas) {
-    //     this.elementsCanvas = elementsCanvas
-    //     this.interactionCanvas = interactionCanvas
-    //     return this
-    // }
 }

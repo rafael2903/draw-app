@@ -6,12 +6,13 @@ import { ExportCanvasService, HistoryService, ZoomService } from './services'
 import './style.css'
 import {
     AddImage,
+    Draw,
     DrawEllipse,
     DrawLine,
     DrawRectangle,
+    DrawTriangle,
     Erase,
     Move,
-    Paint,
     Select,
 } from './tools'
 import { OnEvent, Tool, ToolName } from './types'
@@ -102,14 +103,16 @@ const toolButtonsIds: Record<ToolName, string> = {
     [ToolName.Ellipse]: 'ellipse-button',
     [ToolName.Line]: 'line-button',
     [ToolName.Rectangle]: 'rectangle-button',
+    [ToolName.Triangle]: 'triangle-button',
 }
 
 const tools: Record<ToolName, Tool> = {
-    [ToolName.Pen]: new Paint(elementsCanvas, interactionCanvas),
+    [ToolName.Pen]: new Draw(elementsCanvas, interactionCanvas),
     [ToolName.Line]: new DrawLine(elementsCanvas, interactionCanvas),
     [ToolName.Move]: new Move(elementsCanvas, interactionCanvas),
     [ToolName.Select]: new Select(elementsCanvas, interactionCanvas),
     [ToolName.Ellipse]: new DrawEllipse(elementsCanvas, interactionCanvas),
+    [ToolName.Triangle]: new DrawTriangle(elementsCanvas, interactionCanvas),
     [ToolName.Erase]: new Erase(elementsCanvas),
     [ToolName.Rectangle]: new DrawRectangle(elementsCanvas, interactionCanvas),
 }
@@ -155,7 +158,7 @@ setActiveTool(ToolName.Pen)
 
 for (const [tool, toolButtonId] of Object.entries(toolButtonsIds)) {
     document.getElementById(toolButtonId)?.addEventListener('click', () => {
-        setActiveTool(tool as ToolName)
+        setActiveTool(tool as unknown as ToolName)
     })
 }
 
