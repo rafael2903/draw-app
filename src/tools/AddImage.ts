@@ -5,9 +5,7 @@ export class AddImage {
     static add(imageFile: File, elementsCanvas: Canvas, x: number, y: number) {
         if (!imageFile.type.startsWith('image/')) return
 
-        const image = new ImageElement(imageFile, x, y)
-
-        image.load().then((element) => {
+        ImageElement.load(imageFile, x, y).then((element) => {
             elementsCanvas.addElement(element)
         })
     }
