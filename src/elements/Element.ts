@@ -9,7 +9,7 @@ export type ElementProperties = {
 }
 
 interface ElementEventMap {
-    change: undefined
+    change: Element
 }
 
 export abstract class Element extends Observable<ElementEventMap> {
@@ -36,7 +36,7 @@ export abstract class Element extends Observable<ElementEventMap> {
     translate(x: number, y: number) {
         this._x += x
         this._y += y
-        this.emit('change', undefined)
+        this.emit('change', this)
     }
 
     get x() {
@@ -77,47 +77,47 @@ export abstract class Element extends Observable<ElementEventMap> {
 
     protected set x(value: number) {
         this._x = value
-        this.emit('change', undefined)
+        this.emit('change', this)
     }
 
     protected set y(value: number) {
         this._y = value
-        this.emit('change', undefined)
+        this.emit('change', this)
     }
 
     protected set width(value: number) {
         this._width = value
-        this.emit('change', undefined)
+        this.emit('change', this)
     }
 
     protected set height(value: number) {
         this._height = value
-        this.emit('change', undefined)
+        this.emit('change', this)
     }
 
     set filled(value: boolean) {
         this._filled = value
-        this.emit('change', undefined)
+        this.emit('change', this)
     }
 
     set fillStyle(value: string) {
         this._fillStyle = value
-        this.emit('change', undefined)
+        this.emit('change', this)
     }
 
     set stroked(value: boolean) {
         this._stroked = value
-        this.emit('change', undefined)
+        this.emit('change', this)
     }
 
     set strokeStyle(value: string) {
         this._strokeStyle = value
-        this.emit('change', undefined)
+        this.emit('change', this)
     }
 
     set lineWidth(value: number) {
         this._lineWidth = value
-        this.emit('change', undefined)
+        this.emit('change', this)
     }
 
     // isInPoint(x: number, y: number, ctx: CanvasRenderingContext2D) {

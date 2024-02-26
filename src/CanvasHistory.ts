@@ -17,13 +17,10 @@ export class CanvasHistory extends Observable<CanvasHistoryEventMap> {
     private sizeMax = 50
     private _canUndo = false
     private _canRedo = false
+    private paused = false
 
     constructor(private canvas: Canvas) {
         super()
-    }
-
-    save() {
-        this.add(this.canvas.getState())
     }
 
     get canUndo() {
@@ -34,27 +31,31 @@ export class CanvasHistory extends Observable<CanvasHistoryEventMap> {
         return this._canRedo
     }
 
-    set canRedo(value) {
+    private set canRedo(value) {
         this._canRedo = value
         this.emit('redo-change', value)
         this.emit('change', { canRedo: value, canUndo: this.canUndo })
     }
 
-    set canUndo(value) {
+    private set canUndo(value) {
         this._canUndo = value
         this.emit('undo-change', value)
         this.emit('change', { canRedo: this.canRedo, canUndo: value })
     }
 
-    private add(elements: Element[]) {
+    private add(state: Element[]) {
         if (this.undos.length === this.sizeMax) {
             this.undos.shift()
         }
-        const newState = elements.map((element) => element.clone())
-        this.undos.push(newState)
+        this.undos.push(state)
         this.redos.splice(0)
         this.canUndo = true
         this.canRedo = false
+    }
+
+    save() {
+        if (this.paused) return
+        this.add(this.canvas.getState())
     }
 
     undo() {
@@ -74,5 +75,13 @@ export class CanvasHistory extends Observable<CanvasHistoryEventMap> {
         this.canvas.restoreState(nextState)
         this.undos.push(nextState)
         this.canUndo = true
+    }
+
+    pause() {
+        this.paused = true
+    }
+
+    continue() {
+        this.paused = false
     }
 }

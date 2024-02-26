@@ -1,6 +1,5 @@
 import { Canvas } from '../Canvas'
 import { ImageElement } from '../elements'
-import { canvasHistory } from '../main'
 
 export class AddImage {
     static add(imageFile: File, elementsCanvas: Canvas, x: number, y: number) {
@@ -10,7 +9,6 @@ export class AddImage {
 
         image.load().then((element) => {
             elementsCanvas.addElement(element)
-            canvasHistory.save()
         })
     }
 }

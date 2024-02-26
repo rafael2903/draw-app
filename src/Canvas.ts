@@ -4,6 +4,9 @@ import { Point } from './types'
 
 interface CanvasEventMap {
     change: Element[]
+    'element-added': Element
+    'element-removed': Element
+    'element-changed': Element
 }
 
 export class Canvas extends Observable<CanvasEventMap> {
@@ -42,6 +45,10 @@ export class Canvas extends Observable<CanvasEventMap> {
     set height(value: number) {
         this.element.height = value
         this.redraw()
+    }
+
+    private emitChangeEvent() {
+        this.emit('change', this.elements)
     }
 
     private updateTransformationMatrix() {
@@ -90,20 +97,25 @@ export class Canvas extends Observable<CanvasEventMap> {
     replaceElements(...newElements: Element[]) {
         this.elements.splice(0, Infinity, ...newElements)
         this.redraw()
+        this.emitChangeEvent()
     }
 
     clear() {
         this.replaceElements()
     }
 
-    private onElementChange = () => {
+    private onElementChange = (element: Element) => {
         this.redraw()
+        this.emitChangeEvent()
+        this.emit('element-changed', element)
     }
 
     addElement(element: Element) {
         this.elements.push(element)
         this.drawElement(element)
         element.on('change', this.onElementChange)
+        this.emitChangeEvent()
+        this.emit('element-added', element)
     }
 
     removeElementByIndex(elementIndex: number) {
@@ -111,6 +123,8 @@ export class Canvas extends Observable<CanvasEventMap> {
         element.off('change', this.onElementChange)
         this.elements.splice(elementIndex, 1)
         this.redraw()
+        this.emitChangeEvent()
+        this.emit('element-removed', element)
         return element
     }
 
@@ -189,11 +203,11 @@ export class Canvas extends Observable<CanvasEventMap> {
     }
 
     getState() {
-        return this.elements
+        return this.elements.map((el) => el.clone())
     }
 
     restoreState(elements: Element[]) {
-        this.replaceElements(...elements)
+        this.replaceElements(...elements.map((el) => el.clone()))
     }
 
     toImageURL(type?: string, quality?: number) {

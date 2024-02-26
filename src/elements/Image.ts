@@ -38,6 +38,11 @@ export class ImageElement extends Element {
     }
 
     clone() {
-        return new ImageElement(this.image, this.centerX, this.centerY, this)
+        return new ImageElement(
+            this.image,
+            this.x + this.width / 2,
+            this.y + this.height / 2,
+            this
+        )
     }
 }

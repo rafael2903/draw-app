@@ -9,7 +9,6 @@ import {
     Square,
     Triangle,
 } from '../elements'
-import { canvasHistory } from '../main'
 import { Point, Tool } from '../types'
 
 export enum ShapeType {
@@ -90,7 +89,6 @@ export class DrawShape implements Tool {
             -this.elementsCanvas.translationY
         )
         this.elementsCanvas.addElement(this.currentPath)
-        canvasHistory.save()
         this.interactionCanvas.clear()
     }
 }

@@ -1,6 +1,5 @@
 import { Canvas } from '../Canvas'
 import { Circle, Polyline } from '../elements'
-import { canvasHistory } from '../main'
 import { Tool } from '../types'
 
 export class Draw implements Tool {
@@ -55,6 +54,5 @@ export class Draw implements Tool {
             -this.elementsCanvas.translationY
         )
         this.elementsCanvas.addElement(this.currentPath)
-        canvasHistory.save()
     }
 }

@@ -1,6 +1,6 @@
 import { Canvas } from '../Canvas'
+import { CanvasHistory } from '../CanvasHistory'
 import { Element, Rectangle } from '../elements'
-import { canvasHistory } from '../main'
 import { Point, Tool } from '../types'
 
 export class Select implements Tool {
@@ -14,21 +14,25 @@ export class Select implements Tool {
 
     constructor(
         private elementsCanvas: Canvas,
-        private interactionCanvas: Canvas
+        private interactionCanvas: Canvas,
+        private canvasHistory: CanvasHistory
     ) {}
 
     onPointerDown(e: PointerEvent) {
-        const selectedPath = this.elementsCanvas.getElementInPoint(e)
+        this.selectedPath = this.elementsCanvas.getElementInPoint(e)
 
-        if (selectedPath) {
+        if (this.selectedPath) {
             this.dragging = true
-            this.selectedPath = selectedPath
-            this.elementsCanvas.removeElement(selectedPath)
-            selectedPath.translate(
+
+            this.canvasHistory.pause() // pause history to avoid saving the remotion as a new state
+            this.elementsCanvas.removeElement(this.selectedPath)
+            this.canvasHistory.continue()
+
+            this.selectedPath.translate(
                 this.elementsCanvas.translationX,
                 this.elementsCanvas.translationY
             )
-            this.interactionCanvas.addElement(selectedPath)
+            this.interactionCanvas.addElement(this.selectedPath)
             this.lastPoint.x = e.x
             this.lastPoint.y = e.y
         } else {
@@ -71,7 +75,6 @@ export class Select implements Tool {
                 -this.elementsCanvas.translationY
             )
             this.elementsCanvas.addElement(this.selectedPath!)
-            canvasHistory.save()
         } else {
             this.selecting = false
         }

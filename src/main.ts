@@ -73,7 +73,16 @@ const scaleDisplay = document.getElementById(
 
 const interactionCanvas = new Canvas(interactionCanvasElement)
 const elementsCanvas = new Canvas(elementsCanvasElement)
-export const canvasHistory = new CanvasHistory(elementsCanvas)
+const canvasHistory = new CanvasHistory(elementsCanvas)
+
+elementsCanvas.on('element-added', () => {
+    canvasHistory.save()
+})
+
+elementsCanvas.on('element-removed', () => {
+    canvasHistory.save()
+})
+
 const historyService = new HistoryUIService(
     canvasHistory,
     redoButton,
@@ -109,7 +118,11 @@ const toolButtonsIds: Record<ToolName, string> = {
 }
 
 const tools: Record<ToolName, Tool> = {
-    [ToolName.Select]: new Select(elementsCanvas, interactionCanvas),
+    [ToolName.Select]: new Select(
+        elementsCanvas,
+        interactionCanvas,
+        canvasHistory
+    ),
     [ToolName.Move]: new Move(elementsCanvas, interactionCanvas),
     [ToolName.Pen]: new Draw(elementsCanvas, interactionCanvas),
     [ToolName.Erase]: new Erase(elementsCanvas),
@@ -182,7 +195,7 @@ for (const [tool, toolButtonId] of Object.entries(toolButtonsIds)) {
 
 onEvent(clearCanvasButton, 'click', () => {
     elementsCanvas.clear()
-    canvasHistory.save()
+    // canvasHistory.save()
 })
 
 onEvent(downloadCanvasImageButton, 'click', () => {
