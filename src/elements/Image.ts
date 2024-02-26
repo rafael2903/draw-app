@@ -2,7 +2,7 @@ import { Element, ElementProperties } from './Element'
 
 export class ImageElement extends Element {
     constructor(
-        private image: HTMLImageElement,
+        readonly image: HTMLImageElement,
         x: number,
         y: number,
         width: number,
