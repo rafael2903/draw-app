@@ -7,13 +7,11 @@ import './style.css'
 import {
     AddImage,
     Draw,
-    DrawEllipse,
-    DrawLine,
-    DrawRectangle,
-    DrawTriangle,
+    DrawShape,
     Erase,
     Move,
     Select,
+    ShapeType,
 } from './tools'
 import { OnEvent, Tool, ToolName } from './types'
 
@@ -107,14 +105,30 @@ const toolButtonsIds: Record<ToolName, string> = {
 }
 
 const tools: Record<ToolName, Tool> = {
-    [ToolName.Pen]: new Draw(elementsCanvas, interactionCanvas),
-    [ToolName.Line]: new DrawLine(elementsCanvas, interactionCanvas),
-    [ToolName.Move]: new Move(elementsCanvas, interactionCanvas),
     [ToolName.Select]: new Select(elementsCanvas, interactionCanvas),
-    [ToolName.Ellipse]: new DrawEllipse(elementsCanvas, interactionCanvas),
-    [ToolName.Triangle]: new DrawTriangle(elementsCanvas, interactionCanvas),
+    [ToolName.Move]: new Move(elementsCanvas, interactionCanvas),
+    [ToolName.Pen]: new Draw(elementsCanvas, interactionCanvas),
     [ToolName.Erase]: new Erase(elementsCanvas),
-    [ToolName.Rectangle]: new DrawRectangle(elementsCanvas, interactionCanvas),
+    [ToolName.Line]: new DrawShape(
+        ShapeType.Line,
+        elementsCanvas,
+        interactionCanvas
+    ),
+    [ToolName.Ellipse]: new DrawShape(
+        ShapeType.Ellipse,
+        elementsCanvas,
+        interactionCanvas
+    ),
+    [ToolName.Triangle]: new DrawShape(
+        ShapeType.Triangle,
+        elementsCanvas,
+        interactionCanvas
+    ),
+    [ToolName.Rectangle]: new DrawShape(
+        ShapeType.Rectangle,
+        elementsCanvas,
+        interactionCanvas
+    ),
 }
 
 function handlePointerDown(e: PointerEvent) {

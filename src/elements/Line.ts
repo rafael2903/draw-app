@@ -35,7 +35,7 @@ export class Line extends Shape {
         endPointX: number,
         endPointY: number,
         elementOptions?: ElementProperties,
-        stepAngleInRadian = this._15_DEGREES
+        stepAngleInRadian = Line._15_DEGREES
     ) {
         const angle = Math.atan2(
             endPointY - startPointY,
@@ -51,6 +51,7 @@ export class Line extends Shape {
         const deltaY = Math.sin(nearestStepAngle)
         const newEndPointX = startPointX + radius * deltaX
         const newEndPointY = startPointY + radius * deltaY
+
         return new Line(
             startPointX,
             startPointY,
