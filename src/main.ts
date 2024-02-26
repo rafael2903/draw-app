@@ -2,7 +2,7 @@ import { Canvas } from './Canvas'
 import { CanvasHistory } from './CanvasHistory'
 import './ConfigureIcons'
 import { Shortcut } from './Shortcut'
-import { ExportCanvasService, HistoryService, ZoomService } from './services'
+import { ExportCanvasService, HistoryUIService, ZoomService } from './services'
 import './style.css'
 import {
     AddImage,
@@ -74,7 +74,11 @@ const scaleDisplay = document.getElementById(
 const interactionCanvas = new Canvas(interactionCanvasElement)
 const elementsCanvas = new Canvas(elementsCanvasElement)
 export const canvasHistory = new CanvasHistory(elementsCanvas)
-const historyService = new HistoryService(canvasHistory, redoButton, undoButton)
+const historyService = new HistoryUIService(
+    canvasHistory,
+    redoButton,
+    undoButton
+)
 const zoomService = new ZoomService(elementsCanvas)
 
 zoomService.on('change', ({ scale, canZoomIn, canZoomOut }) => {

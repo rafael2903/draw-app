@@ -46,7 +46,7 @@ export class CanvasHistory extends Observable<CanvasHistoryEventMap> {
         this.emit('change', { canRedo: this.canRedo, canUndo: value })
     }
 
-    add(elements: Element[]) {
+    private add(elements: Element[]) {
         if (this.undos.length === this.sizeMax) {
             this.undos.shift()
         }

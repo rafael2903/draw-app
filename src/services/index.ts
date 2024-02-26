@@ -1,3 +1,3 @@
-export * from './HistoryService'
-export * from './ZoomService'
 export * from './ExportCanvasService'
+export * from './HistoryUIService'
+export * from './ZoomService'
