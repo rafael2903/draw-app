@@ -13,7 +13,18 @@ import {
     Select,
     ShapeType,
 } from './tools'
-import { OnEvent, Tool, ToolName } from './types'
+import { OnEvent, Tool } from './types'
+
+enum ToolName {
+    Pen,
+    Move,
+    Select,
+    Ellipse,
+    Rectangle,
+    Erase,
+    Line,
+    Triangle,
+}
 
 const onEvent: OnEvent = function (
     element: HTMLElement | Document | Window,

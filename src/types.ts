@@ -1,13 +1,4 @@
-export enum ToolName {
-    Pen,
-    Move,
-    Select,
-    Ellipse,
-    Rectangle,
-    Erase,
-    Line,
-    Triangle,
-}
+
 
 // export abstract class Tool {
 //     constructor(protected elementsCanvas: Canvas, protected interactionCanvas: Canvas) {

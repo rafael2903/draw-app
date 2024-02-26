@@ -3,8 +3,8 @@ import { Shape } from './Shape'
 
 export class Line extends Shape {
     private static readonly _15_DEGREES = Math.PI / 12
-    private deltaX: number
-    private deltaY: number
+    // private deltaX: number
+    // private deltaY: number
 
     constructor(
         startPointX: number,
@@ -14,19 +14,19 @@ export class Line extends Shape {
         elementOptions?: ElementProperties
     ) {
         super(elementOptions)
-        this.deltaX = endPointX - startPointX
-        this.deltaY = endPointY - startPointY
-
-        this.width = Math.max(
-            Math.abs(this.deltaX)
-            // this.lineWidth
-        )
-        this.height = Math.max(
-            Math.abs(this.deltaY)
-            // this.lineWidth
-        )
         this.x = startPointX
         this.y = startPointY
+        this.width = endPointX - startPointX
+        this.height = endPointY - startPointY
+
+        // this.width = Math.max(
+        //     Math.abs(this.deltaX)
+        //     // this.lineWidth
+        // )
+        // this.height = Math.max(
+        //     Math.abs(this.deltaY)
+        //     // this.lineWidth
+        // )
     }
 
     static createNearStepAngle(
@@ -62,19 +62,13 @@ export class Line extends Shape {
     }
 
     clone() {
-        return new Line(
-            this.x,
-            this.y,
-            this.x + this.deltaX,
-            this.y + this.deltaY,
-            this
-        )
+        return new Line(this.x, this.y, this.width, this.height, this)
     }
 
     get path() {
         const path = new Path2D()
         path.moveTo(this.x, this.y)
-        path.lineTo(this.x + this.deltaX, this.y + this.deltaY)
+        path.lineTo(this.x + this.width, this.y + this.height)
         return path
     }
 }
