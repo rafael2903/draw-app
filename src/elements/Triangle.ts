@@ -30,17 +30,19 @@ export class Triangle extends Shape {
         endPointY: number,
         elementProperties?: ElementProperties
     ) {
-        const x = Math.min(startPointX, endPointX)
-        const y = Math.min(startPointY, endPointY)
+        let x = Math.min(startPointX, endPointX)
+        let y = Math.min(startPointY, endPointY)
         const width = Math.abs(endPointX - startPointX)
         const height = Math.abs(endPointY - startPointY)
 
         switch (type) {
-            case TriangleType.Equilateral:
-                const side = Math.min(width, height)
-                return new Triangle(x, y, side, side, elementProperties)
             case TriangleType.Scalene:
                 return new Triangle(x, y, width, height, elementProperties)
+            case TriangleType.Equilateral:
+                const side = Math.max(width, height)
+                x = startPointX < endPointX ? startPointX : startPointX - side
+                y = startPointY < endPointY ? startPointY : startPointY - side
+                return new Triangle(x, y, side, side, elementProperties)
         }
     }
 

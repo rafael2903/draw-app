@@ -5,14 +5,14 @@ export class Square extends Shape {
     constructor(
         x: number,
         y: number,
-        size: number,
+        side: number,
         elementProperties?: ElementProperties
     ) {
         super(elementProperties)
         this.x = x
         this.y = y
-        this.width = size
-        this.height = size
+        this.width = side
+        this.height = side
     }
 
     static fromTwoPoints(
@@ -24,10 +24,10 @@ export class Square extends Shape {
     ) {
         const deltaX = Math.abs(startPointX - endPointX)
         const deltaY = Math.abs(startPointY - endPointY)
-        const size = Math.max(deltaX, deltaY)
-        const x = startPointX < endPointX ? startPointX : startPointX - size
-        const y = startPointY < endPointY ? startPointY : startPointY - size
-        return new Square(x, y, size, elementProperties)
+        const side = Math.max(deltaX, deltaY)
+        const x = startPointX < endPointX ? startPointX : startPointX - side
+        const y = startPointY < endPointY ? startPointY : startPointY - side
+        return new Square(x, y, side, elementProperties)
     }
 
     clone() {
