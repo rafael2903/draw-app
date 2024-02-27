@@ -2,13 +2,15 @@ import { Canvas } from './Canvas'
 import { Observable } from './Observable'
 import { Element } from './elements'
 
+export interface HistoryChangeEvent {
+    canRedo: boolean
+    canUndo: boolean
+}
+
 interface CanvasHistoryEventMap {
     'undo-change': boolean
     'redo-change': boolean
-    change: {
-        canRedo: boolean
-        canUndo: boolean
-    }
+    change: HistoryChangeEvent
 }
 
 export class CanvasHistory extends Observable<CanvasHistoryEventMap> {

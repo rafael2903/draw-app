@@ -1,8 +1,10 @@
 import { Canvas } from './Canvas'
 import { CanvasHistory } from './CanvasHistory'
 import './ConfigureIcons'
+import { addClassOnEvent, onEvent, removeClassOnEvent } from './EventUtilities'
 import { Shortcut } from './Shortcut'
 import { ExportCanvasService, HistoryUIService, ZoomService } from './services'
+import { ZoomUIService } from './services/ZoomUIService'
 import './style.css'
 import {
     AddImage,
@@ -13,7 +15,7 @@ import {
     Select,
     ShapeType,
 } from './tools'
-import { OnEvent, Tool } from './types'
+import { Tool } from './types'
 
 enum ToolName {
     Pen,
@@ -26,41 +28,6 @@ enum ToolName {
     Triangle,
 }
 
-const onEvent: OnEvent = function (
-    element: HTMLElement | Document | Window,
-    event: unknown,
-    listener: (ev: Event) => void
-) {
-    const events = Array.isArray(event) ? event : [event]
-    events.forEach((e) => {
-        element.addEventListener(e, listener)
-    })
-}
-
-function addClassOnEvent(
-    element: HTMLElement,
-    event: keyof HTMLElementEventMap | Array<keyof HTMLElementEventMap>,
-    className: string
-) {
-    // @ts-ignore
-    onEvent(element, event, (e) => {
-        e.preventDefault()
-        element.classList.add(className)
-    })
-}
-
-function removeClassOnEvent(
-    element: HTMLElement,
-    event: keyof HTMLElementEventMap | Array<keyof HTMLElementEventMap>,
-    className: string
-) {
-    // @ts-ignore
-    onEvent(element, event, (e) => {
-        e.preventDefault()
-        element.classList.remove(className)
-    })
-}
-
 const interactionCanvasElement = document.getElementById(
     'interaction-canvas'
 )! as HTMLCanvasElement
@@ -69,7 +36,7 @@ const elementsCanvasElement = document.getElementById(
 )! as HTMLCanvasElement
 const clearCanvasButton = document.getElementById('clear-button')!
 const downloadCanvasImageButton = document.getElementById('download-button')!
-const addImageButton = document.getElementById('add-image')! as HTMLInputElement
+const addImageInput = document.getElementById('add-image')! as HTMLInputElement
 const undoButton = document.getElementById('undo-button')! as HTMLButtonElement
 const redoButton = document.getElementById('redo-button')! as HTMLButtonElement
 const zoomOutButton = document.getElementById(
@@ -89,18 +56,19 @@ const canvasHistory = new CanvasHistory(elementsCanvas)
 elementsCanvas.on('element-added', () => canvasHistory.save())
 elementsCanvas.on('element-removed', () => canvasHistory.save())
 
-const historyService = new HistoryUIService(
+const historyUIService = new HistoryUIService(
     canvasHistory,
     redoButton,
     undoButton
 )
-const zoomService = new ZoomService(elementsCanvas)
 
-zoomService.on('change', ({ scale, canZoomIn, canZoomOut }) => {
-    scaleDisplay.innerText = `${Math.round(scale * 100)}%`
-    zoomOutButton.disabled = !canZoomOut
-    zoomInButton.disabled = !canZoomIn
-})
+const zoomService = new ZoomService(elementsCanvas)
+const zoomUIService = new ZoomUIService(
+    zoomService,
+    scaleDisplay,
+    zoomOutButton,
+    zoomInButton
+)
 
 let activeTool: ToolName
 
@@ -180,7 +148,7 @@ function handlePointerUp(e: PointerEvent) {
     }
 }
 
-const setActiveTool = (tool: ToolName) => {
+function setActiveTool(tool: ToolName) {
     if (activeTool === tool) return
     activeTool = tool
     document.querySelector('#tools .button.active')?.classList.remove('active')
@@ -205,30 +173,29 @@ onEvent(downloadCanvasImageButton, 'click', () => {
     ExportCanvasService.download(elementsCanvas)
 })
 
-onEvent(undoButton, 'click', () => historyService.undo())
-Shortcut.onKeyDown('ctrl + z', () => historyService.onUndoPress())
-Shortcut.onKeyUp('z', () => historyService.onUndoRelease())
+onEvent(undoButton, 'click', () => canvasHistory.undo())
+Shortcut.onKeyDown('ctrl + z', () => historyUIService.onUndoPress())
+Shortcut.onKeyUp('z', () => historyUIService.onUndoRelease())
 
-onEvent(redoButton, 'click', () => historyService.redo())
-Shortcut.onKeyDown('ctrl + y', () => historyService.onRedoPress())
-Shortcut.onKeyUp('y', () => historyService.onRedoRelease())
+onEvent(redoButton, 'click', () => canvasHistory.redo())
+Shortcut.onKeyDown('ctrl + y', () => historyUIService.onRedoPress())
+Shortcut.onKeyUp('y', () => historyUIService.onRedoRelease())
 
 onEvent(zoomInButton, 'click', () => zoomService.zoomIn())
-Shortcut.onKeyDown(
-    [
-        { key: '+', ctrl: true },
-        { key: '=', ctrl: true },
-    ],
-    () => {
-        zoomService.zoomIn()
-    }
-)
+Shortcut.onKeyDown('ctrl > +, ctrl > =', () => zoomUIService.onZoomInPress(), {
+    keysSeparator: '>',
+})
+Shortcut.onKeyUp('ctrl > +, ctrl > =', () => zoomUIService.onZoomInRelease(), {
+    keysSeparator: '>',
+})
 
 onEvent(zoomOutButton, 'click', () => zoomService.zoomOut())
-Shortcut.onKeyDown('ctrl + -, ctrl + _', () => zoomService.zoomOut())
+Shortcut.onKeyDown('ctrl + -, ctrl + _', () => zoomUIService.onZoomOutPress())
+Shortcut.onKeyUp('ctrl + -, ctrl + _', () => zoomUIService.onZoomOutRelease())
 
 onEvent(scaleDisplay, 'click', () => zoomService.reset())
-Shortcut.onKeyDown('ctrl + 0', () => zoomService.reset())
+Shortcut.onKeyDown('ctrl + 0', () => zoomUIService.onResetPress())
+Shortcut.onKeyUp('ctrl + 0', () => zoomUIService.onResetRelease())
 
 onEvent(interactionCanvas.element, ['dragover', 'dragstart'], (e) => {
     e.preventDefault()
@@ -263,20 +230,20 @@ onEvent(document, 'paste', (e) => {
         AddImage.add(
             file,
             elementsCanvas,
-            elementsCanvas.width / 2 - elementsCanvas.translationX,
-            elementsCanvas.height / 2 - elementsCanvas.translationY
+            elementsCanvas.centerX,
+            elementsCanvas.centerY
         )
     }
 })
 
-onEvent(addImageButton, 'change', () => {
-    const file = addImageButton.files?.[0]
+onEvent(addImageInput, 'change', () => {
+    const file = addImageInput.files?.[0]
     if (file) {
         AddImage.add(
             file,
             elementsCanvas,
-            elementsCanvas.width / 2 - elementsCanvas.translationX,
-            elementsCanvas.height / 2 - elementsCanvas.translationY
+            elementsCanvas.centerX,
+            elementsCanvas.centerY
         )
     }
 })

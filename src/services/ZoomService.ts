@@ -1,14 +1,14 @@
 import { Canvas } from '../Canvas'
 import { Observable } from '../Observable'
 
-interface Event {
+export interface ZoomEvent {
     scale: number
     canZoomIn: boolean
     canZoomOut: boolean
 }
 
 interface ZoomEventMap {
-    change: Event
+    change: ZoomEvent
 }
 
 export class ZoomService extends Observable<ZoomEventMap> {

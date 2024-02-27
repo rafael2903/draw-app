@@ -186,6 +186,14 @@ export class Canvas extends Observable<CanvasEventMap> {
         return this._translationY
     }
 
+    get centerX() {
+        return this.width / 2 - this.translationX
+    }
+
+    get centerY() {
+        return this.height / 2 - this.translationY
+    }
+
     setScale(newScale: number) {
         this._currentScale = newScale
         this.updateTransformationMatrix()
