@@ -16,7 +16,7 @@ export class Ellipse extends Shape {
         this.height = radiusY * 2
     }
 
-    static fromTwoPoints(
+    static override fromTwoPoints(
         startPointX: number,
         startPointY: number,
         endPointX: number,

@@ -46,7 +46,7 @@ export class Triangle extends Shape {
         }
     }
 
-    static fromTwoPoints(
+    static override fromTwoPoints(
         startPointX: number,
         startPointY: number,
         endPointX: number,

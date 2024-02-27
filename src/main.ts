@@ -3,8 +3,12 @@ import { CanvasHistory } from './CanvasHistory'
 import './ConfigureIcons'
 import { addClassOnEvent, onEvent, removeClassOnEvent } from './EventUtilities'
 import { Shortcut } from './Shortcut'
-import { ExportCanvasService, HistoryUIService, ZoomService } from './services'
-import { ZoomUIService } from './services/ZoomUIService'
+import {
+    ExportCanvasService,
+    HistoryUIService,
+    ZoomService,
+    ZoomUIService,
+} from './services'
 import './style.css'
 import {
     AddImage,

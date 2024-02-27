@@ -15,7 +15,7 @@ export class Square extends Shape {
         this.height = side
     }
 
-    static fromTwoPoints(
+    static override fromTwoPoints(
         startPointX: number,
         startPointY: number,
         endPointX: number,
