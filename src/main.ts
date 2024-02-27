@@ -86,13 +86,8 @@ const interactionCanvas = new Canvas(interactionCanvasElement)
 const elementsCanvas = new Canvas(elementsCanvasElement)
 const canvasHistory = new CanvasHistory(elementsCanvas)
 
-elementsCanvas.on('element-added', () => {
-    canvasHistory.save()
-})
-
-elementsCanvas.on('element-removed', () => {
-    canvasHistory.save()
-})
+elementsCanvas.on('element-added', () => canvasHistory.save())
+elementsCanvas.on('element-removed', () => canvasHistory.save())
 
 const historyService = new HistoryUIService(
     canvasHistory,
@@ -204,21 +199,21 @@ for (const [tool, toolButtonId] of Object.entries(toolButtonsIds)) {
     })
 }
 
-onEvent(clearCanvasButton, 'click', () => {
-    elementsCanvas.clear()
-    // canvasHistory.save()
-})
+onEvent(clearCanvasButton, 'click', () => elementsCanvas.clear())
 
 onEvent(downloadCanvasImageButton, 'click', () => {
     ExportCanvasService.download(elementsCanvas)
 })
 
-onEvent(undoButton, 'click', historyService.undo.bind(historyService))
-onEvent(redoButton, 'click', historyService.redo.bind(historyService))
+onEvent(undoButton, 'click', () => historyService.undo())
+Shortcut.onKeyDown('ctrl + z', () => historyService.onUndoPress())
+Shortcut.onKeyUp('z', () => historyService.onUndoRelease())
 
-Shortcut.onKeyDown('ctrl + z', historyService.onUndoPress.bind(historyService))
-Shortcut.onKeyDown('ctrl + y', historyService.onRedoPress.bind(historyService))
+onEvent(redoButton, 'click', () => historyService.redo())
+Shortcut.onKeyDown('ctrl + y', () => historyService.onRedoPress())
+Shortcut.onKeyUp('y', () => historyService.onRedoRelease())
 
+onEvent(zoomInButton, 'click', () => zoomService.zoomIn())
 Shortcut.onKeyDown(
     [
         { key: '+', ctrl: true },
@@ -229,28 +224,11 @@ Shortcut.onKeyDown(
     }
 )
 
-Shortcut.onKeyDown('ctrl + -, ctrl + _', () => {
-    zoomService.zoomOut()
-})
+onEvent(zoomOutButton, 'click', () => zoomService.zoomOut())
+Shortcut.onKeyDown('ctrl + -, ctrl + _', () => zoomService.zoomOut())
 
-Shortcut.onKeyDown('ctrl + 0', () => {
-    zoomService.reset()
-})
-
-onEvent(zoomInButton, 'click', () => {
-    zoomService.zoomIn()
-})
-
-onEvent(scaleDisplay, 'click', () => {
-    zoomService.reset()
-})
-
-onEvent(zoomOutButton, 'click', () => {
-    zoomService.zoomOut()
-})
-
-Shortcut.onKeyUp('z', historyService.onUndoRelease.bind(historyService))
-Shortcut.onKeyUp('y', historyService.onRedoRelease.bind(historyService))
+onEvent(scaleDisplay, 'click', () => zoomService.reset())
+Shortcut.onKeyDown('ctrl + 0', () => zoomService.reset())
 
 onEvent(interactionCanvas.element, ['dragover', 'dragstart'], (e) => {
     e.preventDefault()
