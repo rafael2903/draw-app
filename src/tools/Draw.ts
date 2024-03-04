@@ -55,4 +55,8 @@ export class Draw implements Tool {
         )
         this.elementsCanvas.addElement(this.currentPath)
     }
+
+    onPointerLeave() {
+        this.interactionCanvas.clear()
+    }
 }

@@ -28,6 +28,7 @@ export interface Tool {
     onPointerDown: (e: PointerEvent) => void
     onPointerMove: (e: PointerEvent) => void
     onPointerUp: () => void
+    onPointerLeave?: () => void
 }
 
 export class Point {

@@ -93,11 +93,13 @@ export class ToolsService extends Observable<ToolsServiceEventMap> {
         this.activeTool = tool
         this.interactionCanvas.element.style.cursor = this.activeTool.cursor
         this.interactionCanvas.element.onpointerdown = (e) =>
-        this.handlePointerDown(e)
+            this.handlePointerDown(e)
         this.interactionCanvas.element.onpointermove = (e) =>
-        this.handlePointerMove(e)
+            this.handlePointerMove(e)
         this.interactionCanvas.element.onpointerup = (e) =>
-        this.handlePointerUp(e)
+            this.handlePointerUp(e)
+        this.interactionCanvas.element.onpointerleave = () =>
+            this.activeTool?.onPointerLeave?.()
         this.emit('active-tool-change', { activeTool: toolName })
     }
 }
