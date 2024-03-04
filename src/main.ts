@@ -6,31 +6,14 @@ import { Shortcut } from './Shortcut'
 import {
     ExportCanvasService,
     HistoryUIService,
+    ShapesUIService,
+    ToolbarUIService,
+    ToolsService,
     ZoomService,
     ZoomUIService,
 } from './services'
 import './style.css'
-import {
-    AddImage,
-    Draw,
-    DrawShape,
-    Erase,
-    Move,
-    Select,
-    ShapeType,
-} from './tools'
-import { Tool } from './types'
-
-enum ToolName {
-    Pen,
-    Move,
-    Select,
-    Ellipse,
-    Rectangle,
-    Erase,
-    Line,
-    Triangle,
-}
+import { AddImage } from './tools'
 
 const interactionCanvasElement = document.getElementById(
     'interaction-canvas'
@@ -55,8 +38,16 @@ const scaleDisplay = document.getElementById(
 
 const interactionCanvas = new Canvas(interactionCanvasElement)
 const elementsCanvas = new Canvas(elementsCanvasElement)
-const canvasHistory = new CanvasHistory(elementsCanvas)
 
+interactionCanvas.width = elementsCanvas.width = window.innerWidth
+interactionCanvas.height = elementsCanvas.height = window.innerHeight
+
+onEvent(window, 'resize', () => {
+    interactionCanvas.width = elementsCanvas.width = window.innerWidth
+    interactionCanvas.height = elementsCanvas.height = window.innerHeight
+})
+
+export const canvasHistory = new CanvasHistory(elementsCanvas)
 elementsCanvas.on('element-added', () => canvasHistory.save())
 elementsCanvas.on('element-removed', () => canvasHistory.save())
 
@@ -74,102 +65,9 @@ const zoomUIService = new ZoomUIService(
     zoomInButton
 )
 
-let activeTool: ToolName
-
-interactionCanvas.width = elementsCanvas.width = window.innerWidth
-interactionCanvas.height = elementsCanvas.height = window.innerHeight
-
-onEvent(window, 'resize', () => {
-    interactionCanvas.width = elementsCanvas.width = window.innerWidth
-    interactionCanvas.height = elementsCanvas.height = window.innerHeight
-})
-
-const toolButtonsIds: Record<ToolName, string> = {
-    [ToolName.Select]: 'select-button',
-    [ToolName.Move]: 'move-button',
-    [ToolName.Pen]: 'pen-button',
-    [ToolName.Erase]: 'erase-button',
-    [ToolName.Ellipse]: 'ellipse-button',
-    [ToolName.Line]: 'line-button',
-    [ToolName.Rectangle]: 'rectangle-button',
-    [ToolName.Triangle]: 'triangle-button',
-}
-
-const tools: Record<ToolName, Tool> = {
-    [ToolName.Select]: new Select(
-        elementsCanvas,
-        interactionCanvas,
-        canvasHistory
-    ),
-    [ToolName.Move]: new Move(elementsCanvas, interactionCanvas),
-    [ToolName.Pen]: new Draw(elementsCanvas, interactionCanvas),
-    [ToolName.Erase]: new Erase(elementsCanvas),
-    [ToolName.Line]: new DrawShape(
-        ShapeType.Line,
-        elementsCanvas,
-        interactionCanvas
-    ),
-    [ToolName.Ellipse]: new DrawShape(
-        ShapeType.Ellipse,
-        elementsCanvas,
-        interactionCanvas
-    ),
-    [ToolName.Triangle]: new DrawShape(
-        ShapeType.Triangle,
-        elementsCanvas,
-        interactionCanvas
-    ),
-    [ToolName.Rectangle]: new DrawShape(
-        ShapeType.Rectangle,
-        elementsCanvas,
-        interactionCanvas
-    ),
-}
-
-function handlePointerDown(e: PointerEvent) {
-    if (e.button === 0) {
-        tools[activeTool].onPointerDown(e)
-    } else if (e.button === 1) {
-        interactionCanvas.clear()
-        tools[ToolName.Move].onPointerDown(e)
-    }
-}
-
-function handlePointerMove(e: PointerEvent) {
-    if (e.button === -1 && e.buttons >= 4) {
-        tools[ToolName.Move].onPointerMove(e)
-    } else {
-        tools[activeTool].onPointerMove(e)
-    }
-}
-
-function handlePointerUp(e: PointerEvent) {
-    if (e.button === 0) {
-        tools[activeTool].onPointerUp()
-    } else if (e.button === 1) {
-        tools[ToolName.Move].onPointerUp()
-        interactionCanvas.element.style.cursor = tools[activeTool].cursor
-    }
-}
-
-function setActiveTool(tool: ToolName) {
-    if (activeTool === tool) return
-    activeTool = tool
-    document.querySelector('#tools .button.active')?.classList.remove('active')
-    document.getElementById(toolButtonsIds[tool])?.classList.add('active')
-    interactionCanvas.element.style.cursor = tools[tool].cursor
-    interactionCanvas.element.onpointerdown = handlePointerDown
-    window.onpointermove = handlePointerMove
-    window.onpointerup = handlePointerUp
-}
-
-setActiveTool(ToolName.Pen)
-
-for (const [tool, toolButtonId] of Object.entries(toolButtonsIds)) {
-    document.getElementById(toolButtonId)?.addEventListener('click', () => {
-        setActiveTool(tool as unknown as ToolName)
-    })
-}
+const toolsService = new ToolsService(elementsCanvas, interactionCanvas)
+new ToolbarUIService(toolsService)
+new ShapesUIService(toolsService)
 
 onEvent(clearCanvasButton, 'click', () => elementsCanvas.clear())
 

@@ -9,13 +9,14 @@ import {
     MousePointer,
     Pen,
     Redo,
+    Shapes,
     Square,
     Trash,
     Triangle,
     Undo,
     ZoomIn,
     ZoomOut,
-    createIcons
+    createIcons,
 } from 'lucide'
 
 createIcons({
@@ -29,12 +30,13 @@ createIcons({
         Circle,
         Triangle,
         Square,
+        Shapes,
         Minus,
         Undo,
         Redo,
         Image,
         ZoomIn,
         ZoomOut,
-        Github
+        Github,
     },
 })

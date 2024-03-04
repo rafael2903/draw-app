@@ -82,7 +82,6 @@ canvas#interaction-canvas {
 }
 
 .buttons-container {
-    width: min-content;
     padding: 0.2rem;
     background-color: white;
     border-radius: 0.4rem;
@@ -91,6 +90,26 @@ canvas#interaction-canvas {
     gap: 4px;
     z-index: 3;
     position: absolute;
+}
+
+#toolbar {
+    bottom: 0.5rem;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+#shapes-container {
+    position: relative;
+}
+
+#shapes-bar {
+    bottom: 0rem;
+    left: 50%;
+    transform: translate(-50%, -105%);
+}
+
+#shapes-bar.hidden {
+    display: none;
 }
 
 #canvas-options {
@@ -104,12 +123,6 @@ canvas#interaction-canvas {
 #history-controls {
     bottom: 0.5rem;
     left: 0.5rem;
-}
-
-#tools {
-    bottom: 0.5rem;
-    left: 50%;
-    transform: translateX(-50%);
 }
 
 #zoom-controls {
@@ -148,11 +161,11 @@ canvas#interaction-canvas {
     background-color: #f1f1f1;
 }
 
-#tools .button svg {
+#toolbar .button svg {
     transition: transform 0.1s ease-in-out;
 }
 
-#tools :is(.button:hover, .button.active) svg {
+#toolbar :is(.button:hover, .button.active) svg {
     transform: translate(0, -2px);
 }
 
@@ -185,6 +198,10 @@ canvas#interaction-canvas {
     background-color: rgb(85, 85, 85);
     border-bottom-left-radius: 0;
     border-bottom-right-radius: 0;
+}
+
+#shapes-bar .button.active::after {
+    display: none;
 }
 
 input[type='file'] {
