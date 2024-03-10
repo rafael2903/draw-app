@@ -1,4 +1,4 @@
-import { Observable } from "../Observable"
+import { Observable } from '../Observable'
 
 export type ElementProperties = {
     filled?: boolean
@@ -6,6 +6,7 @@ export type ElementProperties = {
     stroked?: boolean
     strokeStyle?: string
     lineWidth?: number
+    opacity?: number
 }
 
 interface ElementEventMap {
@@ -22,6 +23,8 @@ export abstract class Element extends Observable<ElementEventMap> {
     private _stroked = true
     private _strokeStyle = 'black'
     private _lineWidth = 10
+    private _opacity = 1
+    // protected focused = false
     abstract clone(): Element
 
     constructor(elementProperties?: ElementProperties) {
@@ -31,6 +34,7 @@ export abstract class Element extends Observable<ElementEventMap> {
         this._lineWidth = elementProperties?.lineWidth ?? this._lineWidth
         this._strokeStyle = elementProperties?.strokeStyle ?? this._strokeStyle
         this._stroked = elementProperties?.stroked ?? this._stroked
+        this._opacity = elementProperties?.opacity ?? this._opacity
     }
 
     translate(x: number, y: number) {
@@ -38,6 +42,16 @@ export abstract class Element extends Observable<ElementEventMap> {
         this._y += y
         this.emit('change', this)
     }
+
+    // focus() {
+    //     this.focused = true
+    //     this.emit('change', this)
+    // }
+
+    // blur() {
+    //     this.focused = false
+    //     this.emit('change', this)
+    // }
 
     get x() {
         return this._x
@@ -73,6 +87,10 @@ export abstract class Element extends Observable<ElementEventMap> {
 
     get lineWidth() {
         return this._lineWidth
+    }
+
+    get opacity() {
+        return this._opacity
     }
 
     protected set x(value: number) {
@@ -118,6 +136,20 @@ export abstract class Element extends Observable<ElementEventMap> {
     set lineWidth(value: number) {
         this._lineWidth = value
         this.emit('change', this)
+    }
+
+    set opacity(value: number) {
+        this._opacity = value
+        this.emit('change', this)
+    }
+
+    overlapsWith(element: Element) {
+        return (
+            element.x >= this.x &&
+            element.x + element.width <= this.x + this.width &&
+            element.y >= this.y &&
+            element.y + element.height <= this.y + this.height
+        )
     }
 
     // isInPoint(x: number, y: number, ctx: CanvasRenderingContext2D) {

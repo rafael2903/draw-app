@@ -1,5 +1,12 @@
 import { Observable } from './Observable'
-import { Element, ImageElement, Polyline, Shape } from './elements'
+import {
+    Element,
+    ImageElement,
+    Line,
+    Polyline,
+    Selection,
+    Shape,
+} from './elements'
 import { Point } from './types'
 
 interface CanvasEventMap {
@@ -16,6 +23,7 @@ export class Canvas extends Observable<CanvasEventMap> {
     private _translationX = 0
     private _translationY = 0
     private _currentScale = 1.0
+    private _cursor = 'default'
 
     constructor(element: HTMLCanvasElement) {
         super()
@@ -47,6 +55,15 @@ export class Canvas extends Observable<CanvasEventMap> {
         this.redraw()
     }
 
+    get cursor() {
+        return this._cursor
+    }
+
+    set cursor(value: string) {
+        this._cursor = value
+        this.element.style.cursor = value
+    }
+
     private emitChangeEvent() {
         this.emit('change', this.elements)
     }
@@ -72,6 +89,7 @@ export class Canvas extends Observable<CanvasEventMap> {
 
     private drawElement(element: Element) {
         this.ctx.lineWidth = element.lineWidth
+        this.ctx.globalAlpha = element.opacity
         element.strokeStyle && (this.ctx.strokeStyle = element.strokeStyle)
         element.fillStyle && (this.ctx.fillStyle = element.fillStyle)
 
@@ -79,7 +97,11 @@ export class Canvas extends Observable<CanvasEventMap> {
             this.ctx.drawImage(element.image, element.x, element.y)
         }
 
-        if (element instanceof Shape || element instanceof Polyline) {
+        if (
+            element instanceof Shape ||
+            element instanceof Polyline ||
+            element instanceof Selection
+        ) {
             element.filled && this.ctx.fill(element.path)
             element.stroked && this.ctx.stroke(element.path)
         }
@@ -95,6 +117,13 @@ export class Canvas extends Observable<CanvasEventMap> {
     }
 
     replaceElements(...newElements: Element[]) {
+        this.elements.forEach((element) => {
+            element.off('change', this.onElementChange)
+        })
+        newElements.forEach((element) => {
+            element.translate(-this.translationX, -this.translationY)
+            element.on('change', this.onElementChange)
+        })
         this.elements.splice(0, Infinity, ...newElements)
         this.redraw()
         this.emitChangeEvent()
@@ -110,6 +139,11 @@ export class Canvas extends Observable<CanvasEventMap> {
         this.emit('element-changed', element)
     }
 
+    addElementWithTranslation(element: Element) {
+        element.translate(-this.translationX, -this.translationY)
+        this.addElement(element)
+    }
+
     addElement(element: Element) {
         this.elements.push(element)
         this.drawElement(element)
@@ -118,26 +152,38 @@ export class Canvas extends Observable<CanvasEventMap> {
         this.emit('element-added', element)
     }
 
-    removeElementByIndex(elementIndex: number) {
-        const element = this.elements[elementIndex]
-        element.off('change', this.onElementChange)
-        this.elements.splice(elementIndex, 1)
+    removeElementsByIndex(...elementsIndexes: number[]) {
+        const removedElements: Element[] = []
+        elementsIndexes.forEach((index) => {
+            const element = this.elements[index]
+            element.off('change', this.onElementChange)
+            this.elements.splice(index, 1)
+            this.emit('element-removed', element)
+            removedElements.push(element)
+        })
         this.redraw()
         this.emitChangeEvent()
-        this.emit('element-removed', element)
-        return element
+        return removedElements
     }
 
     removeElement(element: Element) {
         const elementIndex = this.elements.indexOf(element)
         if (elementIndex !== -1) {
-            return this.removeElementByIndex(elementIndex)
+            return this.removeElementsByIndex(elementIndex)[0]
         }
     }
 
+    removeElements(elements: Element[]) {
+        return elements.map((element) => this.removeElement(element))
+    }
+
     private isPointInStroke(element: Element, point: Point) {
-        if (element instanceof Polyline || element instanceof Shape) {
+        if (element instanceof Polyline || element instanceof Line) {
             return this.ctx.isPointInStroke(element.path, point.x, point.y)
+        }
+
+        if (element instanceof Shape) {
+            return this.ctx.isPointInPath(element.path, point.x, point.y)
         }
 
         if (element instanceof ImageElement) {
@@ -150,19 +196,34 @@ export class Canvas extends Observable<CanvasEventMap> {
         }
     }
 
-    removeElementInPoint(point: Point) {
+    removeElementAtPoint(point: Point) {
         const elementToRemoveIndex = this.elements.findLastIndex((element) => {
             return this.isPointInStroke(element, point)
         })
 
         if (elementToRemoveIndex !== -1) {
-            return this.removeElementByIndex(elementToRemoveIndex)
+            return this.removeElementsByIndex(elementToRemoveIndex)[0]
         }
     }
 
-    getElementInPoint(point: Point) {
-        return this.elements.findLast((element) => {
+    getElementAtPoint(point: Point) {
+        return this.getElementsAtPoint(point).at(-1)
+    }
+
+    getElementsAtPoint(point: Point) {
+        return this.elements.filter((element) => {
             return this.isPointInStroke(element, point)
+        })
+    }
+
+    getElementsInBox(x: number, y: number, width: number, height: number) {
+        return this.elements.filter((element) => {
+            return (
+                element.x >= x - this._translationX &&
+                element.x + element.width <= x + width - this._translationX &&
+                element.y >= y - this._translationY &&
+                element.y + element.height <= y + height - this._translationY
+            )
         })
     }
 
@@ -231,5 +292,37 @@ export class Canvas extends Observable<CanvasEventMap> {
         offScreenCanvasContext.drawImage(this.element, 0, 0)
 
         return offScreenCanvas.toDataURL(type, quality)
+    }
+
+    private moveElement(
+        element: Element,
+        getNewPosition: (index: number) => number
+    ) {
+        const index = this.elements.indexOf(element)
+        if (index !== -1) {
+            this.elements.splice(index, 1)
+            const newIndex = getNewPosition(index)
+            this.elements.splice(newIndex, 0, element)
+            this.redraw()
+            this.emitChangeEvent()
+        }
+    }
+
+    sendElementToFront(element: Element) {
+        this.moveElement(element, () => this.elements.length)
+    }
+
+    sendElementToBack(element: Element) {
+        this.moveElement(element, () => 0)
+    }
+
+    sendElementForward(element: Element) {
+        this.moveElement(element, (index) =>
+            index !== this.elements.length - 1 ? index + 1 : index
+        )
+    }
+
+    sendElementBackward(element: Element) {
+        this.moveElement(element, (index) => (index !== 0 ? index - 1 : index))
     }
 }

@@ -3,14 +3,14 @@ import { Shape } from './Shape'
 
 export class Circle extends Shape {
     constructor(
-        x: number,
-        y: number,
-        radius: number,
+        private centerX: number,
+        private centerY: number,
+        private radius: number,
         elementProperties?: ElementProperties
     ) {
         super(elementProperties)
-        this.x = x
-        this.y = y
+        this.x = centerX - radius
+        this.y = centerY - radius
         this.width = radius * 2
         this.height = radius * 2
     }
@@ -32,13 +32,19 @@ export class Circle extends Shape {
         return new Circle(centerX, centerY, radius, elementProperties)
     }
 
+    override translate(x: number, y: number): void {
+        this.centerX += x
+        this.centerY += y
+        super.translate(x, y)
+    }
+
     clone() {
-        return new Circle(this.x, this.y, this.width / 2, this)
+        return new Circle(this.centerX, this.centerY, this.radius, this)
     }
 
     get path() {
         const path = new Path2D()
-        path.arc(this.x, this.y, this.width / 2, 0, 2 * Math.PI)
+        path.arc(this.centerX, this.centerY, this.radius, 0, 2 * Math.PI)
         return path
     }
 }

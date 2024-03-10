@@ -3,7 +3,7 @@ import { Circle, Polyline } from '../elements'
 import { Tool } from '../types'
 
 export class Draw implements Tool {
-    cursor = 'none'
+    readonly cursor = 'none'
     private drawing = false
     private pointerEvents: PointerEvent[] = []
     private currentPath?: Polyline
@@ -18,8 +18,8 @@ export class Draw implements Tool {
         while (this.pointerEvents.length > 0) {
             const e = this.pointerEvents.shift()!
             this.currentPath.addPoint(e.x, e.y)
-            this.interactionCanvas.replaceElements(this.currentPath)
         }
+        this.interactionCanvas.replaceElements(this.currentPath)
         requestAnimationFrame(() => this.draw())
     }
 
@@ -35,10 +35,7 @@ export class Draw implements Tool {
             const coalescedEvents = e.getCoalescedEvents()
             this.pointerEvents.push(...coalescedEvents)
         } else {
-            const cursorPath = new Circle(e.x, e.y, 5, {
-                filled: true,
-                stroked: false,
-            })
+            const cursorPath = new Circle(e.x, e.y, 1)
             this.interactionCanvas.replaceElements(cursorPath)
         }
     }
@@ -49,14 +46,16 @@ export class Draw implements Tool {
         this.pointerEvents.length = 0
         this.interactionCanvas.clear()
         if (!this.currentPath) return
-        this.currentPath.translate(
-            -this.elementsCanvas.translationX,
-            -this.elementsCanvas.translationY
-        )
-        this.elementsCanvas.addElement(this.currentPath)
+        this.elementsCanvas.addElementWithTranslation(this.currentPath)
     }
 
     onPointerLeave() {
+        this.interactionCanvas.clear()
+    }
+
+    abortAction() {
+        this.drawing = false
+        this.pointerEvents.length = 0
         this.interactionCanvas.clear()
     }
 }

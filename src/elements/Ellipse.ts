@@ -3,15 +3,15 @@ import { Shape } from './Shape'
 
 export class Ellipse extends Shape {
     constructor(
-        x: number,
-        y: number,
-        radiusX: number,
-        radiusY: number,
+        private centerX: number,
+        private centerY: number,
+        private radiusX: number,
+        private radiusY: number,
         elementProperties?: ElementProperties
     ) {
         super(elementProperties)
-        this.x = x
-        this.y = y
+        this.x = centerX - radiusX
+        this.y = centerY - radiusY
         this.width = radiusX * 2
         this.height = radiusY * 2
     }
@@ -36,12 +36,18 @@ export class Ellipse extends Shape {
         )
     }
 
+    override translate(x: number, y: number): void {
+        this.centerX += x
+        this.centerY += y
+        super.translate(x, y)
+    }
+
     clone() {
         return new Ellipse(
-            this.x,
-            this.y,
-            this.width / 2,
-            this.height / 2,
+            this.centerX,
+            this.centerY,
+            this.radiusX,
+            this.radiusY,
             this
         )
     }
@@ -49,10 +55,10 @@ export class Ellipse extends Shape {
     get path() {
         const path = new Path2D()
         path.ellipse(
-            this.x,
-            this.y,
-            this.width / 2,
-            this.height / 2,
+            this.centerX,
+            this.centerY,
+            this.radiusX,
+            this.radiusY,
             0,
             0,
             2 * Math.PI

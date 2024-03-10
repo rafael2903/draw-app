@@ -62,7 +62,7 @@ export class Line extends Shape {
     }
 
     clone() {
-        return new Line(this.x, this.y, this.width, this.height, this)
+        return new Line(this.x, this.y, this.x + this.width, this.y + this.height, this)
     }
 
     get path() {

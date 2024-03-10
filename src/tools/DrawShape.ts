@@ -30,7 +30,7 @@ interface ShapeFactory {
 }
 
 export class DrawShape implements Tool {
-    cursor = 'crosshair'
+    readonly cursor = 'crosshair'
     private drawing = false
     private startPoint: Point | null = null
     private currentPath?: Shape
@@ -84,11 +84,12 @@ export class DrawShape implements Tool {
         if (!this.drawing) return
         this.drawing = false
         if (!this.currentPath) return
-        this.currentPath.translate(
-            -this.elementsCanvas.translationX,
-            -this.elementsCanvas.translationY
-        )
-        this.elementsCanvas.addElement(this.currentPath)
+        this.elementsCanvas.addElementWithTranslation(this.currentPath)
+        this.interactionCanvas.clear()
+    }
+
+    abortAction() {
+        this.drawing = false
         this.interactionCanvas.clear()
     }
 }

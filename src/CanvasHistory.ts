@@ -16,7 +16,7 @@ interface CanvasHistoryEventMap {
 export class CanvasHistory extends Observable<CanvasHistoryEventMap> {
     private undos: Element[][] = [[]]
     private redos: Element[][] = []
-    private sizeMax = 50
+    private readonly MAX_SIZE = 50
     private _canUndo = false
     private _canRedo = false
     private paused = false
@@ -46,7 +46,7 @@ export class CanvasHistory extends Observable<CanvasHistoryEventMap> {
     }
 
     private add(state: Element[]) {
-        if (this.undos.length === this.sizeMax) {
+        if (this.undos.length === this.MAX_SIZE) {
             this.undos.shift()
         }
         this.undos.push(state)

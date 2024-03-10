@@ -1,4 +1,4 @@
-type Key = '+' | '-' | '_' | '=' | 'y' | 'z' | 'Y' | 'Z' | '0'
+type Key = '+' | '-' | '_' | '=' | 'y' | 'z' | 'Y' | 'Z' | '0' | 'Escape'
 
 interface BindData {
     key: Key
@@ -31,7 +31,18 @@ type KeyBind = {
 }
 
 export class Shortcut {
-    private static keys: Key[] = ['+', '-', '_', '=', 'y', 'z', 'Y', 'Z', '0']
+    private static keys: Key[] = [
+        '+',
+        '-',
+        '_',
+        '=',
+        'y',
+        'z',
+        'Y',
+        'Z',
+        '0',
+        'Escape',
+    ]
     private static binds = new Map<Key, KeyBind[]>()
     private static listeningEvents: Record<KeyBindType, boolean> = {
         keydown: false,
@@ -125,7 +136,7 @@ export class Shortcut {
         }
     }
 
-    private static getKeys(bindData: BindData, caseSensitive = false): Key[] {
+    private static getKeys(bindData: BindData, caseSensitive = true): Key[] {
         if (!caseSensitive && /[a-z]/i.test(bindData.key)) {
             return [
                 bindData.key.toUpperCase() as Key,
@@ -143,7 +154,7 @@ export class Shortcut {
     ) {
         const keys = this.getKeys(
             bindInfo,
-            bindInfo.caseSensitive ?? options?.caseSensitive ?? false
+            bindInfo.caseSensitive ?? options?.caseSensitive ?? true
         )
         keys.forEach((key) => {
             if (!this.binds.has(key)) {
@@ -233,23 +244,5 @@ export class Shortcut {
         options?: options | stringBindOptions
     ) {
         this.onKeyEvent('keyup', shortcut, callback, options)
-    }
-
-    static onKeyPress(
-        shortcut: string,
-        callback: KeyboardEventHandler,
-        options?: stringBindOptions
-    ): void
-    static onKeyPress(
-        shortcut: BindInfo[],
-        callback: KeyboardEventHandler,
-        options?: options
-    ): void
-    static onKeyPress(
-        shortcut: string | BindInfo[],
-        callback: KeyboardEventHandler,
-        options?: options | stringBindOptions
-    ) {
-        this.onKeyEvent('keypress', shortcut, callback, options)
     }
 }

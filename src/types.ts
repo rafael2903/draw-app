@@ -27,8 +27,9 @@ export interface Tool {
     cursorOnPointerDown?: string
     onPointerDown: (e: PointerEvent) => void
     onPointerMove: (e: PointerEvent) => void
-    onPointerUp: () => void
+    onPointerUp: (e: PointerEvent) => void
     onPointerLeave?: () => void
+    abortAction?: () => void
 }
 
 export class Point {

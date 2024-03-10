@@ -60,6 +60,9 @@ export class ToolsService extends Observable<ToolsServiceEventMap> {
     }
 
     private handlePointerDown(e: PointerEvent) {
+        if (this.activeTool?.cursorOnPointerDown) {
+            this.interactionCanvas.cursor = this.activeTool?.cursorOnPointerDown
+        }
         this.interactionCanvas.element.setPointerCapture(e.pointerId)
         if (e.button === 0) {
             this.activeTool?.onPointerDown(e)
@@ -78,20 +81,20 @@ export class ToolsService extends Observable<ToolsServiceEventMap> {
     }
 
     private handlePointerUp(e: PointerEvent) {
+        this.interactionCanvas.cursor = this.activeTool?.cursor || 'auto'
         if (e.button === 0) {
-            this.activeTool?.onPointerUp()
+            this.activeTool?.onPointerUp(e)
         } else if (e.button === 1) {
-            this.tools[ToolName.Move].onPointerUp()
-            this.interactionCanvas.element.style.cursor =
-                this.activeTool?.cursor || 'auto'
+            this.tools[ToolName.Move].onPointerUp(e)
         }
     }
 
     setActiveTool(toolName: ToolName) {
         const tool = this.tools[toolName]
         if (tool === this.activeTool) return
+        this.activeTool?.abortAction?.()
         this.activeTool = tool
-        this.interactionCanvas.element.style.cursor = this.activeTool.cursor
+        this.interactionCanvas.cursor = this.activeTool.cursor
         this.interactionCanvas.element.onpointerdown = (e) =>
             this.handlePointerDown(e)
         this.interactionCanvas.element.onpointermove = (e) =>
@@ -101,5 +104,9 @@ export class ToolsService extends Observable<ToolsServiceEventMap> {
         this.interactionCanvas.element.onpointerleave = () =>
             this.activeTool?.onPointerLeave?.()
         this.emit('active-tool-change', { activeTool: toolName })
+    }
+
+    cancelActiveToolAction() {
+        this.activeTool?.abortAction?.()
     }
 }

@@ -76,12 +76,20 @@ onEvent(downloadCanvasImageButton, 'click', () => {
 })
 
 onEvent(undoButton, 'click', () => canvasHistory.undo())
-Shortcut.onKeyDown('ctrl + z', () => historyUIService.onUndoPress())
-Shortcut.onKeyUp('z', () => historyUIService.onUndoRelease())
+Shortcut.onKeyDown('ctrl + z', () => historyUIService.onUndoPress(), {
+    caseSensitive: false,
+})
+Shortcut.onKeyUp('z', () => historyUIService.onUndoRelease(), {
+    caseSensitive: false,
+})
 
 onEvent(redoButton, 'click', () => canvasHistory.redo())
-Shortcut.onKeyDown('ctrl + y', () => historyUIService.onRedoPress())
-Shortcut.onKeyUp('y', () => historyUIService.onRedoRelease())
+Shortcut.onKeyDown('ctrl + y', () => historyUIService.onRedoPress(), {
+    caseSensitive: false,
+})
+Shortcut.onKeyUp('y', () => historyUIService.onRedoRelease(), {
+    caseSensitive: false,
+})
 
 onEvent(zoomInButton, 'click', () => zoomService.zoomIn())
 Shortcut.onKeyDown('ctrl > +, ctrl > =', () => zoomUIService.onZoomInPress(), {
@@ -162,4 +170,8 @@ onEvent(interactionCanvas.element, 'wheel', (e) => {
     } else {
         elementsCanvas.translate(-e.deltaX, -e.deltaY)
     }
+})
+
+Shortcut.onKeyDown([{ key: 'Escape', caseSensitive: true }], () => {
+    toolsService.cancelActiveToolAction()
 })

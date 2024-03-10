@@ -1,3 +1,4 @@
+import { Point } from '../types'
 import { Element, ElementProperties } from './Element'
 
 export class Polyline extends Element {
@@ -5,7 +6,7 @@ export class Polyline extends Element {
     private nearestPointY: number
     private furthestPointX: number
     private furthestPointY: number
-    private points: { deltaX: number; deltaY: number }[] = []
+    private points: Point[] = []
 
     constructor(
         x: number,
@@ -31,14 +32,13 @@ export class Polyline extends Element {
     }
 
     addPoint(x: number, y: number) {
-        this.points.push({
-            deltaX: x - this.x,
-            deltaY: y - this.y,
-        })
+        this.points.push({ x, y })
         this.nearestPointX = Math.min(this.nearestPointX, x)
         this.nearestPointY = Math.min(this.nearestPointY, y)
         this.furthestPointX = Math.max(this.furthestPointX, x)
         this.furthestPointY = Math.max(this.furthestPointY, y)
+        this.x = this.nearestPointX
+        this.y = this.nearestPointY
         this.width = this.furthestPointX - this.nearestPointX
         this.height = this.furthestPointY - this.nearestPointY
     }
@@ -47,12 +47,24 @@ export class Polyline extends Element {
         return new Polyline(this.x, this.y, this, this)
     }
 
+    override translate(x: number, y: number): void {
+        this.points = this.points.map((point) => ({
+            x: point.x + x,
+            y: point.y + y,
+        }))
+        this.nearestPointX += x
+        this.nearestPointY += y
+        this.furthestPointX += x
+        this.furthestPointY += y
+        super.translate(x, y)
+    }
+
     get path() {
         const path = new Path2D()
-        path.moveTo(this.x, this.y)
-        this.points.forEach(({ deltaX, deltaY }) => {
-            path.lineTo(this.x + deltaX, this.y + deltaY)
-        })
+        const [firstPoint, ...points] = this.points
+        path.moveTo(firstPoint.x, firstPoint.y)
+        path.lineTo(firstPoint.x, firstPoint.y)
+        points.forEach(({ x, y }) => path.lineTo(x, y))
         return path
     }
 }
