@@ -1,5 +1,4 @@
 import { Canvas } from '../Canvas'
-import { Point } from '../types'
 import { ElementProperties } from './Element'
 import { Shape } from './Shape'
 
@@ -64,7 +63,13 @@ export class Line extends Shape {
     }
 
     clone() {
-        return new Line(this.x, this.y, this.x + this.width, this.y + this.height, this)
+        return new Line(
+            this.x,
+            this.y,
+            this.x + this.width,
+            this.y + this.height,
+            this
+        )
     }
 
     get path() {
@@ -74,7 +79,7 @@ export class Line extends Shape {
         return path
     }
 
-    override containsPoint(canvas: Canvas, point: Point): boolean {
-        return canvas.isPointInStroke(this.path, point.x, point.y)
+    override containsPoint(x: number, y: number, canvas: Canvas) {
+        return canvas.isPointInStroke(this.path, x, y)
     }
 }

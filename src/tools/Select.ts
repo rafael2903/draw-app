@@ -1,7 +1,7 @@
 import { Canvas } from '../Canvas'
 import { CanvasHistory } from '../CanvasHistory'
 import { Element, Rectangle, Selection } from '../elements'
-import { Point, Tool } from '../types'
+import { CanvasPointerEvent, Point, Tool } from '../types'
 
 export class Select implements Tool {
     readonly cursor = 'default'
@@ -13,6 +13,7 @@ export class Select implements Tool {
     private lastPoint = new Point()
     private selection = new Selection()
     private selectBox?: Rectangle
+    private executing = false
 
     constructor(
         private elementsCanvas: Canvas,
@@ -20,13 +21,14 @@ export class Select implements Tool {
         private canvasHistory: CanvasHistory
     ) {}
 
-    private getPointerInfo(point: Point) {
-        const elementInPointer = this.elementsCanvas.getElementAtPoint(point)
+    get executingAction() {
+        return this.executing
+    }
+
+    private getPointerInfo(x: number, y: number) {
+        const elementInPointer = this.elementsCanvas.getElementAtPoint(x, y)
         const isPointerOverElement = !!elementInPointer
-        const isPointerOverSelection = this.selection.isPointInsideBounds(
-            point.x,
-            point.y
-        )
+        const isPointerOverSelection = this.selection.isPointInsideBounds(x, y)
 
         return {
             elementInPointer,
@@ -39,11 +41,6 @@ export class Select implements Tool {
         this.canvasHistory.pause() // pause history to avoid saving the remotion as a new state
         this.elementsCanvas.removeElement(element)
         this.canvasHistory.continue()
-
-        element.translate(
-            this.elementsCanvas.translationX,
-            this.elementsCanvas.translationY
-        )
 
         if (this.selection.isEmpty) {
             this.interactionCanvas.addElement(this.selection)
@@ -62,7 +59,7 @@ export class Select implements Tool {
             this.interactionCanvas.removeElement(this.selection)
         }
         this.interactionCanvas.removeElement(element)
-        this.elementsCanvas.addElementWithTranslation(element)
+        this.elementsCanvas.addElement(element)
         this.canvasHistory.continue()
     }
 
@@ -70,7 +67,7 @@ export class Select implements Tool {
         if (!this.selection.hasMoved) this.canvasHistory.pause()
         this.interactionCanvas.removeAll()
         this.selection.forEach((element) => {
-            this.elementsCanvas.addElementWithTranslation(element)
+            this.elementsCanvas.addElement(element)
         })
         this.selection.clear()
         this.canvasHistory.continue()
@@ -107,9 +104,9 @@ export class Select implements Tool {
         this.hasSelectionMoved = true
     }
 
-    private updatePointerCursor(point: Point) {
+    private updatePointerCursor(x: number, y: number) {
         const { isPointerOverElement, isPointerOverSelection } =
-            this.getPointerInfo(point)
+            this.getPointerInfo(x, y)
 
         const isPointerOverElementInsideSelection =
             isPointerOverElement && isPointerOverSelection
@@ -123,13 +120,14 @@ export class Select implements Tool {
         }
     }
 
-    onPointerDown(e: PointerEvent) {
+    onPointerDown(e: CanvasPointerEvent) {
         const {
             elementInPointer,
             isPointerOverElement,
             isPointerOverSelection,
-        } = this.getPointerInfo(e)
+        } = this.getPointerInfo(e.canvasX, e.canvasY)
 
+        this.executing = true
         this.hasSelectionMoved = false
 
         if (isPointerOverElement) {
@@ -142,14 +140,14 @@ export class Select implements Tool {
 
         if (isPointerOverElement || isPointerOverSelection) {
             this.isDragging = true
-            this.lastPoint.y = e.y
-            this.lastPoint.x = e.x
+            this.lastPoint.y = e.canvasY
+            this.lastPoint.x = e.canvasX
             return
         }
 
         this.removeSelection()
         this.isBoxSelecting = true
-        this.startPoint = new Point(e.x, e.y)
+        this.startPoint = new Point(e.canvasX, e.canvasY)
     }
 
     private selectElementsInBox(x: number, y: number) {
@@ -171,17 +169,18 @@ export class Select implements Tool {
         })
     }
 
-    onPointerMove(e: PointerEvent) {
+    onPointerMove(e: CanvasPointerEvent) {
         if (this.isBoxSelecting) {
-            this.selectElementsInBox(e.x, e.y)
+            this.selectElementsInBox(e.canvasX, e.canvasY)
         } else if (this.isDragging) {
-            this.moveSelectedElements(e.x, e.y)
+            this.moveSelectedElements(e.canvasX, e.canvasY)
         } else {
-            this.updatePointerCursor(e)
+            this.updatePointerCursor(e.canvasX, e.canvasY)
         }
     }
 
-    onPointerUp(e: PointerEvent) {
+    onPointerUp(e: CanvasPointerEvent) {
+        this.executing = false
         if (this.isBoxSelecting) {
             this.isBoxSelecting = false
             if (this.selectBox) {
@@ -200,12 +199,12 @@ export class Select implements Tool {
         }
 
         const selectedElementInPointer =
-            this.selection.getSelectedElementAtPoint(e.x, e.y)
+            this.selection.getSelectedElementAtPoint(e.canvasX, e.canvasY)
 
         if (selectedElementInPointer) {
             if (e.ctrlKey || e.shiftKey) {
                 this.deselectElement(selectedElementInPointer)
-                this.updatePointerCursor(e)
+                this.updatePointerCursor(e.canvasX, e.canvasY)
             } else {
                 const hasMultipleSelectedElements = this.selection.size > 1
                 this.removeSelection()
@@ -217,8 +216,8 @@ export class Select implements Tool {
         }
 
         const isPointerOverSelection = this.selection.isPointInsideBounds(
-            e.x,
-            e.y
+            e.canvasX,
+            e.canvasY
         )
         if (isPointerOverSelection) {
             this.removeSelection()

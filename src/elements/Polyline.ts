@@ -70,14 +70,11 @@ export class Polyline extends Element {
     }
 
     override draw(canvas: Canvas) {
-        canvas.lineWidth(this.lineWidth)
-        canvas.opacity(this.opacity)
-        canvas.strokeStyle(this.strokeStyle)
-        canvas.fillStyle(this.fillStyle)
+        super.draw(canvas)
         canvas.stroke(this.path)
     }
 
-    override containsPoint(canvas: Canvas, point: Point): boolean {
-        return canvas.isPointInStroke(this.path, point.x, point.y)
+    override containsPoint(x: number, y: number, canvas: Canvas) {
+        return canvas.isPointInStroke(this.path, x, y)
     }
 }

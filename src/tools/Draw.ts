@@ -1,11 +1,11 @@
 import { Canvas } from '../Canvas'
 import { Circle, Polyline } from '../elements'
-import { Tool } from '../types'
+import { CanvasPointerEvent, Tool } from '../types'
 
 export class Draw implements Tool {
     readonly cursor = 'none'
     private drawing = false
-    private pointerEvents: PointerEvent[] = []
+    private canvasPointerEvents: CanvasPointerEvent[] = []
     private currentPath?: Polyline
 
     constructor(
@@ -13,29 +13,33 @@ export class Draw implements Tool {
         private interactionCanvas: Canvas
     ) {}
 
+    get executingAction() {
+        return this.drawing
+    }
+
     private draw() {
         if (!this.drawing || !this.currentPath) return
-        while (this.pointerEvents.length > 0) {
-            const e = this.pointerEvents.shift()!
-            this.currentPath.addPoint(e.x, e.y)
+        while (this.canvasPointerEvents.length > 0) {
+            const e = this.canvasPointerEvents.shift()!
+            this.currentPath.addPoint(e.canvasX, e.canvasY)
         }
         this.interactionCanvas.replaceElements(this.currentPath)
         requestAnimationFrame(() => this.draw())
     }
 
-    onPointerDown(e: PointerEvent) {
+    onPointerDown(e: CanvasPointerEvent) {
         this.drawing = true
-        this.currentPath = new Polyline(e.x, e.y)
-        this.pointerEvents.push(e)
+        this.currentPath = new Polyline(e.canvasX, e.canvasY)
+        this.canvasPointerEvents.push(e)
         this.draw()
     }
 
-    onPointerMove(e: PointerEvent) {
+    onPointerMove(e: CanvasPointerEvent) {
         if (this.drawing) {
             const coalescedEvents = e.getCoalescedEvents()
-            this.pointerEvents.push(...coalescedEvents)
+            this.canvasPointerEvents.push(...coalescedEvents)
         } else {
-            const cursorPath = new Circle(e.x, e.y, 1)
+            const cursorPath = new Circle(e.canvasX, e.canvasY, 1)
             this.interactionCanvas.replaceElements(cursorPath)
         }
     }
@@ -43,10 +47,10 @@ export class Draw implements Tool {
     onPointerUp() {
         if (!this.drawing) return
         this.drawing = false
-        this.pointerEvents.length = 0
+        this.canvasPointerEvents.length = 0
         this.interactionCanvas.removeAll()
         if (!this.currentPath) return
-        this.elementsCanvas.addElementWithTranslation(this.currentPath)
+        this.elementsCanvas.addElement(this.currentPath)
     }
 
     onPointerLeave() {
@@ -55,7 +59,7 @@ export class Draw implements Tool {
 
     abortAction() {
         this.drawing = false
-        this.pointerEvents.length = 0
+        this.canvasPointerEvents.length = 0
         this.interactionCanvas.removeAll()
     }
 }

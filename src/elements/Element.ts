@@ -1,6 +1,5 @@
 import { Canvas } from '../Canvas'
 import { Observable } from '../Observable'
-import { Point } from '../types'
 
 export type ElementProperties = {
     filled?: boolean
@@ -28,8 +27,14 @@ export abstract class Element extends Observable<ElementEventMap> {
     private _opacity = 1
     // protected focused = false
     abstract clone(): Element
-    abstract containsPoint(canvas: Canvas, point: Point): boolean
-    abstract draw(canvas: Canvas): void
+    abstract containsPoint(x: number, y: number, canvas: Canvas): boolean
+    
+    draw(canvas: Canvas) {
+        canvas.lineWidth(this.lineWidth)
+        canvas.opacity(this.opacity)
+        canvas.strokeStyle(this.strokeStyle)
+        canvas.fillStyle(this.fillStyle)
+    }
 
     constructor(elementProperties?: ElementProperties) {
         super()

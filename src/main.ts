@@ -127,13 +127,9 @@ onEvent(interactionCanvas.element, 'drop', (e) => {
     e.preventDefault()
     interactionCanvas.element.classList.remove('dropping')
     const file = e.dataTransfer?.files[0]
+    const position = elementsCanvas.getTranslatedPoint(e.x, e.y)
     if (file) {
-        AddImage.add(
-            file,
-            elementsCanvas,
-            e.x - elementsCanvas.translationX,
-            e.y! - elementsCanvas.translationY
-        )
+        AddImage.add(file, elementsCanvas, position.x, position.y)
     }
 })
 
@@ -160,6 +156,8 @@ onEvent(addImageInput, 'change', () => {
             elementsCanvas.centerY
         )
     }
+    // Clear the input so the same file can be added again
+    addImageInput.value = ''
 })
 
 onEvent(interactionCanvas.element, 'wheel', (e) => {
@@ -173,6 +171,7 @@ onEvent(interactionCanvas.element, 'wheel', (e) => {
         zoomService.zoom(e.deltaY * -ZOOM_SPEED)
     } else {
         elementsCanvas.translate(-e.deltaX, -e.deltaY)
+        interactionCanvas.translate(-e.deltaX, -e.deltaY)
     }
 })
 

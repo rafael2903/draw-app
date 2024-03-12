@@ -1,6 +1,6 @@
 import { Canvas } from '../Canvas'
 import { Element } from '../elements'
-import { Tool } from '../types'
+import { CanvasPointerEvent, Tool } from '../types'
 
 export class Erase implements Tool {
     readonly cursor = 'url(eraser-cursor.png) 13 18, default'
@@ -9,20 +9,27 @@ export class Erase implements Tool {
 
     constructor(private elementsCanvas: Canvas) {}
 
-    private removeElementsAtPoint(e: PointerEvent) {
-        const elementsToRemove = this.elementsCanvas.getElementsAtPoint(e)
+    get executingAction() {
+        return this.erasing
+    }
+
+    private removeElementsAtPoint(e: CanvasPointerEvent) {
+        const elementsToRemove = this.elementsCanvas.getElementsAtPoint(
+            e.canvasX,
+            e.canvasY
+        )
         elementsToRemove.forEach((element) => {
             this.removedElements.push(element)
             element.opacity = 0.3
         })
     }
 
-    onPointerDown(e: PointerEvent) {
+    onPointerDown(e: CanvasPointerEvent) {
         this.erasing = true
         this.removeElementsAtPoint(e)
     }
 
-    onPointerMove(e: PointerEvent) {
+    onPointerMove(e: CanvasPointerEvent) {
         if (!this.erasing || this.elementsCanvas.isEmpty) return
         const coalescedEvents = e.getCoalescedEvents()
         coalescedEvents.forEach((e) => this.removeElementsAtPoint(e))

@@ -2,7 +2,7 @@ import { Canvas } from '../Canvas'
 import { Observable } from '../Observable'
 import { canvasHistory } from '../main'
 import { Draw, DrawShape, Erase, Move, Select, ShapeType } from '../tools'
-import { Tool, ToolName } from '../types'
+import { CanvasPointerEvent, Tool, ToolName } from '../types'
 
 export interface ChangeEvent {
     activeTool: ToolName
@@ -59,34 +59,62 @@ export class ToolsService extends Observable<ToolsServiceEventMap> {
         }
     }
 
-    private handlePointerDown(e: PointerEvent) {
-        if (this.activeTool?.cursorOnPointerDown) {
-            this.interactionCanvas.cursor = this.activeTool?.cursorOnPointerDown
-        }
-        this.interactionCanvas.element.setPointerCapture(e.pointerId)
-        if (e.button === 0) {
-            this.activeTool?.onPointerDown(e)
-        } else if (e.button === 1) {
-            this.interactionCanvas.removeAll()
-            this.tools[ToolName.Move].onPointerDown(e)
+    private setCursor(tool?: Tool) {
+        this.interactionCanvas.cursor = tool?.cursor || 'auto'
+    }
+
+    private setDownCursor(tool?: Tool) {
+        if (tool?.cursorOnPointerDown) {
+            this.interactionCanvas.cursor = tool.cursorOnPointerDown
         }
     }
 
-    private handlePointerMove(e: PointerEvent) {
-        if (e.button === -1 && e.buttons >= 4) {
-            this.tools[ToolName.Move].onPointerMove(e)
+    private handlePointerDown(e: CanvasPointerEvent) {
+        this.interactionCanvas.element.setPointerCapture(e.pointerId)
+        this.setDownCursor(this.activeTool)
+
+        if (e.button === 0) {
+            this.activeTool?.onPointerDown(e)
+        } else if (e.button === 1) {
+            const moveTool = this.tools[ToolName.Move]
+            this.setDownCursor(moveTool)
+            moveTool.onPointerDown(e)
+        }
+    }
+
+    private handlePointerMove(e: CanvasPointerEvent) {
+        const moveTool = this.tools[ToolName.Move]
+        if (e.buttons >= 4) {
+            if (!moveTool.executingAction) {
+                moveTool.onPointerDown(e)
+                this.setDownCursor(moveTool)
+            } else {
+                moveTool.onPointerMove(e)
+            }
         } else {
+            if (moveTool.executingAction) {
+                moveTool.onPointerUp(e)
+                this.setCursor(this.activeTool)
+            }
             this.activeTool?.onPointerMove(e)
         }
     }
 
-    private handlePointerUp(e: PointerEvent) {
-        this.interactionCanvas.cursor = this.activeTool?.cursor || 'auto'
-        if (e.button === 0) {
-            this.activeTool?.onPointerUp(e)
-        } else if (e.button === 1) {
+    private handlePointerUp(e: CanvasPointerEvent) {
+        this.setCursor(this.activeTool)
+        if (e.button === 1) {
             this.tools[ToolName.Move].onPointerUp(e)
+        } else if (e.button === 0) {
+            this.activeTool?.onPointerUp(e)
         }
+    }
+
+    private generateCanvasPointerEvent(e: PointerEvent): CanvasPointerEvent {
+        return new CanvasPointerEvent(
+            this.interactionCanvas.translationX,
+            this.interactionCanvas.translationY,
+            e
+        )
     }
 
     setActiveTool(toolName: ToolName) {
@@ -94,15 +122,20 @@ export class ToolsService extends Observable<ToolsServiceEventMap> {
         if (tool === this.activeTool) return
         this.activeTool?.abortAction?.()
         this.activeTool = tool
-        this.interactionCanvas.cursor = this.activeTool.cursor
+        this.setCursor(this.activeTool)
+
         this.interactionCanvas.element.onpointerdown = (e) =>
-            this.handlePointerDown(e)
+            this.handlePointerDown(this.generateCanvasPointerEvent(e))
+
         this.interactionCanvas.element.onpointermove = (e) =>
-            this.handlePointerMove(e)
+            this.handlePointerMove(this.generateCanvasPointerEvent(e))
+
         this.interactionCanvas.element.onpointerup = (e) =>
-            this.handlePointerUp(e)
+            this.handlePointerUp(this.generateCanvasPointerEvent(e))
+
         this.interactionCanvas.element.onpointerleave = () =>
             this.activeTool?.onPointerLeave?.()
+
         this.emit('active-tool-change', { activeTool: toolName })
     }
 

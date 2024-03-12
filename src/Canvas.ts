@@ -107,11 +107,19 @@ export class Canvas extends Observable<CanvasEventMap> {
     }
 
     isPointInStroke(path: Path2D, x: number, y: number) {
-        return this.ctx.isPointInStroke(path, x, y)
+        return this.ctx.isPointInStroke(
+            path,
+            x + this.translationX,
+            y + this.translationY
+        )
     }
 
     isPointInPath(path: Path2D, x: number, y: number) {
-        return this.ctx.isPointInPath(path, x, y)
+        return this.ctx.isPointInPath(
+            path,
+            x + this.translationX,
+            y + this.translationY
+        )
     }
 
     private drawElements() {
@@ -128,7 +136,6 @@ export class Canvas extends Observable<CanvasEventMap> {
             element.off('change', this.onElementChange)
         })
         newElements.forEach((element) => {
-            element.translate(-this.translationX, -this.translationY)
             element.on('change', this.onElementChange)
         })
         this.elements.splice(0, Infinity, ...newElements)
@@ -144,11 +151,6 @@ export class Canvas extends Observable<CanvasEventMap> {
         this.redraw()
         this.emitChangeEvent()
         this.emit('element-changed', element)
-    }
-
-    addElementWithTranslation(element: Element) {
-        element.translate(-this.translationX, -this.translationY)
-        this.addElement(element)
     }
 
     addElement(element: Element) {
@@ -184,9 +186,9 @@ export class Canvas extends Observable<CanvasEventMap> {
         return elements.map((element) => this.removeElement(element))
     }
 
-    removeElementAtPoint(point: Point) {
+    removeElementAtPoint(x: number, y: number) {
         const elementToRemoveIndex = this.elements.findLastIndex((element) => {
-            return element.containsPoint(this, point)
+            return element.containsPoint(x, y, this)
         })
 
         if (elementToRemoveIndex !== -1) {
@@ -194,23 +196,23 @@ export class Canvas extends Observable<CanvasEventMap> {
         }
     }
 
-    getElementAtPoint(point: Point) {
-        return this.getElementsAtPoint(point).at(-1)
+    getElementAtPoint(x: number, y: number) {
+        return this.getElementsAtPoint(x, y).at(-1)
     }
 
-    getElementsAtPoint(point: Point) {
+    getElementsAtPoint(x: number, y: number) {
         return this.elements.filter((element) => {
-            return element.containsPoint(this, point)
+            return element.containsPoint(x, y, this)
         })
     }
 
     getElementsInBox(x: number, y: number, width: number, height: number) {
         return this.elements.filter((element) => {
             return (
-                element.x >= x - this._translationX &&
-                element.x + element.width <= x + width - this._translationX &&
-                element.y >= y - this._translationY &&
-                element.y + element.height <= y + height - this._translationY
+                element.x >= x &&
+                element.x + element.width <= x + width &&
+                element.y >= y &&
+                element.y + element.height <= y + height
             )
         })
     }
@@ -233,6 +235,10 @@ export class Canvas extends Observable<CanvasEventMap> {
 
     get translationY() {
         return this._translationY
+    }
+
+    getTranslatedPoint(x: number, y: number) {
+        return new Point(x - this._translationX, y - this._translationY)
     }
 
     get centerX() {

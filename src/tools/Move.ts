@@ -1,5 +1,5 @@
 import { Canvas } from '../Canvas'
-import { Point, Tool } from '../types'
+import { CanvasPointerEvent, Point, Tool } from '../types'
 
 export class Move implements Tool {
     readonly cursor = 'grab'
@@ -9,24 +9,27 @@ export class Move implements Tool {
 
     constructor(
         private elementsCanvas: Canvas,
-        // @ts-ignore
         private interactionCanvas: Canvas
     ) {}
 
-    onPointerDown(e: PointerEvent) {
+    get executingAction() {
+        return this.dragging
+    }
+
+    onPointerDown(e: CanvasPointerEvent) {
         this.dragging = true
         this.lastPoint.x = e.x
         this.lastPoint.y = e.y
     }
 
-    onPointerMove(e: PointerEvent) {
+    onPointerMove(e: CanvasPointerEvent) {
         if (!this.dragging) return
         const deltaX = e.x - this.lastPoint.x
         const deltaY = e.y - this.lastPoint.y
         this.lastPoint.x = e.x
         this.lastPoint.y = e.y
         this.elementsCanvas.translate(deltaX, deltaY)
-        // this.interactionCanvas.translate(deltaX, deltaY)
+        this.interactionCanvas.translate(deltaX, deltaY)
     }
 
     onPointerUp() {

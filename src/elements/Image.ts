@@ -1,5 +1,4 @@
 import { Canvas } from '../Canvas'
-import { Point } from '../types'
 import { Element, ElementProperties } from './Element'
 
 export class ImageElement extends Element {
@@ -50,15 +49,16 @@ export class ImageElement extends Element {
     }
 
     override draw(canvas: Canvas) {
+        super.draw(canvas)
         canvas.drawImage(this.image, this.x, this.y)
     }
 
-    override containsPoint(canvas: Canvas, point: Point): boolean {
+    override containsPoint(x: number, y: number) {
         return (
-            point.x - canvas.translationX >= this.x &&
-            point.x - canvas.translationX <= this.x + this.width &&
-            point.y - canvas.translationY >= this.y &&
-            point.y - canvas.translationY <= this.y + this.height
+            x >= this.x &&
+            x <= this.x + this.width &&
+            y >= this.y &&
+            y <= this.y + this.height
         )
     }
 }

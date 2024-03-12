@@ -9,7 +9,7 @@ import {
     Square,
     Triangle,
 } from '../elements'
-import { Point, Tool } from '../types'
+import { CanvasPointerEvent, Point, Tool } from '../types'
 
 export enum ShapeType {
     Line,
@@ -64,18 +64,31 @@ export class DrawShape implements Tool {
         this.shapeFactory = DrawShape.shapes[shape]
     }
 
-    onPointerDown(e: PointerEvent) {
-        this.drawing = true
-        this.startPoint = new Point(e.x, e.y)
+    get executingAction() {
+        return this.drawing
     }
 
-    onPointerMove(e: PointerEvent) {
-        if (!this.drawing) return
-        const { x, y } = this.startPoint!
+    onPointerDown(e: CanvasPointerEvent) {
+        this.drawing = true
+        this.startPoint = new Point(e.canvasX, e.canvasY)
+    }
+
+    onPointerMove(e: CanvasPointerEvent) {
+        if (!this.drawing || !this.startPoint) return
         if (e.shiftKey) {
-            this.currentPath = this.shapeFactory.shifted(x, y, e.x, e.y)
+            this.currentPath = this.shapeFactory.shifted(
+                this.startPoint.x,
+                this.startPoint.y,
+                e.canvasX,
+                e.canvasY
+            )
         } else {
-            this.currentPath = this.shapeFactory.default(x, y, e.x, e.y)
+            this.currentPath = this.shapeFactory.default(
+                this.startPoint.x,
+                this.startPoint.y,
+                e.canvasX,
+                e.canvasY
+            )
         }
         this.interactionCanvas.replaceElements(this.currentPath)
     }
@@ -84,7 +97,7 @@ export class DrawShape implements Tool {
         if (!this.drawing) return
         this.drawing = false
         if (!this.currentPath) return
-        this.elementsCanvas.addElementWithTranslation(this.currentPath)
+        this.elementsCanvas.addElement(this.currentPath)
         this.interactionCanvas.removeAll()
     }
 
