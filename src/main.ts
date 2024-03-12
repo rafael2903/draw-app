@@ -71,8 +71,8 @@ new ShapesUIService(toolsService)
 
 onEvent(clearCanvasButton, 'click', () => {
     toolsService.cancelActiveToolAction()
-    interactionCanvas.clear()
-    elementsCanvas.clear()
+    interactionCanvas.removeAll()
+    elementsCanvas.removeAll()
 })
 
 onEvent(downloadCanvasImageButton, 'click', () => {

@@ -10,17 +10,15 @@ interface CanvasEventMap {
 }
 
 export class Canvas extends Observable<CanvasEventMap> {
-    element: HTMLCanvasElement // todo: tornar privado e criar métodos para notificar eventos
     private ctx: CanvasRenderingContext2D
     private elements: Element[] = []
     private _translationX = 0
     private _translationY = 0
-    private _currentScale = 1.0
+    private _scale = 1.0
     private _cursor = 'default'
 
-    constructor(element: HTMLCanvasElement) {
+    constructor(readonly element: HTMLCanvasElement) {
         super()
-        this.element = element
         this.ctx = element.getContext('2d')!
         this.ctx.lineCap = 'round'
         this.ctx.lineJoin = 'round'
@@ -63,10 +61,10 @@ export class Canvas extends Observable<CanvasEventMap> {
 
     private updateTransformationMatrix() {
         this.ctx.setTransform(
-            this._currentScale,
+            this._scale,
             0,
             0,
-            this._currentScale,
+            this._scale,
             this._translationX,
             this._translationY
         )
@@ -138,7 +136,7 @@ export class Canvas extends Observable<CanvasEventMap> {
         this.emitChangeEvent()
     }
 
-    clear() {
+    removeAll() {
         this.replaceElements()
     }
 
@@ -246,27 +244,26 @@ export class Canvas extends Observable<CanvasEventMap> {
     }
 
     setScale(newScale: number) {
-        this._currentScale = newScale
-        this.updateTransformationMatrix()
+        this._scale = newScale
         this.redraw()
-        return this._currentScale
+        return this._scale
     }
 
-    scale(scalingFactor: number) {
-        const newScale = this._currentScale + scalingFactor
+    scale(scaleAmount: number) {
+        const newScale = this._scale + scaleAmount
         return this.setScale(newScale)
     }
 
     get currentScale() {
-        return this._currentScale
+        return this._scale
     }
 
     getState() {
-        return this.elements.map((el) => el.clone())
+        return this.elements.map((element) => element.clone())
     }
 
     restoreState(elements: Element[]) {
-        this.replaceElements(...elements.map((el) => el.clone()))
+        this.replaceElements(...elements.map((element) => element.clone()))
     }
 
     toImageURL(type?: string, quality?: number) {

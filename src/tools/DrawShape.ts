@@ -85,11 +85,11 @@ export class DrawShape implements Tool {
         this.drawing = false
         if (!this.currentPath) return
         this.elementsCanvas.addElementWithTranslation(this.currentPath)
-        this.interactionCanvas.clear()
+        this.interactionCanvas.removeAll()
     }
 
     abortAction() {
         this.drawing = false
-        this.interactionCanvas.clear()
+        this.interactionCanvas.removeAll()
     }
 }

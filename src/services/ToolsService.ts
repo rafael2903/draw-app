@@ -67,7 +67,7 @@ export class ToolsService extends Observable<ToolsServiceEventMap> {
         if (e.button === 0) {
             this.activeTool?.onPointerDown(e)
         } else if (e.button === 1) {
-            this.interactionCanvas.clear()
+            this.interactionCanvas.removeAll()
             this.tools[ToolName.Move].onPointerDown(e)
         }
     }

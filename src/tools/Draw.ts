@@ -44,18 +44,18 @@ export class Draw implements Tool {
         if (!this.drawing) return
         this.drawing = false
         this.pointerEvents.length = 0
-        this.interactionCanvas.clear()
+        this.interactionCanvas.removeAll()
         if (!this.currentPath) return
         this.elementsCanvas.addElementWithTranslation(this.currentPath)
     }
 
     onPointerLeave() {
-        this.interactionCanvas.clear()
+        this.interactionCanvas.removeAll()
     }
 
     abortAction() {
         this.drawing = false
         this.pointerEvents.length = 0
-        this.interactionCanvas.clear()
+        this.interactionCanvas.removeAll()
     }
 }

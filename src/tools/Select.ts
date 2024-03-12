@@ -66,7 +66,7 @@ export class Select implements Tool {
     }
 
     private removeSelection() {
-        this.interactionCanvas.clear()
+        this.interactionCanvas.removeAll()
         this.selection.forEach((element) => {
             this.elementsCanvas.addElementWithTranslation(element)
         })
