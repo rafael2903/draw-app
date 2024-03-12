@@ -69,13 +69,39 @@ export class ToolsService extends Observable<ToolsServiceEventMap> {
         }
     }
 
+    private getPressedButtons(e: PointerEvent) {
+        if (e.button == -1)
+            return {
+                leftButtonPressed:
+                    e.buttons === 1 ||
+                    e.buttons === 3 ||
+                    e.buttons === 5 ||
+                    e.buttons === 7,
+                middleButtonPressed: e.buttons >= 4,
+                rightButtonPressed:
+                    e.buttons === 2 ||
+                    e.buttons === 3 ||
+                    e.buttons === 6 ||
+                    e.buttons === 7,
+            }
+
+        return {
+            leftButtonPressed: e.button === 0,
+            middleButtonPressed: e.button === 1,
+            rightButtonPressed: e.button === 2,
+        }
+    }
+
     private handlePointerDown(e: CanvasPointerEvent) {
         this.interactionCanvas.element.setPointerCapture(e.pointerId)
         this.setDownCursor(this.activeTool)
 
-        if (e.button === 0) {
+        const { leftButtonPressed, middleButtonPressed } =
+            this.getPressedButtons(e)
+
+        if (leftButtonPressed) {
             this.activeTool?.onPointerDown(e)
-        } else if (e.button === 1) {
+        } else if (middleButtonPressed) {
             const moveTool = this.tools[ToolName.Move]
             this.setDownCursor(moveTool)
             moveTool.onPointerDown(e)
@@ -84,7 +110,8 @@ export class ToolsService extends Observable<ToolsServiceEventMap> {
 
     private handlePointerMove(e: CanvasPointerEvent) {
         const moveTool = this.tools[ToolName.Move]
-        if (e.buttons >= 4) {
+        const { middleButtonPressed } = this.getPressedButtons(e)
+        if (middleButtonPressed) {
             if (!moveTool.executingAction) {
                 moveTool.onPointerDown(e)
                 this.setDownCursor(moveTool)
@@ -102,9 +129,11 @@ export class ToolsService extends Observable<ToolsServiceEventMap> {
 
     private handlePointerUp(e: CanvasPointerEvent) {
         this.setCursor(this.activeTool)
-        if (e.button === 1) {
+        const { leftButtonPressed, middleButtonPressed } =
+            this.getPressedButtons(e)
+        if (middleButtonPressed) {
             this.tools[ToolName.Move].onPointerUp(e)
-        } else if (e.button === 0) {
+        } else if (leftButtonPressed) {
             this.activeTool?.onPointerUp(e)
         }
     }
