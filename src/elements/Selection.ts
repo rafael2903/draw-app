@@ -3,6 +3,8 @@ import { Shape } from './Shape'
 
 export class Selection extends Shape {
     private selectedElements: Set<Element>
+    private elementMovedMap = new Map<Element, boolean>()
+    private _hasMoved = false
 
     constructor(
         selectedElements?: Iterable<Element>,
@@ -55,7 +57,9 @@ export class Selection extends Shape {
 
     removeElement(element: Element) {
         this.selectedElements.delete(element)
+        this.elementMovedMap.delete(element)
         this.calculateBoundingBox()
+        if (this.isEmpty) this._hasMoved = false
     }
 
     hasElement(element: Element) {
@@ -64,7 +68,9 @@ export class Selection extends Shape {
 
     clear() {
         this.selectedElements.clear()
+        this.elementMovedMap.clear()
         this.calculateBoundingBox()
+        this._hasMoved = false
     }
 
     [Symbol.iterator]() {
@@ -102,9 +108,21 @@ export class Selection extends Shape {
         )
     }
 
+    get hasMoved() {
+        return this._hasMoved
+    }
+
     override translate(x: number, y: number) {
-        this.selectedElements.forEach((element) => element.translate(x, y))
+        this.selectedElements.forEach((element) => {
+            this.elementMovedMap.set(element, true)
+            element.translate(x, y)
+        })
+        this._hasMoved = true
         super.translate(x, y)
+    }
+
+    hasElementMoved(element: Element) {
+        return this.elementMovedMap.get(element) || false
     }
 
     // private getBorderPath(x: number, y: number, width: number, height: number) {

@@ -55,22 +55,25 @@ export class Select implements Tool {
     }
 
     private deselectElement(element: Element) {
-        // this.canvasHistory.pause()
+        if (!this.selection.hasElementMoved(element)) this.canvasHistory.pause()
+
         this.selection.removeElement(element)
         if (this.selection.isEmpty) {
             this.interactionCanvas.removeElement(this.selection)
         }
         this.interactionCanvas.removeElement(element)
         this.elementsCanvas.addElementWithTranslation(element)
-        // this.canvasHistory.continue()
+        this.canvasHistory.continue()
     }
 
     private removeSelection() {
+        if (!this.selection.hasMoved) this.canvasHistory.pause()
         this.interactionCanvas.removeAll()
         this.selection.forEach((element) => {
             this.elementsCanvas.addElementWithTranslation(element)
         })
         this.selection.clear()
+        this.canvasHistory.continue()
     }
 
     private drawSelectBox(x: number, y: number) {
