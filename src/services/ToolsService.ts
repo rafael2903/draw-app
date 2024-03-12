@@ -92,7 +92,7 @@ export class ToolsService extends Observable<ToolsServiceEventMap> {
                 moveTool.onPointerMove(e)
             }
         } else {
-            if (moveTool.executingAction) {
+            if (moveTool.executingAction && this.activeTool !== moveTool) {
                 moveTool.onPointerUp(e)
                 this.setCursor(this.activeTool)
             }
