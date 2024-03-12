@@ -16,7 +16,7 @@ export class Rectangle extends Shape {
         this.height = height
     }
 
-    static override fromTwoPoints(
+    static fromTwoPoints(
         startPointX: number,
         startPointY: number,
         endPointX: number,

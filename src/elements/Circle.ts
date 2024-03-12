@@ -15,7 +15,7 @@ export class Circle extends Shape {
         this.height = radius * 2
     }
 
-    static override fromTwoPoints(
+    static fromTwoPoints(
         startPointX: number,
         startPointY: number,
         endPointX: number,

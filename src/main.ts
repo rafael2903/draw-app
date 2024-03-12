@@ -69,7 +69,11 @@ const toolsService = new ToolsService(elementsCanvas, interactionCanvas)
 new ToolbarUIService(toolsService)
 new ShapesUIService(toolsService)
 
-onEvent(clearCanvasButton, 'click', () => elementsCanvas.clear())
+onEvent(clearCanvasButton, 'click', () => {
+    toolsService.cancelActiveToolAction()
+    interactionCanvas.clear()
+    elementsCanvas.clear()
+})
 
 onEvent(downloadCanvasImageButton, 'click', () => {
     ExportCanvasService.download(elementsCanvas)

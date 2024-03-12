@@ -1,3 +1,5 @@
+import { Canvas } from '../Canvas'
+import { Point } from '../types'
 import { ElementProperties } from './Element'
 import { Shape } from './Shape'
 
@@ -70,5 +72,9 @@ export class Line extends Shape {
         path.moveTo(this.x, this.y)
         path.lineTo(this.x + this.width, this.y + this.height)
         return path
+    }
+
+    override containsPoint(canvas: Canvas, point: Point): boolean {
+        return canvas.isPointInStroke(this.path, point.x, point.y)
     }
 }

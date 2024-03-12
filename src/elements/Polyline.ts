@@ -1,3 +1,4 @@
+import { Canvas } from '../Canvas'
 import { Point } from '../types'
 import { Element, ElementProperties } from './Element'
 
@@ -66,5 +67,17 @@ export class Polyline extends Element {
         path.lineTo(firstPoint.x, firstPoint.y)
         points.forEach(({ x, y }) => path.lineTo(x, y))
         return path
+    }
+
+    override draw(canvas: Canvas) {
+        canvas.lineWidth(this.lineWidth)
+        canvas.opacity(this.opacity)
+        canvas.strokeStyle(this.strokeStyle)
+        canvas.fillStyle(this.fillStyle)
+        canvas.stroke(this.path)
+    }
+
+    override containsPoint(canvas: Canvas, point: Point): boolean {
+        return canvas.isPointInStroke(this.path, point.x, point.y)
     }
 }

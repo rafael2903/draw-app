@@ -1,12 +1,5 @@
 import { Observable } from './Observable'
-import {
-    Element,
-    ImageElement,
-    Line,
-    Polyline,
-    Selection,
-    Shape,
-} from './elements'
+import { Element } from './elements'
 import { Point } from './types'
 
 interface CanvasEventMap {
@@ -87,28 +80,44 @@ export class Canvas extends Observable<CanvasEventMap> {
         this.ctx.lineJoin = 'round'
     }
 
-    private drawElement(element: Element) {
-        this.ctx.lineWidth = element.lineWidth
-        this.ctx.globalAlpha = element.opacity
-        element.strokeStyle && (this.ctx.strokeStyle = element.strokeStyle)
-        element.fillStyle && (this.ctx.fillStyle = element.fillStyle)
+    lineWidth(value: number) {
+        this.ctx.lineWidth = value
+    }
 
-        if (element instanceof ImageElement) {
-            this.ctx.drawImage(element.image, element.x, element.y)
-        }
+    fillStyle(value: string) {
+        this.ctx.fillStyle = value
+    }
 
-        if (
-            element instanceof Shape ||
-            element instanceof Polyline ||
-            element instanceof Selection
-        ) {
-            element.filled && this.ctx.fill(element.path)
-            element.stroked && this.ctx.stroke(element.path)
-        }
+    strokeStyle(value: string) {
+        this.ctx.strokeStyle = value
+    }
+
+    opacity(value: number) {
+        this.ctx.globalAlpha = value
+    }
+
+    drawImage(image: HTMLImageElement, x: number, y: number) {
+        this.ctx.drawImage(image, x, y)
+    }
+
+    fill(path: Path2D) {
+        this.ctx.fill(path)
+    }
+
+    stroke(path: Path2D) {
+        this.ctx.stroke(path)
+    }
+
+    isPointInStroke(path: Path2D, x: number, y: number) {
+        return this.ctx.isPointInStroke(path, x, y)
+    }
+
+    isPointInPath(path: Path2D, x: number, y: number) {
+        return this.ctx.isPointInPath(path, x, y)
     }
 
     private drawElements() {
-        this.elements.forEach((element) => this.drawElement(element))
+        this.elements.forEach((element) => element.draw(this))
     }
 
     private redraw() {
@@ -146,7 +155,7 @@ export class Canvas extends Observable<CanvasEventMap> {
 
     addElement(element: Element) {
         this.elements.push(element)
-        this.drawElement(element)
+        element.draw(this)
         element.on('change', this.onElementChange)
         this.emitChangeEvent()
         this.emit('element-added', element)
@@ -177,28 +186,9 @@ export class Canvas extends Observable<CanvasEventMap> {
         return elements.map((element) => this.removeElement(element))
     }
 
-    private isPointInStroke(element: Element, point: Point) {
-        if (element instanceof Polyline || element instanceof Line) {
-            return this.ctx.isPointInStroke(element.path, point.x, point.y)
-        }
-
-        if (element instanceof Shape) {
-            return this.ctx.isPointInPath(element.path, point.x, point.y)
-        }
-
-        if (element instanceof ImageElement) {
-            return (
-                point.x - this._translationX >= element.x &&
-                point.x - this._translationX <= element.x + element.width &&
-                point.y - this._translationY >= element.y &&
-                point.y - this._translationY <= element.y + element.height
-            )
-        }
-    }
-
     removeElementAtPoint(point: Point) {
         const elementToRemoveIndex = this.elements.findLastIndex((element) => {
-            return this.isPointInStroke(element, point)
+            return element.containsPoint(this, point)
         })
 
         if (elementToRemoveIndex !== -1) {
@@ -212,7 +202,7 @@ export class Canvas extends Observable<CanvasEventMap> {
 
     getElementsAtPoint(point: Point) {
         return this.elements.filter((element) => {
-            return this.isPointInStroke(element, point)
+            return element.containsPoint(this, point)
         })
     }
 

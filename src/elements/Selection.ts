@@ -1,6 +1,7 @@
 import { Element, ElementProperties } from './Element'
+import { Shape } from './Shape'
 
-export class Selection extends Element {
+export class Selection extends Shape {
     private selectedElements: Set<Element>
 
     constructor(
